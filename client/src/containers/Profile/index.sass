@@ -1,0 +1,100 @@
+/* ------------------------------------------------------------------- */
+/*                              Variables
+/* ------------------------------------------------------------------- */
+
+@import '../../variables.sass'
+
+/* ------------------------------------------------------------------- */
+/*                              Profile
+/* ------------------------------------------------------------------- */
+
+.Profile
+  align-items: flex-start
+  align-content: flex-start
+
+  &-Edit
+    margin: 0 auto
+    display: flex
+    flex-wrap: wrap
+    justify-content: space-between
+    align-items: flex-start
+    align-items: flex-start
+    margin-bottom: $margin
+    flex-grow: 1
+    width: 100%
+
+    @media screen and (max-width: 530px)
+      justify-content: center
+
+  &-Img
+    width: 150px
+    height: auto
+    max-height: 250px
+    margin-right: $margin
+
+    @media screen and (max-width: 530px)
+      margin: 0 20px
+      margin-bottom: $margin
+
+    img
+      width: 150px
+      height: 200px
+      border: $width solid $main
+      border-radius: $radius
+      object-fit: cover
+
+    form
+      width: 150px
+
+    input
+      display: none
+
+    label
+      display: block
+      width: 100%
+      height: 30px
+      line-height: 30px
+      text-align: center
+      border: 1px solid $main
+      border-radius: $radius
+      color: $light
+      background-color: $main
+      cursor: pointer
+      transition: all $time
+
+      &:hover
+        background-color: $additional
+
+  &-Form.Form
+    width: auto
+    margin: 0 auto
+    flex-grow: 1
+
+    div
+      // justify-content: space-around
+
+    label, input:not([type='submit']), select
+      width: 100px !important
+      flex-grow: 1
+      max-width: 230px
+
+      @media screen and (max-width: 414px)
+        width: 230px !important
+        max-width: 100%
+        text-align: center
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ------------------------------------------------------------------- */
+/*                              End
+/* ------------------------------------------------------------------- */

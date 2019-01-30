@@ -1,0 +1,51 @@
+[
+  {
+    "type": "text",
+    "id": "title",
+    "label": "Enter title",
+    "placeholder": "Enter title",
+    "defaultValue": "this.state.title"
+  },
+  {
+    "type": "number",
+    "id": "amount",
+    "label": "Enter amount",
+    "placeholder": "Enter amount",
+    "defaultValue": "this.state.amount"
+  },
+  {
+    "type": "number",
+    "id": "price",
+    "label": "Enter price",
+    "placeholder": "Enter price",
+    "defaultValue": "this.state.price"
+  },
+  {
+    "type": "number",
+    "id": "protein",
+    "label": "Enter proteins",
+    "placeholder": "Enter proteins",
+    "defaultValue": "this.state.protein"
+  },
+  {
+    "type": "number",
+    "id": "fats",
+    "label": "Enter fats",
+    "placeholder": "Enter fats",
+    "defaultValue": "this.state.fats"
+  },
+  {
+    "type": "number",
+    "id": "carbs",
+    "label": "Enter carbohydrates",
+    "placeholder": "Enter carbohydrates",
+    "defaultValue": "this.state.carbs"
+  },
+  {
+    "type": "text",
+    "id": "ccal",
+    "label": "Calories",
+    "value": "this.state.ccal",
+    "disabled": true
+  }
+]

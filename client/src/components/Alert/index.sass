@@ -1,0 +1,61 @@
+/* ------------------------------------------------------------------- */
+/*                              Variables
+/* ------------------------------------------------------------------- */
+
+@import '../../variables.sass'
+
+/* ------------------------------------------------------------------- */
+/*                              Message
+/* ------------------------------------------------------------------- */
+
+.Message
+  position: fixed
+  top: 20px
+  right: 20px
+  padding: 15px
+  display: flex
+  align-items: center
+  justify-content: center
+  width: 280px
+  box-shadow: 2px 2px 0 $dark
+  opacity: .97
+  transition: all 1s
+
+  @media screen and (max-width: 1050px)
+    top: 10px
+    right: 10px
+    width: 260px
+
+  &_success
+    background-color: $main
+
+  &_error
+    background-color: $error
+
+  &-Close
+    position: absolute
+    top: 5px
+    right: 5px
+    width: 15px
+    height: 15px
+    background-image: url('./times.svg')
+    background-repeat: no-repeat
+    background-position: center
+    background-size: contain
+    cursor: pointer
+    transition: all $time /2
+
+    @media screen and (min-width: 768px)
+      &:hover
+        transform: scale(0.75)
+
+
+
+
+
+
+
+
+  /* ------------------------------------------------------------------- */
+  /*                              End
+  /* ------------------------------------------------------------------- */

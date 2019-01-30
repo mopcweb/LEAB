@@ -1,0 +1,82 @@
+/* ------------------------------------------------------------------- */
+/*                              Variables
+/* ------------------------------------------------------------------- */
+
+@import '../../variables.sass'
+
+/* ------------------------------------------------------------------- */
+/*                              Form
+/* ------------------------------------------------------------------- */
+
+.Form
+  width: 100%
+  max-width: 100%
+  border: $width solid $main
+  border-radius: $radius
+  background-color: $additional
+
+  form
+    padding: 0 10px
+
+  &-Rows
+    display: flex
+    flex-wrap: wrap
+    justify-content: space-between
+    align-items: center
+    align-content: center
+
+  label, input, select, a
+    margin: 5px 0
+    width: 150px
+
+  label
+    flex-grow: 1
+    max-width: 230px
+    cursor: pointer
+
+  input, select, a
+    padding-left: 5px
+    height: 30px
+    border: 1px solid $main
+    border-radius: $radius
+    text-align: center
+
+    &:hover, &:focus
+      background-color: $additional
+
+  select
+    // -webkit-appearance: listbox
+
+  input[type='submit'], a
+    margin: 10px auto
+    padding: 0
+    display: flex
+    justify-content: center
+    align-items: center
+    width: 200px
+    color: $light
+    background-color: $main
+    cursor: pointer
+    transition: all $time / 2
+
+    &:hover
+      background-color: $additional
+
+  input[disabled]
+    background-color: $additional
+
+  @media screen and (max-width: 550px)
+    label, input, select, a
+      width: 100% !important
+
+
+
+
+
+
+
+
+
+/* ------------------------------------------------------------------- */
+/*                              End
+/* ------------------------------------------------------------------- */

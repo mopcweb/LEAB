@@ -1,0 +1,18 @@
+[
+  {
+    "cat": "Soups",
+    "img": "https://images.pexels.com/photos/1171170/pexels-photo-1171170.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"
+  },
+  {
+    "cat": "Second",
+    "img": "https://images.pexels.com/photos/1233319/pexels-photo-1233319.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"
+  },
+  {
+    "cat": "Salad",
+    "img": "https://images.pexels.com/photos/533307/pexels-photo-533307.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"
+  },
+  {
+    "cat": "garnier",
+    "img": "https://images.pexels.com/photos/36740/vegetables-vegetable-basket-harvest-garden.jpg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"
+  }
+]

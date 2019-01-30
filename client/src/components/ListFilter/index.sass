@@ -1,0 +1,272 @@
+/* ------------------------------------------------------------------- */
+/*                              Variables
+/* ------------------------------------------------------------------- */
+
+@import '../../variables.sass'
+
+/* ------------------------------------------------------------------- */
+/*                              Products
+/* ------------------------------------------------------------------- */
+
+.List
+  width: 100%
+
+  &-Categories
+    margin: 0 auto $margin
+    border: $width solid $main
+    border-radius: $radius
+
+    & > div
+      padding: 10px
+      display: flex
+      flex-wrap: wrap
+      justify-content: center
+
+    h2
+      display: flex
+      flex-wrap: wrap
+      justify-content: space-between
+      align-items: center
+
+      a, span, button
+        border-bottom: 1px solid transparent
+
+      a, button
+        margin-left: $margin
+        padding: 0px 10px
+        display: inline-block
+        max-width: 300px
+        text-align: center
+        color: $light
+        background-color: $main
+        cursor: pointer
+        transition: all $time / 2
+
+        &:hover
+          // color: $main
+          border-bottom: 1px solid $light
+          // background-color: $light
+
+  &-Category
+    position: relative
+    margin: 10px
+    padding: 0 55px
+    width: 250px
+    flex-grow: 1
+    min-height: 50px
+    border: $width solid $main
+    border-radius: $radius
+    text-align: center
+    line-height: 50px - $width * 2
+    color: $light
+    background-color: $dark
+    background-image: url('https://images.pexels.com/photos/793759/pexels-photo-793759.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260')
+    background-position: center
+    background-size: cover
+    background-repeat: no-repeat
+    cursor: pointer
+    transition: all $time / 2
+
+    @media screen and (max-width: 768px)
+      width: 100px
+      padding: 0
+
+    span
+      position: relative
+      // display: -webkit-box
+      // -webkit-line-clamp: 1
+      // -webkit-box-orient: vertical
+      font-size: $font / 2.5
+      z-index: 12
+
+    &:after
+      position: absolute
+      top: 0
+      left: 0
+      right: 0
+      bottom: 0
+      display: block
+      content: ""
+      background-color: $dark
+      opacity: 0.75
+      border-radius: $radius - $width
+      z-index: 10
+
+    &:before
+      position: absolute
+      top: 0
+      bottom: 0
+      left: 0
+      width: 0
+      display: block
+      content: ""
+      background-color: $main
+      transition: all $time / 2
+      z-index: 11
+
+    &:hover, &_clicked
+      background-position: 50px 50%
+
+      &:before
+        width: 50px
+
+  &-Controls
+    display: flex
+    flex-wrap: wrap
+    justify-content: flex-start
+    align-items: flex-end
+
+    input, a
+      margin: 0 10px $margin
+      display: block
+      width: 400px
+      height: 40px
+      line-height: 40px - $width * 2
+      max-width: 100%
+      border: $width solid $main
+      border-bottom: 1px solid $main
+      border-radius: $radius
+      text-align: center
+      transition: all $time / 2
+
+    input:hover, input:focus
+      background-color: $additional
+
+    a
+      width: 200px
+      background-color: $main
+      cursor: pointer
+
+      &:hover
+        background-color: $additional
+
+  &-Table
+    width: 100%
+    border: $width solid $main
+    border-radius: $radius
+    background-color: $additional
+
+    table
+      width: 100%
+      border-collapse: collapse
+
+      @media screen and (max-width: 1250px)
+        word-break: break-word
+
+      @media screen and (max-width: 650px)
+        font-size: $font / 4
+
+    th
+      padding: 5px 10px
+      border-top: 1px solid transparent
+      font-size: $font / 2.5
+      color: $light
+      background-color: $main
+      cursor: pointer
+      transition: all $time / 2
+
+      &:hover, &.clicked
+        border-top: 1px solid $main
+        color: $main
+        background-color: $additional
+
+      &:not(:last-of-type)
+        border-right: 1px solid $main
+
+      // Prevent overflow for clicked last th
+      &:last-of-type
+        border-top-right-radius: $radius - $width
+
+      // Prevent overflow for clicked first th
+      &:first-of-type
+        border-top-left-radius: $radius - $width
+
+      &:not(:first-of-type):not(:last-of-type)
+        width: 10%
+
+      @media screen and (max-width: 1250px)
+        font-size: 0
+
+        &:not(:first-of-type)
+          width: 20%
+
+      @media screen and (max-width: 650px)
+        &:nth-of-type(2)
+          width: 50px !important
+
+          @media screen and (max-width: 414px)
+            width: 45px !important
+
+    span
+      display: none
+
+      @media screen and (max-width: 1250px)
+        display: inline
+        font-size: $font / 3
+
+      @media screen and (max-width: 650px)
+        font-size: $font / 4
+
+      @media screen and (max-width: 414px)
+        font-size: $font / 5
+
+  // Rows - Items
+  &-Item
+
+    // Border bottom for all rows among last
+    &:not(:last-of-type)
+      border-bottom: 1px solid $main
+
+    // Border radius for picture in last row not to overflow
+    &:last-of-type
+      img
+        border-bottom-left-radius: $radius - $width
+
+    td
+      text-align: center
+
+      @media screen and (max-width: 414px)
+        font-size: $font / 5
+
+      // Border right for all cells among last
+      &:not(:last-of-type)
+        border-right: 1px solid $main
+
+      // Cell with img
+      &:first-of-type
+        width: 100px
+        height: 100px
+
+        @media screen and (max-width: 1250px)
+          width: 70px
+          height: 70px
+
+        @media screen and (max-width: 600px)
+          width: 50px
+          height: 50px
+
+        @media screen and (max-width: 360px)
+          width: 30px
+          height: 30px
+
+        img
+          margin: 0 auto
+          display: block
+          width: 100%
+          height: 100%
+          object-fit: cover
+
+      // Cell after img
+      &:nth-of-type(2)
+
+        @media screen and (max-width: 1000px)
+          width: auto
+
+
+
+
+
+
+/* ------------------------------------------------------------------- */
+/*                              End
+/* ------------------------------------------------------------------- */

@@ -1,0 +1,64 @@
+/* ------------------------------------------------------------------- */
+/*                              Variables
+/* ------------------------------------------------------------------- */
+
+@import '../../variables.sass'
+
+/* ------------------------------------------------------------------- */
+/*                              Menu
+/* ------------------------------------------------------------------- */
+
+.Menu
+  justify-content: space-around
+  align-items: flex-start
+  align-content: flex-start
+
+  &-Item
+    margin: $margin auto
+    width: 260px
+    background-color: $additional
+
+    img
+      display: block
+      width: 100%
+
+  &-Data
+    padding: 0 10px
+
+    a
+      margin: $margin / 2 auto
+      padding-left: 10px
+      display: block
+      border-left: 2px solid transparent
+      font-size: $font / 3
+      font-weight: bold
+      color: $main
+      transition: all $time / 2
+
+      @media screen and (min-width: 768px)
+        &:hover
+          color: $light
+          border-color: $main
+
+    span
+      margin: $margin / 3 auto
+      display: flex
+      justify-content: space-between
+      transition: all $time / 2
+
+      @media screen and (min-width: 768px)
+        &:hover
+          color: $main
+
+
+
+
+
+
+
+
+
+
+/* ------------------------------------------------------------------- */
+/*                              End
+/* ------------------------------------------------------------------- */

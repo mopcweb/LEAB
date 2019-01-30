@@ -1,0 +1,33 @@
+{
+  "name": "leab",
+  "version": "1.0.0",
+  "description": "small app for studiyng purposes",
+  "main": "index.js",
+  "scripts": {
+    "client": "cd client && npm start",
+    "server": "nodemon server/server.js --exec babel-node",
+    "build": "babel server -d server/dist",
+    "watch": "babel-watch server/es6 -d server",
+    "start": "concurrently --kill-others-on-fail \"npm run client\" \"npm run server\""
+  },
+  "keywords": [
+    "calories",
+    "react"
+  ],
+  "author": "Daniil Moroz",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "mongoose": "^5.4.6",
+    "node-fetch": "^2.3.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.2.2",
+    "@babel/node": "^7.2.2",
+    "@babel/plugin-proposal-object-rest-spread": "^7.3.1",
+    "@babel/preset-env": "^7.3.1",
+    "concurrently": "^4.1.0"
+  }
+}

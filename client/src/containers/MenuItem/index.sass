@@ -1,0 +1,116 @@
+/* ------------------------------------------------------------------- */
+/*                              Variables
+/* ------------------------------------------------------------------- */
+
+@import '../../variables.sass'
+
+/* ------------------------------------------------------------------- */
+/*                              MenuItem
+/* ------------------------------------------------------------------- */
+
+.MenuItem
+  align-items: flex-start
+  align-content: flex-start
+
+  &-Info
+    width: 100%
+
+  .Form
+    padding: 10px
+    display: flex
+    flex-wrap: wrap
+    align-items: flex-start
+    justify-content: center
+
+  &-Img
+    display: block !important
+    margin-right: $margin
+    width: 320px
+    flex-grow: 1
+    max-width: 100%
+    border: $width solid $main
+    border-radius: $radius
+    overflow: hidden
+
+    @media screen and (min-width: 1366px)
+      max-width: 550px
+
+    @media screen and (max-width: 1298px)
+      margin-bottom: $margin
+
+    @media screen and (max-width: 1273px)
+      margin-right: 0
+
+    @media screen and (max-width: 1050px)
+      margin-right: $margin
+
+    @media screen and (max-width: 963px)
+      margin-right: 0
+
+    img
+      display: block
+      width: calc(100% - 0px)
+      height: auto
+      object-fit: cover
+
+    input
+      display: none
+
+    label
+      padding: 5px 10px
+      margin: 0
+      display: block
+      width: 100%
+      max-width: 100%
+      text-align: center
+      border: 1px solid $main
+      background-color: $main
+      transition: all $time / 2
+
+      &:hover
+        background-color: $additional
+
+  &-Data
+    flex-grow: 1
+
+  &-Products
+    margin-top: $margin
+    flex-grow: 1
+
+    .Btn_styled
+      margin-left: 15px
+
+    .Form
+      justify-content: space-between
+
+      input[type='submit']
+        // margin: 10px auto
+        width: 100%
+
+      &-Rows
+        width: 45%
+
+        input, select
+          width: 100%
+
+        label
+          background: none !important
+          border: none !important
+
+        @media screen and (min-width: 768px)
+          label:not([for='catTitle']):hover
+            // background-color: $main !important
+
+
+
+
+
+
+
+
+
+
+
+/* ------------------------------------------------------------------- */
+/*                              End
+/* ------------------------------------------------------------------- */

@@ -1,0 +1,105 @@
+/* ------------------------------------------------------------------- */
+/*                              Variables
+/* ------------------------------------------------------------------- */
+
+@import './variables.sass'
+@import url('https://fonts.googleapis.com/css?family=Gabriela&subset=cyrillic-ext')
+
+/* ------------------------------------------------------------------- */
+/*                              html, body, normalize
+/* ------------------------------------------------------------------- */
+
+html, body
+  margin: 0
+  padding: 0
+  width: 100%
+  height: 100%
+
+  @media screen and (max-width: 768px)
+    font-size: 14px
+
+body
+  overflow-x: hidden !important
+  font-family: 'Gabriela', serif !important
+  -webkit-font-smoothing: antialiased
+  -moz-osx-font-smoothing: grayscale
+  color: $light
+
+  *
+    box-sizing: border-box
+
+    &:focus
+      outline-color: rgb(229, 151, 0)
+
+h1, h2, h3, button, input, select, ul, li, table, th, td
+  margin: 0
+  padding: 0
+  background: none
+  border: none
+
+a, input, button, select
+  color: $light
+
+a
+  text-decoration: none
+
+input, button, select
+  font-size: 1rem
+  font-family: 'Gabriela', serif
+
+h2
+  font-size: $font / 2.5
+
+ul
+  list-style: none
+
+/* ------------------------------------------------------------------- */
+/*                              Root
+/* ------------------------------------------------------------------- */
+
+#root
+  position: relative
+  width: 100%
+  min-height: 100%
+  background: $body
+  background-position: center
+  background-repeat: no-repeat
+  background-size: cover
+  background-attachment: fixed
+
+  &:after
+    position: absolute
+    top: 0
+    bottom: 0
+    left: 200px
+    right: 0
+    display: block
+    content: ""
+    background: #1c1c1cb3
+    z-index: 2
+
+    @media screen and (max-width: 768px)
+      left: 80px
+
+    @media screen and (max-width: 414px)
+      left: 50px
+
+/* ------------------------------------------------------------------- */
+/*                              Common
+/* ------------------------------------------------------------------- */
+
+.Btn_styled
+  margin: 10px 0
+  padding: 0
+  display: inline-block
+  width: 200px
+  height: 30px
+  border: 1px solid $main
+  border-radius: $radius
+  color: $light
+  background-color: $main
+  cursor: pointer
+  transition: all 0.25s
+
+  &:hover
+    background-color: $additional
