@@ -11,7 +11,7 @@ import './index.sass';
 /*                              My components
 /* ------------------------------------------------------------------- */
 
-import { capitalize, makeURL, replaceSigns } from '../UsefulF';
+import { capitalize } from '../UsefulF';
 
 /* ------------------------------------------------------------------- */
 /*                              Products component
@@ -269,13 +269,13 @@ class Rows extends Component {
       filtered.map(item => (
         <tr key={item._id} className='List-Item'>
           <td>
-            <Link to={window.location.pathname + '/' + makeURL(item.title)}>
-              <img src={new Buffer(item.img.data).toString()} alt={replaceSigns(capitalize(item.title))} />
+            <Link to={window.location.pathname + '/' + item.link}>
+              <img src={new Buffer(item.img.data).toString()} alt={item.title} />
             </Link>
           </td>
           <Cell
-            value={replaceSigns(capitalize(item.title))}
-            link={window.location.pathname + '/' + makeURL(item.title)}
+            value={item.title}
+            link={window.location.pathname + '/' + item.link}
           />
           <Cell value={item.ccal} />
           <Cell value={item.proteins} />

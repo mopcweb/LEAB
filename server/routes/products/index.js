@@ -41,6 +41,7 @@ router.post('/', async (req, res) => {
   // New product
   const product = new ProductModel({
     title: data.title,
+    link: data.link,
     img: new Buffer(data.img),
     amount: data.amount,
     price: data.price,
@@ -60,9 +61,9 @@ router.post('/', async (req, res) => {
 });
 
 // =====> GET (all or just one by title)
-router.get('/:title?', (req, res) => {
+router.get('/:link?', (req, res) => {
   // Save title param into variable;
-  const title = req.params.title !== undefined ? req.params.title : '';
+  const link = req.params.link !== undefined ? req.params.link : '';
 
   // Save category query value into variable
   const category = req.query.category;
@@ -78,9 +79,9 @@ router.get('/:title?', (req, res) => {
   };
 
   // If there is specific title in url -> get this one
-  if (title) {
+  if (link) {
     ProductModel
-      .findOne({title: title})
+      .findOne({link: link})
       .then(product => res.send(product))
       .catch(err => res.json({status: err}));
   } else {
@@ -99,6 +100,7 @@ router.put('/:id', (req, res) => {
 
   // If there are some extra fields
   if (req.body.title) data.title = req.body.title;
+  if (req.body.link) data.link = req.body.link;
   if (req.body.img) data.img = req.body.img;
   if (req.body.amount) data.amount = req.body.amount;
   if (req.body.price) data.price = req.body.price;

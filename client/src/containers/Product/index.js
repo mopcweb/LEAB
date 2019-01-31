@@ -16,7 +16,7 @@ import defaultImg from './default.svg';
 import { Input, Disabled, Selects, SubmitLink } from '../../components/FormElems';
 import { Wrapper } from '../../components/Main';
 import Alert, { showAlert } from '../../components/Alert';
-import { capitalize, makeURL, replaceSigns } from '../../components/UsefulF';
+import { capitalize, makeURL } from '../../components/UsefulF';
 
 
 /* ------------------------------------------------------------------- */
@@ -32,8 +32,8 @@ export default class Product extends Component {
       category: '',
       units: [{title: 'kilo(s)', id: '1'}, {title: 'gram(s)', id: '2'}, {title: 'litr(es)', id: '3'}],
       unit: 'kilo(s)',
-      // title: capitalize(window.location.pathname.replace(/\/products\//gi, '')),
       title: '',
+      link: '',
       id: '',
       img: defaultImg,
       amount: '',
@@ -119,16 +119,18 @@ export default class Product extends Component {
     const state = e.target.id;
 
     // Check for ONLY english letters usage
-    if (!e.target.value.match(/^[A-Za-z0-9\s()]*$/gi)) {
-      // Show error alert
-      clearTimeout(this.timer);
-      this.timer = this.showAlert('Only english letters are allowed', 'Message_error');
-
-      return
-    };
+    // if (!e.target.value.match(/^[A-Za-z0-9\s()]*$/gi)) {
+    //   // Show error alert
+    //   clearTimeout(this.timer);
+    //   this.timer = this.showAlert('Only english letters are allowed', 'Message_error');
+    //
+    //   return
+    // };
 
     // Update target input state
-    this.setState({[state]: e.target.value});
+    this.setState({[state]: capitalize(e.target.value)});
+
+    if (state === 'title') this.setState({link: makeURL(e.target.value)})
 
     // Update ccal state
     this.setState(state => (
@@ -140,7 +142,8 @@ export default class Product extends Component {
   async handleSave(e) {
     // Create obj with data
     const data = {
-      title: makeURL(this.state.title.toLowerCase()),
+      title: this.state.title,
+      link: this.state.link,
       img: this.state.img,
       amount: this.state.amount,
       price: this.state.price,
@@ -267,7 +270,6 @@ export default class Product extends Component {
       .then(res => res.json())
       .then(data => {
         // Lowercased all data
-        // let cats = data.map(item => ({title: item.title.toLowerCase().trim(), id: item._id}));
         let cats = data.map(item => ({title: capitalize(item.title), id: item._id}));
 
         // Default sorting from a -> b
@@ -287,17 +289,24 @@ export default class Product extends Component {
   async getProduct() {
     let product;
 
-    await fetch(`${this.state.title}`)
-      .then(res => res.json())
+    // if (!this.state.title) return
+
+    await fetch(`${this.state.link}`)
+      .then(res => {
+        console.log(res)
+
+        return res.json()
+      })
       .then(data => product = data)
       .catch(err => console.log(err));
 
-    if (product === undefined) return;
+    if (product === undefined) return
 
     console.log('=====> product', product)
 
     this.setState({
       title: product.title,
+      link: product.link,
       id: product._id,
       img: new Buffer(product.img.data).toString(),
       amount: product.amount,
@@ -313,14 +322,15 @@ export default class Product extends Component {
 
   render() {
     return (
-      <Wrapper addClass='Product' header={replaceSigns(this.state.title ? capitalize(this.state.title) + '\'s page' : 'Awesome new product\'s page')}>
+      <Wrapper addClass='Product' header={this.state.title ? this.state.title + '\'s page' : 'Awesome new product\'s page'}>
         <Form
           title={this.state.title}
+          link={this.state.link}
           ccal={this.state.ccal}
           img={this.state.img}
           inputs={this.inputs}
           inputsValues={{
-            'title': replaceSigns(capitalize(this.state.title)),
+            'title': this.state.title,
             'amount': this.state.amount,
             'price': this.state.price,
             'proteins': this.state.proteins,
@@ -349,12 +359,13 @@ class Form extends Component {
   render() {
     return (
       <div className='Product-Info'>
-        <h2>{replaceSigns(this.props.title ? capitalize(this.props.title) : 'Awesome new product')}</h2>
+        <h2>{this.props.title ? this.props.title : 'Awesome new product'}</h2>
 
         <form className='Form'>
           <Img src={this.props.img} alt={this.props.title} onPreviewImg={this.props.onPreviewImg} />
           <Data
             title={this.props.title}
+            link={this.props.link}
             ccal={this.props.ccal}
             inputs={this.props.inputs}
             inputsValues={this.props.inputsValues}
@@ -379,7 +390,7 @@ class Img extends Component {
   render() {
     return (
       <div className='Product-Img'>
-        <img src={this.props.src} alt={replaceSigns(capitalize(this.props.alt))} />
+        <img src={this.props.src} alt={this.props.alt} />
         <label htmlFor='uploadImg'>Upload</label>
         <input type='file' id='uploadImg' onChange={this.props.onPreviewImg} />
       </div>
@@ -401,7 +412,7 @@ class Data extends Component {
 
         <div className='Form-Rows'>
           <SubmitLink link='/products' value='Delete' onClick={this.props.onDelete} />
-          <SubmitLink link={makeURL(`/products/${this.props.title.toLowerCase()}`)} value='Save' onClick={this.props.onSave} />
+          <SubmitLink link={`/products/${this.props.link}`} value='Save' onClick={this.props.onSave} />
         </div>
       </div>
     )
