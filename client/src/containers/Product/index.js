@@ -127,6 +127,15 @@ export default class Product extends Component {
     //   return
     // };
 
+    // Show error if first letter is 'space'
+    // if (e.target.value.match(/^\s*$/gi)) {
+    //   // Show error alert
+    //   clearTimeout(this.timer);
+    //   this.timer = this.showAlert('Only english letters are allowed', 'Message_error');
+    //
+    //   return
+    // };
+
     // Update target input state
     this.setState({[state]: capitalize(e.target.value)});
 
@@ -181,7 +190,7 @@ export default class Product extends Component {
 
     // Request
     await fetch(`/products${this.state.id ? '/' + this.state.id : ''}`, opts)
-      .then(res => console.log(res))
+      .then(res => console.log(`=====> ${this.state.id ? 'updated product' : 'created product'}`, res))
       .catch(err => console.log(err))
 
     // Show success alert
@@ -292,11 +301,7 @@ export default class Product extends Component {
     // if (!this.state.title) return
 
     await fetch(`${this.state.link}`)
-      .then(res => {
-        console.log(res)
-
-        return res.json()
-      })
+      .then(res => res.json())
       .then(data => product = data)
       .catch(err => console.log(err));
 

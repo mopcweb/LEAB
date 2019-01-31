@@ -129,13 +129,13 @@ class Row extends Component {
   // Change label value from 'delete' to 'rename' on input value change
   handleRename(e) {
     // Check for ONLY english letters usage
-    if (!e.target.value.match(/^[A-Za-z0-9\s()]*$/gi)) {
-      // Show error alert
-      clearTimeout(this.timer);
-      this.timer = this.props.showAlert('Only english letters are allowed', 'Message_error');
-
-      return
-    };
+    // if (!e.target.value.match(/^[A-Za-z0-9\s()]*$/gi)) {
+    //   // Show error alert
+    //   clearTimeout(this.timer);
+    //   this.timer = this.props.showAlert('Only english letters are allowed', 'Message_error');
+    //
+    //   return
+    // };
 
     this.setState({value: e.target.value});
 

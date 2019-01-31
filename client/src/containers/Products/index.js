@@ -213,7 +213,7 @@ export default class Products extends Component {
       // PUT new category title into category's collection in db
       await fetch(`/categories/${id}`, opts)
         .then(res => res.json())
-        .then(res => console.log(res))
+        .then(res => console.log('=====> updated category', res))
         .catch(err => console.log(err))
 
       // Stop running if there is no matching products
@@ -239,9 +239,12 @@ export default class Products extends Component {
       await existProducts.forEach( async item => {
         await fetch(`/products/${item._id}`, opts)
           .then(res => res.json())
-          .then(res => console.log(res))
+          .then(res => console.log('=====> updated product\'s category', res))
           .catch(err => console.log(err))
       });
+
+      clearTimeout(this.timer);
+      this.timer = this.showAlert('Category updated', 'Message_success');
 
       // Request again for updated categories and products
       this.getCategories();
@@ -276,13 +279,13 @@ export default class Products extends Component {
   // Handler for catTitle input value changes
   handleCatTitleChange(e) {
     // Check for ONLY english letters usage
-    if (!e.target.value.match(/^[A-Za-z0-9\s()]*$/gi) && e.target.tagName === 'INPUT') {
-      // Show error alert
-      clearTimeout(this.timer);
-      this.timer = this.showAlert('Only english letters are allowed', 'Message_error');
-
-      return
-    };
+    // if (!e.target.value.match(/^[A-Za-z0-9\s()]*$/gi) && e.target.tagName === 'INPUT') {
+    //   // Show error alert
+    //   clearTimeout(this.timer);
+    //   this.timer = this.showAlert('Only english letters are allowed', 'Message_error');
+    //
+    //   return
+    // };
 
     this.setState({catTitle: capitalize(e.target.value)});
   }
