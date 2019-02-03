@@ -30,7 +30,7 @@ export default class ListOfItems extends Component {
           onChange={this.props.onChange}
           onPreviewImg={this.props.onPreviewImg}
         />
-        <Items data={this.props.items} addColumn={this.props.addColumn} onRemove={this.props.onRemove} onRename={this.props.onRename} showAlert={this.props.showAlert} />
+        <Items data={this.props.items} addColumn={this.props.addColumn} onRemove={this.props.onRemove} />
       </div>
     )
   };
@@ -63,9 +63,7 @@ class Items extends Component {
             <Rows
               data={this.props.data}
               addColumn={this.props.addColumn}
-              showAlert={this.props.showAlert}
               onRemove={this.props.onRemove}
-              onRename={this.props.onRename}
             />
           </tbody>
         </table>
@@ -86,8 +84,6 @@ class Rows extends Component {
           title={item.title}
           id={item.id}
           addColumn={this.props.addColumn}
-          showAlert={this.props.showAlert}
-          onRename={this.props.onRename}
           onRemove={this.props.onRemove}
         />
       ))
@@ -128,20 +124,15 @@ class Row extends Component {
 
   // Change label value from 'delete' to 'rename' on input value change
   handleRename(e) {
-    // Check for ONLY english letters usage
-    // if (!e.target.value.match(/^[A-Za-z0-9\s()]*$/gi)) {
-    //   // Show error alert
-    //   clearTimeout(this.timer);
-    //   this.timer = this.props.showAlert('Only english letters are allowed', 'Message_error');
-    //
-    //   return
-    // };
-
     this.setState({value: e.target.value});
 
-    // If value is same as origin was aftet data received - label value -> delete, else -> rename
+    // If value is same as origin was after data received - label value -> delete, else -> rename
     if (capitalize(this.props.title) !== e.target.value) this.setState({isChanged: true})
     else this.setState({isChanged: false})
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (capitalize(this.props.title) === prevState.value && prevState.isChanged === true) this.setState({isChanged: false, value: undefined})
   }
 
   render() {

@@ -27,7 +27,7 @@ router.post('/', async (req, res) => {
   // Flag for existing title
   let exist = false;
 
-  // Check fr this title. If it is -> exist = true
+  // Check for this title. If it is -> exist = true
   await CategoryModel
     .findOne({title: data.title})
     .then(category => {
@@ -71,13 +71,27 @@ router.get('/:title?', (req, res) => {
 });
 
 // =====> PUT
-router.put('/:id', (req, res) => {
+router.put('/:id', async (req, res) => {
   // Empty obj
   const data = {};
 
   // If there are some extra fields
   if (req.body.title) data.title = req.body.title;
   if (req.body.img) data.img = req.body.img;
+
+  // Flag for existing title
+  let exist = false;
+
+  // Check for this title. If it is -> exist = true
+  await CategoryModel
+    .findOne({title: data.title})
+    .then(category => {
+      if (category) exist = true;
+    })
+    .catch(err => res.json({status: err}))
+
+  // Stop running if already exists
+  if (exist) return res.send({status: 'already exist'});
 
   CategoryModel
     .findOneAndUpdate({_id: req.params.id}, {$set: data})

@@ -51,7 +51,6 @@ export default class Products extends Component {
 
     this.handleOpenModal = this.handleOpenModal.bind(this);
     this.handleAddItem = this.handleAddItem.bind(this);
-    this.handleRenameItem = this.handleRenameItem.bind(this);
     this.handleCatTitleChange = this.handleCatTitleChange.bind(this);
     this.handleRemoveItem = this.handleRemoveItem.bind(this);
     this.handlePreviewImg = this.handlePreviewImg.bind(this);
@@ -115,7 +114,7 @@ export default class Products extends Component {
       .catch(err => console.log(err));
 
     // Reset input value
-    this.setState({catTitle: ''});
+    this.setState({catTitle: '', catImg: '', catImgTitle: 'Image for category'});
 
     // Get new data
     await this.getCategories()
@@ -126,7 +125,7 @@ export default class Products extends Component {
     const file = e.target.files[0];
 
     // Show error alert if file type is not image
-    if (file.type.indexOf('image') === -1) {
+    if (file && file.type.indexOf('image') === -1) {
       clearTimeout(this.timer);
       this.timer = this.showAlert('Only images allowed', 'Message_error');
 
@@ -134,14 +133,14 @@ export default class Products extends Component {
     };
 
     // Show error alert if jile size more than 1000kb (1000000bytes)
-    if (file.size > 1000000) {
+    if (file && file.size > 1000000) {
       clearTimeout(this.timer);
       this.timer = this.showAlert('File too big. Max size is 100 kb', 'Message_error');
 
       return
     };
 
-    this.setState({catImgTitle: file.name});
+    if (file) this.setState({catImgTitle: file.name});
 
     // New reader
     const reader = new FileReader();
@@ -151,12 +150,6 @@ export default class Products extends Component {
 
     // Put reader.result into file
     if (file) reader.readAsDataURL(file);
-  }
-
-  async handleRenameItem(e) {
-    const title = e.target.value;
-
-    console.log(title);
   }
 
   // Handle click on remove button
@@ -214,44 +207,54 @@ export default class Products extends Component {
       // PUT new category title into category's collection in db
       await fetch(`/categories/${id}`, opts)
         .then(res => res.json())
-        .then(res => console.log('=====> updated category', res))
+        // .then(res => console.log('=====> updated category', res))
+        .then(res => {
+          // Show success message
+          if (res.status === 'already exist') {
+            clearTimeout(this.timer);
+            this.timer = this.showAlert('Already exists', 'Message_error');
+          }
+          else {
+            clearTimeout(this.timer);
+            this.timer = this.showAlert('Category updated', 'Message_success');
+          };
+
+          console.log('=====> updated category', res)
+        })
         .catch(err => console.log(err))
 
       // Stop running if there is no matching products
-      if (existProducts.length < 1) return
+      if (existProducts.length > 0) {
+        data = {
+          category: capitalize(inputValue)
+        };
 
-      data = {
-        category: capitalize(inputValue)
-      };
+        // Create Blob from data
+        blob = new Blob(
+          [JSON.stringify(data)],
+          {type: 'application/json'}
+        );
 
-      // Create Blob from data
-      blob = new Blob(
-        [JSON.stringify(data)],
-        {type: 'application/json'}
-      );
+        // Options for request
+        opts = {
+          method: 'PUT',
+          body: blob
+        };
 
-      // Options for request
-      opts = {
-        method: 'PUT',
-        body: blob
-      };
-
-      // PUT new category title into matching products
-      await existProducts.forEach( async item => {
-        await fetch(`/products/${item._id}`, opts)
-          .then(res => res.json())
-          .then(res => console.log('=====> updated product\'s category', res))
-          .catch(err => console.log(err))
-      });
-
-      clearTimeout(this.timer);
-      this.timer = this.showAlert('Category updated', 'Message_success');
+        // PUT new category title into matching products
+        await existProducts.forEach( async item => {
+          await fetch(`/products/${item._id}`, opts)
+            .then(res => res.json())
+            .then(res => console.log('=====> updated product\'s category', res))
+            .catch(err => console.log(err))
+        });
+      }
 
       // Request again for updated categories and products
       this.getCategories();
       this.getProducts();
 
-      return
+      return false
     };
 
     // If there are products in category -> decline
@@ -368,14 +371,8 @@ export default class Products extends Component {
             }}
             img={this.state.catImgTitle}
             items={this.state.categories}
-            // addColumn={
-            //   <td>
-            //     <input type='text' />
-            //   </td>
-            // }
             showAlert={this.showAlert}
             onAdd={this.handleAddItem}
-            onRename={this.handleRenameItem}
             onRemove={this.handleRemoveItem}
             onChange={this.handleCatTitleChange}
             onPreviewImg={this.handlePreviewImg}
