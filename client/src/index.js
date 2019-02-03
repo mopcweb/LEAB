@@ -6,6 +6,12 @@ import * as serviceWorker from './serviceWorker';
 import './index.sass';
 
 /* ------------------------------------------------------------------- */
+/*                              Routes
+/* ------------------------------------------------------------------- */
+
+import * as routes from './config/routes';
+
+/* ------------------------------------------------------------------- */
 /*                              Import My Components
 /* ------------------------------------------------------------------- */
 
@@ -49,16 +55,16 @@ const App = (
   <Router>
     <Context.Provider value={store}>
       <Switch>
-        <Route path='/' exact component={Home} />
+        <Route path={routes.HOME} exact component={Home} />
         <Main>
-          <Route path='/profile' component={Profile} />
-          <Route path='/dashboard' component={Dashboard} />
-          <Route path='/menu' exact component={Menu} />
-          <Route path='/menu/:menuitem' component={MenuItem} />
-          <Route path='/dishes' exact component={Dishes} />
-          <Route path='/dishes/:dish' component={Dish} />
-          <Route path='/products' exact component={Products} />
-          <Route path='/products/:product' component={Product} />
+          <Route path={routes.PROFILE} component={Profile} />
+          <Route path={routes.DASHBOARD} component={Dashboard} />
+          <Route path={routes.MENU} exact component={Menu} />
+          <Route path={routes.MENU_ITEM} component={MenuItem} />
+          <Route path={routes.DISHES} exact component={Dishes} />
+          <Route path={routes.DISH} component={Dish} />
+          <Route path={routes.PRODUCTS} exact component={Products} />
+          <Route path={routes.PRODUCT} component={Product} />
         </Main>
       </Switch>
     </Context.Provider>

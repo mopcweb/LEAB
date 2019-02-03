@@ -10,13 +10,14 @@ import './index.sass';
 /*                              My components
 /* ------------------------------------------------------------------- */
 
+import * as api from '../../config/api';
+
 import {Wrapper} from '../../components/Main';
 import List from '../../components/ListFilter';
 import Modal from '../../components/Modal';
 import Alert, { showAlert } from '../../components/Alert';
 import ListOfItems from '../../components/ListOfItems';
 import { capitalize } from '../../components/UsefulF';
-// import { Products as Config } from '../../components/Config';
 
 /* ------------------------------------------------------------------- */
 /*                              Products component
@@ -95,7 +96,7 @@ export default class Products extends Component {
     };
 
     // Post data
-    await fetch('/categories', opts)
+    await fetch(api.PRODUCTS_CATEGORIES, opts)
     // in purpose to console.log() result
       .then(res => res.json())
       .then(data => {
@@ -172,7 +173,7 @@ export default class Products extends Component {
     let existProducts = [];
 
     // Check if there any products using this category
-    await fetch(`/products?category=${title}`)
+    await fetch(`${api.PRODUCTS}?category=${title}`)
       .then(res => res.json())
       .then(data => existProducts = data)
       .catch(err => console.log(err));
@@ -205,7 +206,7 @@ export default class Products extends Component {
       };
 
       // PUT new category title into category's collection in db
-      await fetch(`/categories/${id}`, opts)
+      await fetch(`${api.PRODUCTS_CATEGORIES}/${id}`, opts)
         .then(res => res.json())
         // .then(res => console.log('=====> updated category', res))
         .then(res => {
@@ -243,7 +244,7 @@ export default class Products extends Component {
 
         // PUT new category title into matching products
         await existProducts.forEach( async item => {
-          await fetch(`/products/${item._id}`, opts)
+          await fetch(`${api.PRODUCTS}/${item._id}`, opts)
             .then(res => res.json())
             .then(res => console.log('=====> updated product\'s category', res))
             .catch(err => console.log(err))
@@ -265,7 +266,7 @@ export default class Products extends Component {
       return
     };
 
-    await fetch(`/categories/${id}`, {method: 'DELETE'})
+    await fetch(`${api.PRODUCTS_CATEGORIES}/${id}`, {method: 'DELETE'})
     // in purpose to console.log() result
       .then(res => res.json())
       .then(data => {
@@ -317,7 +318,7 @@ export default class Products extends Component {
 
   // Get categories
   getCategories() {
-    return fetch('/categories')
+    return fetch(api.PRODUCTS_CATEGORIES)
       .then(res => res.json())
       .then(data => {
         // Lowercased all data
@@ -341,7 +342,7 @@ export default class Products extends Component {
 
   getProducts() {
     // Fetching data from server. Header 'data' specifies filename
-    return fetch('/products')
+    return fetch(api.PRODUCTS)
       .then(res => res.json())
       .then(data => {
         // Default sorting by item

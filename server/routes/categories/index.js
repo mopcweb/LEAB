@@ -14,7 +14,7 @@ router.use(bodyParser.json({limit: '50mb'}));
 router.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 
 // Connect MongoDb
-mongoose.connect('mongodb://localhost/leab', { useNewUrlParser: true });
+mongoose.connect('mongodb://localhost/leab', { useNewUrlParser: true, useFindAndModify: false });
 
 /* ------------------------------------------------------- */
 /*                     Category API (CRUD)

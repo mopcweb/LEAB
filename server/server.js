@@ -17,12 +17,6 @@ app.use('/', routes)
 // Connect mongo
 mongoose.connect('mongodb://localhost/leab', { useNewUrlParser: true });
 
-// Get data for products
-app.get('/getdata', (req ,res) => {
-  const data = req.headers.data
-  res.sendFile(path.join(__dirname, 'data', `${data}.json`))
-})
-
 // Serve static files from build
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, 'client/build')));

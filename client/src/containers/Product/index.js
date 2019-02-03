@@ -13,6 +13,9 @@ import defaultImg from './default.svg';
 /*                              My Components
 /* ------------------------------------------------------------------- */
 
+import * as api from '../../config/api';
+import * as routes from '../../config/routes';
+
 import { Input, Disabled, Selects, SubmitLink } from '../../components/FormElems';
 import { Wrapper } from '../../components/Main';
 import Alert, { showAlert } from '../../components/Alert';
@@ -189,7 +192,7 @@ export default class Product extends Component {
     };
 
     // Request
-    await fetch(`/products${this.state.id ? '/' + this.state.id : ''}`, opts)
+    await fetch(`${api.PRODUCTS}${this.state.id ? '/' + this.state.id : ''}`, opts)
       .then(res => console.log(`=====> ${this.state.id ? 'updated product' : 'created product'}`, res))
       .catch(err => console.log(err))
 
@@ -217,7 +220,7 @@ export default class Product extends Component {
     if (!confirm) return
 
     // Request
-    await fetch(`/products/${this.state.id}`, {method: 'DELETE'})
+    await fetch(`${api.PRODUCTS}/${this.state.id}`, {method: 'DELETE'})
       .then(res => console.log(res))
       .catch(err => console.log(err))
   }
@@ -265,7 +268,7 @@ export default class Product extends Component {
   }
 
   async componentDidMount() {
-    await this.getData('categories', 'category');
+    await this.getData(api.PRODUCTS_CATEGORIES, 'categories', 'category');
     await this.getProduct();
   }
 
@@ -274,11 +277,11 @@ export default class Product extends Component {
   }
 
   // Get data (categories, units) from db
-  getData(all, current) {
-    return fetch(`/${all}`)
+  getData(api, all, current) {
+    return fetch(api)
       .then(res => res.json())
       .then(data => {
-        // Lowercased all data
+        // Capitalize all data
         let cats = data.map(item => ({title: capitalize(item.title), id: item._id}));
 
         // Default sorting from a -> b
@@ -298,9 +301,10 @@ export default class Product extends Component {
   async getProduct() {
     let product;
 
-    // if (!this.state.title) return
+    // In purpose to get first filed (field could be chenged in future) to define this product link.
+    const field = Object.keys(this.props.match.params)[0];
 
-    await fetch(`${this.state.link}`)
+    await fetch(`${api.PRODUCTS}/${this.props.match.params[field]}`)
       .then(res => res.json())
       .then(data => product = data)
       .catch(err => console.log(err));
@@ -416,8 +420,8 @@ class Data extends Component {
         <Disabled type='text' id='ccal' label='Calories' value={this.props.ccal} />
 
         <div className='Form-Rows'>
-          <SubmitLink link='/products' value='Delete' onClick={this.props.onDelete} />
-          <SubmitLink link={`/products/${this.props.link}`} value='Save' onClick={this.props.onSave} />
+          <SubmitLink link={routes.PRODUCTS} value='Delete' onClick={this.props.onDelete} />
+          <SubmitLink link={`${routes.PRODUCTS}/${this.props.link}`} value='Save' onClick={this.props.onSave} />
         </div>
       </div>
     )
@@ -445,11 +449,11 @@ class UsedItem extends Component {
   render() {
     return (
       <div className='Product-UsedItem'>
-          <Link to='/products'>
+          <Link to={routes.PRODUCTS}>
             <img src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQRFOzXKKN5s02_uS176v5R3MqKH8UTxTD-G1hgdy0MNNehyK74' alt='123' />
           </Link>
           <div>
-            <Link to='/products'>
+            <Link to={routes.PRODUCTS}>
               <h3>Tomatoes</h3>
             </Link>
             <hr />
