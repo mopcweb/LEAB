@@ -35,9 +35,12 @@ export class Wrapper extends Component {
   render () {
     return (
       <div className={this.props.addClass ? this.props.addClass + ' Wrapper' : 'Wrapper'}>
-        <div className='Header'>
-          {this.props.header}
-        </div>
+        {this.props.header
+          ? <div className='Header'>
+            {this.props.header}
+          </div>
+          : null
+        }
         {this.props.children}
       </div>
     )

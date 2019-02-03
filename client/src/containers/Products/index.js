@@ -16,6 +16,7 @@ import Modal from '../../components/Modal';
 import Alert, { showAlert } from '../../components/Alert';
 import ListOfItems from '../../components/ListOfItems';
 import { capitalize } from '../../components/UsefulF';
+// import { Products as Config } from '../../components/Config';
 
 /* ------------------------------------------------------------------- */
 /*                              Products component

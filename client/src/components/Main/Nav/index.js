@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 
 /* ------------------------------------------------------------------- */
 /*                              Styles
@@ -103,6 +103,9 @@ class NavProfile extends Component {
         <NavLink className='Nav-Edit' to='/profile' activeClassName='activeLink'>
           Edit profile
         </NavLink>
+        <Link className='Nav-Edit' to='/'>
+          Logout
+        </Link>
       </div>
     )
   };

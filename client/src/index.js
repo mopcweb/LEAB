@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Route, BrowserRouter as Router } from 'react-router-dom';
+import { Route, BrowserRouter as Router, Switch } from 'react-router-dom';
 
 import * as serviceWorker from './serviceWorker';
 import './index.sass';
@@ -10,6 +10,7 @@ import './index.sass';
 /* ------------------------------------------------------------------- */
 
 import Main from './components/Main';
+import Home from './containers/Home';
 import Profile from './containers/Profile';
 import Dashboard from './containers/Dashboard';
 import Menu from './containers/Menu';
@@ -47,16 +48,19 @@ import {store, Context} from './store';
 const App = (
   <Router>
     <Context.Provider value={store}>
-      <Main>
-        <Route path='/profile' component={Profile} />
-        <Route path='/dashboard' component={Dashboard} />
-        <Route path='/menu' exact component={Menu} />
-        <Route path='/menu/:menuitem' component={MenuItem} />
-        <Route path='/dishes' exact component={Dishes} />
-        <Route path='/dishes/:dish' component={Dish} />
-        <Route path='/products' exact component={Products} />
-        <Route path='/products/:product' component={Product} />
-      </Main>
+      <Switch>
+        <Route path='/' exact component={Home} />
+        <Main>
+          <Route path='/profile' component={Profile} />
+          <Route path='/dashboard' component={Dashboard} />
+          <Route path='/menu' exact component={Menu} />
+          <Route path='/menu/:menuitem' component={MenuItem} />
+          <Route path='/dishes' exact component={Dishes} />
+          <Route path='/dishes/:dish' component={Dish} />
+          <Route path='/products' exact component={Products} />
+          <Route path='/products/:product' component={Product} />
+        </Main>
+      </Switch>
     </Context.Provider>
   </Router>
 )
