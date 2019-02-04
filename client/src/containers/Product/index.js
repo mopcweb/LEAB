@@ -230,7 +230,7 @@ export default class Product extends Component {
     const file = e.target.files[0];
 
     // Show error alert if file type is not image
-    if (file.type.indexOf('image') === -1) {
+    if (file && file.type.indexOf('image') === -1) {
       clearTimeout(this.timer);
       this.timer = this.showAlert('Only images allowed', 'Message_error');
 
@@ -238,7 +238,7 @@ export default class Product extends Component {
     };
 
     // Show error alert if jile size more than 1000kb (1000000bytes)
-    if (file.size > 1000000) {
+    if (file && file.size > 1000000) {
       clearTimeout(this.timer);
       this.timer = this.showAlert('File too big. Max size is 100 kb', 'Message_error');
 
