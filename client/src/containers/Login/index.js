@@ -49,9 +49,17 @@ export default class Login extends Component {
             <Input type='password' name='password' label='Your password' />
 
             <Link to={routes.DASHBOARD} className='Login-Btn'>
-              Create acconut
+              Sign in
             </Link>
           </form>
+
+          <div className='Login-Question'>
+            Don't have an account yet ? 
+
+            <Link to={routes.REGISTER}>
+              Create account
+            </Link>
+          </div>
 
         </div>
       </Wrapper>

@@ -49,7 +49,7 @@ export default class Register extends Component {
             <Input type='password' name='password' label='Your password' />
 
             <Link to={routes.DASHBOARD} className='Register-Btn'>
-              Create acconut
+              Create account
             </Link>
           </form>
 
