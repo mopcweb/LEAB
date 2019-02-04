@@ -60,7 +60,8 @@ export default class Products extends Component {
   };
 
   handleOpenModal(e) {
-    this.setState(state => ({isOpen: !state.isOpen}))
+    // Close onClick at btn or out of modal inner
+    if (e.target.closest('.Modal-Close') || !e.target.closest('.Modal-Inner')) this.setState(state => ({isOpen: !state.isOpen}))
   }
 
   // Handle click on add button

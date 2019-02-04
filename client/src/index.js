@@ -17,6 +17,8 @@ import * as routes from './config/routes';
 
 import Main from './components/Main';
 import Home from './containers/Home';
+import Register from './containers/Register';
+import Login from './containers/Login';
 import Profile from './containers/Profile';
 import Dashboard from './containers/Dashboard';
 import Menu from './containers/Menu';
@@ -56,6 +58,8 @@ const App = (
     <Context.Provider value={store}>
       <Switch>
         <Route path={routes.HOME} exact component={Home} />
+        <Route path={routes.REGISTER} exact component={Register} />
+        <Route path={routes.LOGIN} exact component={Login} />
         <Main>
           <Route path={routes.PROFILE} component={Profile} />
           <Route path={routes.DASHBOARD} component={Dashboard} />

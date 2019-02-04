@@ -1,0 +1,115 @@
+/* ------------------------------------------------------------------- */
+/*                              Variables
+/* ------------------------------------------------------------------- */
+
+@import '../../variables.sass'
+
+/* ------------------------------------------------------------------- */
+/*                              Login
+/* ------------------------------------------------------------------- */
+
+.Login
+  position: relative
+  margin: 0 auto
+  padding: 0
+  max-width: 1170px
+  height: 100%
+  display: flex
+  flex-wrap: wrap
+  justify-content: center
+  z-index: 3
+
+  &-Header
+    margin-bottom: 50px
+    padding: 0 10px
+    width: 100%
+    height: 50px
+    line-height: 50px
+
+    @media screen and (max-width: 768px)
+      background-color: $additional
+
+    a, span
+      padding: 0 5px
+
+    a
+      float: left
+
+      &:hover
+        color: $main
+
+    span
+      color: $main
+      float: right
+
+  &-Inner
+    padding: 0 10px
+    max-width: 100%
+
+  &-Label
+    position: absolute
+    top: 50%
+    left: 10px
+    transform: translateY(-50%)
+    opacity: 0.5
+    transition: all $time / 2
+    z-index: -1
+
+    &_active
+      top: -25%
+      left: 0
+      font-size: $font / 4
+      color: $main
+      opacity: 1
+
+  &-Form
+    margin: 15px auto
+    padding: 70px
+    width: 420px
+    max-width: 100%
+    background-color: $additional
+
+    @media screen and (max-width: 768px)
+      padding: 50px 20px
+
+    div
+      position: relative
+      margin-bottom: 35px
+
+    input
+      padding: 5px 10px
+      width: 100%
+      height: 50px
+      border: 1px solid $main
+
+      &:focus
+        background-color: $additional
+
+  &-Btn
+    display: block
+    margin-top: 50px
+    padding: 0px 30px
+    min-width: 125px
+    height: 50px
+    line-height: 50px
+    text-align: center
+    border: 1px solid $main
+    background-color: $main
+    cursor: pointer
+    transition: all $time / 2
+
+    &:hover
+      background-color: transparent
+
+
+
+
+
+
+
+
+
+
+/* ------------------------------------------------------------------- */
+/*                              End
+/* ------------------------------------------------------------------- */

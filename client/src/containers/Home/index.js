@@ -5,6 +5,8 @@ import { Link } from 'react-router-dom';
 /*                              Styles
 /* ------------------------------------------------------------------- */
 
+import * as routes from '../../config/routes';
+
 import './index.sass';
 
 /* ------------------------------------------------------------------- */
@@ -12,12 +14,6 @@ import './index.sass';
 /* ------------------------------------------------------------------- */
 
 import { Wrapper } from '../../components/Main';
-// import List from '../../components/ListFilter';
-// import Modal from '../../components/Modal';
-// import Alert, { showAlert } from '../../components/Alert';
-// import ListOfItems from '../../components/ListOfItems';
-// import { capitalize } from '../../components/UsefulF';
-// import { Products as Config } from '../../components/Config';
 
 /* ------------------------------------------------------------------- */
 /*                              Home component
@@ -36,8 +32,12 @@ export default class Home extends Component {
 
           <br/><br/>
 
-          <Link to='/dashboard' className='Home-Login'>
-            Log in
+          <Link to={routes.LOGIN} className='Home-Login'>
+            Sign in
+          </Link>
+
+          <Link to={routes.REGISTER} className='Home-Register'>
+            Create account
           </Link>
         </div>
       </Wrapper>

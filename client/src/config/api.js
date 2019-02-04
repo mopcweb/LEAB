@@ -4,6 +4,7 @@ const api = '/api';
 
 export const HOME = api + routes.HOME;
 export const LOGIN = api + routes.LOGIN;
+export const REGISTER = api + routes.REGISTER;
 export const PROFILE = api + routes.PROFILE;
 export const DASHBOARD = api + routes.DASHBOARD;
 export const MENU = api + routes.MENU;

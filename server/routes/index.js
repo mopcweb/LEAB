@@ -17,6 +17,7 @@ const api = '/api';
 
 const HOME = api + '/';
 const LOGIN = api + '/login';
+const REGISTER = api + '/register';
 const PROFILE = api + '/profile';
 const DASHBOARD = api + '/dashboard';
 const MENU = api + '/menu';

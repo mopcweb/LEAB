@@ -6,7 +6,7 @@ import path from 'path';
 import routes from './routes';
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3001;
 
 // Define max size of data loaded
 app.use(bodyParser.json({limit: '50mb'}));
