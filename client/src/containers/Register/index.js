@@ -64,24 +64,37 @@ class Input extends Component {
     super(props);
 
     this.state = {
-      isActive: false
+      isActive: false,
+      value: ''
     };
 
     this.handleFocus = this.handleFocus.bind(this);
+    this.handleChange = this.handleChange.bind(this);
   }
 
   handleFocus(e) {
     this.setState(state => ({isActive: !state.isActive}))
   }
 
+  handleChange(e) {
+    this.setState({value: e.target.value})
+  }
+
   render() {
     return (
       <div onFocus={this.handleFocus} onBlur={this.handleFocus}>
-        <input type={this.props.type} name={this.props.name} />
+        <input
+          type={this.props.type}
+          name={this.props.name}
+          onChange={this.handleChange}
+        />
         <span
           className={this.state.isActive
             ? 'Register-Label Register-Label_active'
-            : 'Register-Label'}
+            : this.state.value !== ''
+            ? 'Register-Label Register-Label_active'
+            : 'Register-Label'
+          }
         >
           {this.props.label}
         </span>

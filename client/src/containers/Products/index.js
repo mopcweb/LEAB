@@ -17,7 +17,7 @@ import List from '../../components/ListFilter';
 import Modal from '../../components/Modal';
 import Alert, { showAlert } from '../../components/Alert';
 import ListOfItems from '../../components/ListOfItems';
-import { capitalize } from '../../components/UsefulF';
+import { capitalize, request } from '../../components/UsefulF';
 
 /* ------------------------------------------------------------------- */
 /*                              Products component
@@ -97,9 +97,8 @@ export default class Products extends Component {
     };
 
     // Post data
-    await fetch(api.PRODUCTS_CATEGORIES, opts)
+    await request(api.PRODUCTS_CATEGORIES, opts)
     // in purpose to console.log() result
-      .then(res => res.json())
       .then(data => {
         // Show success message
         if (data.status === 'already exist') {
@@ -174,8 +173,7 @@ export default class Products extends Component {
     let existProducts = [];
 
     // Check if there any products using this category
-    await fetch(`${api.PRODUCTS}?category=${title}`)
-      .then(res => res.json())
+    await request(`${api.PRODUCTS}?category=${title}`)
       .then(data => existProducts = data)
       .catch(err => console.log(err));
 
@@ -187,7 +185,7 @@ export default class Products extends Component {
       return
     };
 
-    // If btn value is 'rename' and input Value !== initial title -> fetch PUT request to change category name
+    // If btn value is 'rename' and input Value !== initial title ->  PUT request to change category name
     // Also if there are any products with in this category -> PUT into them new category title
     if (rename.toLowerCase() === 'rename' && inputValue !== title) {
       let data = {
@@ -207,9 +205,7 @@ export default class Products extends Component {
       };
 
       // PUT new category title into category's collection in db
-      await fetch(`${api.PRODUCTS_CATEGORIES}/${id}`, opts)
-        .then(res => res.json())
-        // .then(res => console.log('=====> updated category', res))
+      await request(`${api.PRODUCTS_CATEGORIES}/${id}`, opts)
         .then(res => {
           // Show success message
           if (res.status === 'already exist') {
@@ -245,8 +241,7 @@ export default class Products extends Component {
 
         // PUT new category title into matching products
         await existProducts.forEach( async item => {
-          await fetch(`${api.PRODUCTS}/${item._id}`, opts)
-            .then(res => res.json())
+          await request(`${api.PRODUCTS}/${item._id}`, opts)
             .then(res => console.log('=====> updated product\'s category', res))
             .catch(err => console.log(err))
         });
@@ -267,9 +262,8 @@ export default class Products extends Component {
       return
     };
 
-    await fetch(`${api.PRODUCTS_CATEGORIES}/${id}`, {method: 'DELETE'})
+    await request(`${api.PRODUCTS_CATEGORIES}/${id}`, {method: 'DELETE'})
     // in purpose to console.log() result
-      .then(res => res.json())
       .then(data => {
         // Show success message
         clearTimeout(this.timer);
@@ -319,8 +313,7 @@ export default class Products extends Component {
 
   // Get categories
   getCategories() {
-    return fetch(api.PRODUCTS_CATEGORIES)
-      .then(res => res.json())
+    return request(api.PRODUCTS_CATEGORIES)
       .then(data => {
         // Lowercased all data
         let cats = data.map(item => ({
@@ -342,9 +335,8 @@ export default class Products extends Component {
   }
 
   getProducts() {
-    // Fetching data from server. Header 'data' specifies filename
-    return fetch(api.PRODUCTS)
-      .then(res => res.json())
+    // Requesting data from server. Header 'data' specifies filename
+    return request(api.PRODUCTS)
       .then(data => {
         // Default sorting by item
         data.sort((a, b) => {

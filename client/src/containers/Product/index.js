@@ -19,7 +19,7 @@ import * as routes from '../../config/routes';
 import { Input, Disabled, Selects, SubmitLink } from '../../components/FormElems';
 import { Wrapper } from '../../components/Main';
 import Alert, { showAlert } from '../../components/Alert';
-import { capitalize, makeURL } from '../../components/UsefulF';
+import { capitalize, makeURL, request } from '../../components/UsefulF';
 
 
 /* ------------------------------------------------------------------- */
@@ -192,7 +192,7 @@ export default class Product extends Component {
     };
 
     // Request
-    await fetch(`${api.PRODUCTS}${this.state.id ? '/' + this.state.id : ''}`, opts)
+    await request(`${api.PRODUCTS}${this.state.id ? '/' + this.state.id : ''}`, opts)
       .then(res => console.log(`=====> ${this.state.id ? 'updated product' : 'created product'}`, res))
       .catch(err => console.log(err))
 
@@ -220,7 +220,7 @@ export default class Product extends Component {
     if (!confirm) return
 
     // Request
-    await fetch(`${api.PRODUCTS}/${this.state.id}`, {method: 'DELETE'})
+    await request(`${api.PRODUCTS}/${this.state.id}`, {method: 'DELETE'})
       .then(res => console.log(res))
       .catch(err => console.log(err))
   }
@@ -278,8 +278,7 @@ export default class Product extends Component {
 
   // Get data (categories, units) from db
   getData(api, all, current) {
-    return fetch(api)
-      .then(res => res.json())
+    return request(api)
       .then(data => {
         // Capitalize all data
         let cats = data.map(item => ({title: capitalize(item.title), id: item._id}));
@@ -301,15 +300,14 @@ export default class Product extends Component {
   async getProduct() {
     let product;
 
-    // In purpose to get first filed (field could be chenged in future) to define this product link.
+    // In purpose to get first filed (field could be changed in future) to define this product link.
     const field = Object.keys(this.props.match.params)[0];
 
-    await fetch(`${api.PRODUCTS}/${this.props.match.params[field]}`)
-      .then(res => res.json())
-      .then(data => product = data)
-      .catch(err => console.log(err));
+    await request(`${api.PRODUCTS}/${this.props.match.params[field]}`)
+      .then(res => product = res)
+      .catch(err => console.log(err))
 
-    if (product === undefined) return
+    if (product === undefined || product === '') return
 
     console.log('=====> product', product)
 

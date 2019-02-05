@@ -54,7 +54,7 @@ export default class Login extends Component {
           </form>
 
           <div className='Login-Question'>
-            Don't have an account yet ? 
+            Don't have an account yet ?
 
             <Link to={routes.REGISTER}>
               Create account
@@ -72,24 +72,37 @@ class Input extends Component {
     super(props);
 
     this.state = {
-      isActive: false
+      isActive: false,
+      value: ''
     };
 
     this.handleFocus = this.handleFocus.bind(this);
+    this.handleChange = this.handleChange.bind(this);
   }
 
   handleFocus(e) {
     this.setState(state => ({isActive: !state.isActive}))
   }
 
+  handleChange(e) {
+    this.setState({value: e.target.value})
+  }
+
   render() {
     return (
       <div onFocus={this.handleFocus} onBlur={this.handleFocus}>
-        <input type={this.props.type} name={this.props.name} />
+        <input
+          type={this.props.type}
+          name={this.props.name}
+          onChange={this.handleChange}
+        />
         <span
           className={this.state.isActive
             ? 'Login-Label Login-Label_active'
-            : 'Login-Label'}
+            : this.state.value !== ''
+            ? 'Login-Label Login-Label_active'
+            : 'Login-Label'
+          }
         >
           {this.props.label}
         </span>
