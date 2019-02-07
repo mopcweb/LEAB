@@ -19,6 +19,7 @@
   "dependencies": {
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
+    "firebase": "^5.8.2",
     "mongoose": "^5.4.6",
     "node-fetch": "^2.3.0"
   },

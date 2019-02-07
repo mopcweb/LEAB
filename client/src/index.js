@@ -26,10 +26,14 @@ import MenuItem from './containers/MenuItem';
 import Dishes from './containers/Dishes';
 import Dish from './containers/Dish';
 import Products from './containers/Products';
-
 import Product from './containers/Product';
 
-import {store, Context} from './store';
+/* ------------------------------------------------------------------- */
+/*                        Import Context & Firebase
+/* ------------------------------------------------------------------- */
+
+import {store, Context, FbContext} from './config/store';
+import Firebase from './config/firebase';
 
 /* ------------------------------------------------------------------- */
 /*                              Redux Store
@@ -56,6 +60,7 @@ import {store, Context} from './store';
 const App = (
   <Router>
     <Context.Provider value={store}>
+    <FbContext.Provider value={new Firebase()}>
       <Switch>
         <Route path={routes.HOME} exact component={Home} />
         <Route path={routes.REGISTER} exact component={Register} />
@@ -71,6 +76,7 @@ const App = (
           <Route path={routes.PRODUCT} component={Product} />
         </Main>
       </Switch>
+    </FbContext.Provider>
     </Context.Provider>
   </Router>
 )

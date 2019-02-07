@@ -1,28 +1,41 @@
 import React, { Component } from 'react';
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink, Link, withRouter } from 'react-router-dom';
 
 /* ------------------------------------------------------------------- */
-/*                              Styles
+/*                               Styles
 /* ------------------------------------------------------------------- */
 
 import './index.sass';
 
 /* ------------------------------------------------------------------- */
-/*                              Example data
+/*                               Routes
+/* ------------------------------------------------------------------- */
+
+import * as routes from '../../../config/routes';
+
+/* ------------------------------------------------------------------- */
+/*                              Firebase
+/* ------------------------------------------------------------------- */
+
+import { withFirebase } from '../../../config/store';
+
+/* ------------------------------------------------------------------- */
+/*                            Example data
 /* ------------------------------------------------------------------- */
 
  // Profile img
-import img from './user.jpg';
+import img from './imgs/user.jpg';
 
 // List icons
-import dashboard from './dashboard.svg';
-import menu from './menu.svg';
-import dish from './dish.svg';
-import product from './product.svg';
+import dashboard from './imgs/dashboard.svg';
+import menu from './imgs/menu.svg';
+import dish from './imgs/dish.svg';
+import product from './imgs/product.svg';
 
 const values = {
   img: img,
-  list: ['dashboard', 'menu', 'dishes', 'products'],
+  // list: ['dashboard', 'menu', 'dishes', 'products'],
+  list: [routes.DASHBOARD, routes.MENU, routes.DISHES, routes.PRODUCTS],
   icons: [dashboard, menu, dish, product],
   links: ['www.facebook.com', 'www.github.com', 'www.linkedin.com'],
 };
@@ -36,7 +49,7 @@ export default class Nav extends Component {
     super(props);
 
     this.state = {
-      shown: false,
+      shown: false
     };
   };
 
@@ -96,20 +109,39 @@ class NavProfile extends Component {
     return (
       <div className='Nav-Profile'>
         <div className='Nav-Img'>
-          <NavLink to='/profile'>
+          <NavLink to={routes.PROFILE}>
             <img src={this.props.img} alt='lala' />
           </NavLink>
         </div>
-        <NavLink className='Nav-Edit' to='/profile' activeClassName='activeLink'>
+        <NavLink className='Nav-Edit' to={routes.PROFILE} activeClassName='activeLink'>
           Edit profile
         </NavLink>
-        <Link className='Nav-Edit' to='/'>
-          Logout
-        </Link>
+        <SignOut />
       </div>
     )
   };
 };
+
+class BtnSignOut extends Component {
+  handleClick = async e => {
+    // Sign out
+    await this.props.firebase.doSignOut();
+
+    // Redirect
+    this.props.history.push(routes.HOME);
+  }
+
+  render() {
+    return (
+      <button className='Nav-Edit' onClick={this.handleClick}>
+        Sign Out
+      </button>
+    )
+  };
+};
+
+// Use Router & FbContext to BtnSignOut
+const SignOut = withRouter(withFirebase(BtnSignOut));
 
 class NavList extends Component {
   render() {
@@ -129,8 +161,8 @@ class ListItem extends Component {
     return (
       this.props.list.map((item, i) => (
         <li key={i}>
-          <NavLink to={`/` + item} activeClassName='activeLink'>
-            {item}
+          <NavLink to={item} activeClassName='activeLink'>
+            {item.replace(/\//gi, '')}
             <img src={this.props.icons[i]} alt='lala'/>
           </NavLink>
         </li>
@@ -156,7 +188,7 @@ class Copy extends Component {
   render() {
     return (
       <span className='Nav-Copy'>
-        &copy; 2018 Morsweb
+        &copy; 2018 - 2019 Morsweb
       </span>
     )
   };
