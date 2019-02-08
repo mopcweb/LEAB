@@ -5,19 +5,31 @@ import path from 'path';
 
 import routes from './routes';
 
+/* ------------------------------------------------------- */
+/*                         Config
+/* ------------------------------------------------------- */
+
+// =====> Config
+import * as config from './config';
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+/* ------------------------------------------------------- */
+/*                      Middlewares
+/* ------------------------------------------------------- */
+
 // Define max size of data loaded
-app.use(bodyParser.json({limit: '50mb'}));
-app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
+app.use(bodyParser.json(config.bp.json));
+app.use(bodyParser.urlencoded(config.bp.urlencoded));
 
-app.use('/', routes)
+app.use('/', routes);
 
-// Connect mongo
-mongoose.connect('mongodb://localhost/leab', { useNewUrlParser: true });
+/* ------------------------------------------------------- */
+/*                        Static
+/* ------------------------------------------------------- */
 
-// Serve static files from build
+// =====> Serve static files in production mode
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, 'client/build')));
 
@@ -25,5 +37,9 @@ if (process.env.NODE_ENV === 'production') {
     res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
   });
 };
+
+/* ------------------------------------------------------- */
+/*                         Listen
+/* ------------------------------------------------------- */
 
 app.listen(PORT, () => console.log(`Server is ready on localhost:${PORT}`))

@@ -43,6 +43,14 @@ export default class Register extends Component {
 
           <SignUp />
 
+          <div className='Register-Question'>
+            Have an account already ?
+
+            <Link to={routes.LOGIN}>
+              Sign in
+            </Link>
+          </div>
+
         </div>
       </Wrapper>
     )
@@ -176,7 +184,7 @@ class Form extends Component {
             Create account
           </button>
         </form>
-        {/* {this.state.error && <span>{this.state.error.message}</span>} */}
+
         <Alert value={this.state.alert.value} addClass={this.state.alert.class} isShow={this.state.alert.show} onClick={this.handleAlertClose} />
       </Fragment>
     )

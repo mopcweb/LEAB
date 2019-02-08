@@ -59,12 +59,13 @@ export default class Products extends Component {
     this.showAlert = showAlert.bind(this);
   };
 
+  // =====> Handle open/close Modal component
   handleOpenModal(e) {
     // Close onClick at btn or out of modal inner
     if (e.target.closest('.Modal-Close') || !e.target.closest('.Modal-Inner')) this.setState(state => ({isOpen: !state.isOpen}))
   }
 
-  // Handle click on add button
+  // =====> Handle click on add button
   async handleAddItem(e) {
     // Prevent default page reload onSubmit
     e.preventDefault();
@@ -121,6 +122,7 @@ export default class Products extends Component {
     await this.getCategories()
   }
 
+  // =====> Handle preview img
   handlePreviewImg(e) {
     // Define file
     const file = e.target.files[0];
@@ -153,7 +155,7 @@ export default class Products extends Component {
     if (file) reader.readAsDataURL(file);
   }
 
-  // Handle click on remove button
+  // =====> Handle click on remove button
   async handleRemoveItem(e) {
     // Define clicked category id
     const id = e.target.htmlFor;
@@ -276,7 +278,7 @@ export default class Products extends Component {
     await this.getCategories()
   }
 
-  // Handler for catTitle input value changes
+  // =====> Handle catTitle input value changes
   handleCatTitleChange(e) {
     // Check for ONLY english letters usage
     // if (!e.target.value.match(/^[A-Za-z0-9\s()]*$/gi) && e.target.tagName === 'INPUT') {
@@ -290,7 +292,7 @@ export default class Products extends Component {
     this.setState({catTitle: capitalize(e.target.value)});
   }
 
-  // Handler for closing alert by clicking on its cross
+  // =====> Handle closing alert by clicking on its cross
   handleAlertClose(e) {
     clearTimeout(this.timer);
 
@@ -301,17 +303,19 @@ export default class Products extends Component {
     }});
   }
 
+  // =====> Lifecycle hook (just before render)
   async componentDidMount() {
     // Get all categories before first render
     await this.getCategories();
     await this.getProducts();
   }
 
+  // =====> Lifecycle hook (just after destroy)
   componentWillUnmount() {
     clearTimeout(this.timer);
   }
 
-  // Get categories
+  // =====> Get categories request
   getCategories() {
     return request(api.PRODUCTS_CATEGORIES)
       .then(data => {
@@ -334,6 +338,7 @@ export default class Products extends Component {
       .catch(err => console.log(err));
   }
 
+  // =====> Get products request
   getProducts() {
     // Requesting data from server. Header 'data' specifies filename
     return request(api.PRODUCTS)
@@ -349,6 +354,7 @@ export default class Products extends Component {
       .catch(err => console.log(err));
   }
 
+  // =====> Render
   render() {
     return (
       <Wrapper addClass='Products' header='Products'>

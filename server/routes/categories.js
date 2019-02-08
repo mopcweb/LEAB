@@ -2,22 +2,37 @@ import mongoose from 'mongoose';
 import express from 'express';
 import bodyParser from 'body-parser';
 
-// Import model for Category
-import CategoryModel from '../../models/Category';
+/* ------------------------------------------------------- */
+/*                         Config
+/* ------------------------------------------------------- */
 
-// Define router
+// =====> Config
+import * as config from '../config';
+
+// =====> Import model for Category
+import CategoryModel from '../models/Category';
+
+// =====> Define router
 const router = express.Router();
 
-// Use bodyParser
-// Define max size of data loaded
-router.use(bodyParser.json({limit: '50mb'}));
-router.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
+/* ------------------------------------------------------- */
+/*                      Middlewares
+/* ------------------------------------------------------- */
 
-// Connect MongoDb
-mongoose.connect('mongodb://localhost/leab', { useNewUrlParser: true, useFindAndModify: false });
+// =====> Use bodyParser
+// Define max size of data loaded
+router.use(bodyParser.json(config.bp.json));
+router.use(bodyParser.urlencoded(config.bp.urlencoded));
 
 /* ------------------------------------------------------- */
-/*                     Category API (CRUD)
+/*                         Mongodb
+/* ------------------------------------------------------- */
+
+// =====> Connect MongoDb
+mongoose.connect(config.MongoURI, config.MongoOpts);
+
+/* ------------------------------------------------------- */
+/*                    Category API (CRUD)
 /* ------------------------------------------------------- */
 
 // =====> POST

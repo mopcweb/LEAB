@@ -13,6 +13,8 @@ import './index.sass';
 import {Wrapper} from '../../components/Main';
 import {Inputs, Select, Submit} from '../../components/FormElems';
 
+import { AuthContext } from '../../config/store';
+
 /* ------------------------------------------------------------------- */
 /*                              Example data
 /* ------------------------------------------------------------------- */
@@ -29,8 +31,8 @@ export default class Profile extends Component {
 
     this.state = {
       name: '',
-      email: '',
       password: '',
+      confirmPassword: '',
       ccal: '',
       proteins: '',
       fats: '',
@@ -42,12 +44,12 @@ export default class Profile extends Component {
       title: 'Edit',
       submit: 'Save',
       addClass: 'Profile-Form',
-      type: ['text','email','password'],
-      name: ['name','email','password'],
-      id: ['name','email','password'],
-      label: ['Your name','Your email','Your password'],
-      placeholder: ['Your name','Your email','Your password'],
-      value: [this.state.name,this.state.email,this.state.password],
+      type: ['text','password','password'],
+      name: ['name','password','confirmPassword'],
+      id: ['name','password','confirmPassword'],
+      label: ['Your name','New password','Confirm password'],
+      placeholder: ['Your name','New password','Confirm password'],
+      value: [this.state.name,this.state.password,this.state.confirmPassword],
     };
 
     this.calorieData = {
@@ -72,6 +74,9 @@ export default class Profile extends Component {
   render() {
     return (
       <Wrapper addClass='Profile' header='Profile'>
+        <AuthContext.Consumer>
+          {user => console.log(user)}
+        </AuthContext.Consumer>
         <Edit data={this.profileData} />
         <Form data={this.calorieData}>
           <Select data={this.currency} />

@@ -1,36 +1,26 @@
 import express from 'express';
 
 /* ------------------------------------------------------- */
-/*                        Import Models
+/*                     Import Models
 /* ------------------------------------------------------- */
 
 import products from './products';
 import categories from './categories';
 
 /* ------------------------------------------------------- */
-/*                        Config
+/*                         Config
 /* ------------------------------------------------------- */
+
+// =====> Config
+import * as config from '../config';
 
 const router = express.Router();
 
-const api = '/api';
-
-const HOME = api + '/';
-const LOGIN = api + '/login';
-const REGISTER = api + '/register';
-const PROFILE = api + '/profile';
-const DASHBOARD = api + '/dashboard';
-const MENU = api + '/menu';
-const DISHES = api + '/dishes';
-const DISHES_CATEGORIES = api + '/dishesCategories';
-const PRODUCTS = api + '/products';
-const PRODUCTS_CATEGORIES = api + '/productsCategories';
-
 /* ------------------------------------------------------- */
-/*                        Routes
+/*                         Routes
 /* ------------------------------------------------------- */
 
-router.use(PRODUCTS, products);
-router.use(PRODUCTS_CATEGORIES, categories);
+router.use(config.PRODUCTS, products);
+router.use(config.PRODUCTS_CATEGORIES, categories);
 
 export default router

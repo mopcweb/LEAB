@@ -23,39 +23,31 @@ import Alert, { showAlert } from '../../components/Alert';
 import { withFirebase } from '../../config/store';
 
 /* ------------------------------------------------------------------- */
-/*                              Login component
+/*                              ResetPwd component
 /* ------------------------------------------------------------------- */
 
-export default class Login extends Component {
+export default class ResetPwd extends Component {
   render() {
     return (
-      <Wrapper addClass='Login'>
+      <Wrapper addClass='ResetPwd'>
         <Header />
 
-        <div className='Login-Inner'>
+        <div className='ResetPwd-Inner'>
           <h2>Welcome to the LEAB app !</h2>
 
           <br/><br/>
 
-          <h1>Nice to meet you again. Please come in!</h1>
+          <h1>Please type in your email to reset password!</h1>
 
           <br/><br/>
 
           <SignIn />
 
-          <div className='Login-Question'>
-            Don't have an account yet ?
+          <div className='ResetPwd-Question'>
+            Recall password  ?
 
-            <Link to={routes.REGISTER}>
-              Create account
-            </Link>
-          </div>
-
-          <div className='Login-Question'>
-            Forgot password ?
-
-            <Link to={routes.RESET_PWD}>
-              Reset password
+            <Link to={routes.LOGIN}>
+              Sign In
             </Link>
           </div>
 
@@ -68,15 +60,18 @@ export default class Login extends Component {
 class Header extends Component {
   render() {
     return (
-      <div className='Login-Header'>
+      <div className='ResetPwd-Header'>
         <Link to={routes.HOME}>
           Home
+        </Link>
+        <Link to={routes.LOGIN}>
+          Sign In
         </Link>
         <Link to={routes.REGISTER}>
           Register
         </Link>
         <span>
-          Sign in
+          Reset Password
         </span>
       </div>
     )
@@ -89,7 +84,6 @@ class Form extends Component {
 
     this.state = {
       email: '',
-      password: '',
       alert: {
         show: false,
         value: '',
@@ -122,16 +116,13 @@ class Form extends Component {
     // Prevent default page reload
     e.preventDefault();
 
-    const { email, password } = this.state;
+    const { email } = this.state;
 
     await this.props.firebase
-      .doSignInWithEmailAndPassword(email, password)
-      .then(authUser => {
-        this.setState({
-          email: '',
-          password: ''
-        });
-        this.props.history.push(routes.DASHBOARD);
+      .doPasswordReset(email)
+      .then(() => {
+        this.setState({email: ''})
+        this.props.history.push(routes.LOGIN)
       })
       .catch(err => {
         clearTimeout(this.timer);
@@ -147,13 +138,11 @@ class Form extends Component {
 
   render() {
     // Check validation
-    const isInvalid =
-      this.state.password === '' ||
-      this.state.email === '';
+    const isInvalid = this.state.email === '';
 
     return (
       <Fragment>
-        <form className='Login-Form' onSubmit={this.handleSubmit}>
+        <form className='ResetPwd-Form' onSubmit={this.handleSubmit}>
           <Input
             type='email'
             name='email'
@@ -161,16 +150,9 @@ class Form extends Component {
             value={this.state.email}
             onChange={this.handleChange}
           />
-          <Input
-            type='password'
-            name='password'
-            label='Password'
-            value={this.state.password}
-            onChange={this.handleChange}
-          />
 
-          <button className='Login-Btn' disabled={isInvalid}>
-            Sign in
+          <button className='ResetPwd-Btn' disabled={isInvalid}>
+            Reset password
           </button>
         </form>
 
@@ -209,10 +191,10 @@ class Input extends Component {
         />
         <span
           className={this.state.isFocused
-            ? 'Login-Label Login-Label_active'
+            ? 'ResetPwd-Label ResetPwd-Label_active'
             : this.props.value !== ''
-            ? 'Login-Label Login-Label_active'
-            : 'Login-Label'
+            ? 'ResetPwd-Label ResetPwd-Label_active'
+            : 'ResetPwd-Label'
           }
         >
           {this.props.label}
