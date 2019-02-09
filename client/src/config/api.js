@@ -13,3 +13,4 @@ export const DISHES = api + routes.DISHES;
 export const DISHES_CATEGORIES = api + '/dishesCategories';
 export const PRODUCTS = api + routes.PRODUCTS;
 export const PRODUCTS_CATEGORIES = api + '/productsCategories';
+export const NOT_FOUND = api + routes.NOT_FOUND;

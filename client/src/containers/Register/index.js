@@ -116,12 +116,13 @@ class Form extends Component {
     // Prevent default page reload
     e.preventDefault();
 
-    const { username, email, password } = this.state;
+    const { email, password } = this.state;
 
     await this.props.firebase
       .doCreateUserWithEmailAndPassword(email, password)
       .then(authUser => {
         this.setState({
+          username: '',
           email: '',
           password: '',
           confirmPassword: ''

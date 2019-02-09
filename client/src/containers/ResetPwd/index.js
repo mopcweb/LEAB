@@ -14,7 +14,7 @@ import './index.sass';
 import * as routes from '../../config/routes';
 
 /* ------------------------------------------------------------------- */
-/*                              My components
+/*                            My components
 /* ------------------------------------------------------------------- */
 
 import { Wrapper } from '../../components/Main';
@@ -23,7 +23,7 @@ import Alert, { showAlert } from '../../components/Alert';
 import { withFirebase } from '../../config/store';
 
 /* ------------------------------------------------------------------- */
-/*                              ResetPwd component
+/*                          ResetPwd component
 /* ------------------------------------------------------------------- */
 
 export default class ResetPwd extends Component {

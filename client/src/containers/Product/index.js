@@ -16,7 +16,7 @@ import defaultImg from './default.svg';
 import * as api from '../../config/api';
 import * as routes from '../../config/routes';
 
-import { Input, Disabled, Selects, SubmitLink } from '../../components/FormElems';
+import { Inputs, Disabled, Select, SubmitLink } from '../../components/FormElems';
 import { Wrapper } from '../../components/Main';
 import Alert, { showAlert } from '../../components/Alert';
 import { capitalize, makeURL, request } from '../../components/UsefulF';
@@ -71,42 +71,36 @@ export default class Product extends Component {
         id: 'title',
         label: 'Enter title',
         placeholder: 'Enter title',
-        value: this.state.title,
       },
       {
         type: 'number',
         id: 'amount',
         label: 'Enter amount',
         placeholder: 'Enter amount',
-        value: this.state.amount,
       },
       {
         type: 'number',
         id: 'price',
         label: 'Enter price',
         placeholder: 'Enter price',
-        value: this.state.price,
       },
       {
         type: 'number',
         id: 'proteins',
         label: 'Enter proteins',
         placeholder: 'Enter proteins',
-        value: this.state.proteins,
       },
       {
         type: 'number',
         id: 'fats',
         label: 'Enter fats',
         placeholder: 'Enter fats',
-        value: this.state.fats,
       },
       {
         type: 'number',
         id: 'carbs',
         label: 'Enter carbohydrates',
         placeholder: 'Enter carbohydrates',
-        value: this.state.carbs,
       }
     ];
 
@@ -120,24 +114,6 @@ export default class Product extends Component {
 
   handleChangeCcal(e) {
     const state = e.target.id;
-
-    // Check for ONLY english letters usage
-    // if (!e.target.value.match(/^[A-Za-z0-9\s()]*$/gi)) {
-    //   // Show error alert
-    //   clearTimeout(this.timer);
-    //   this.timer = this.showAlert('Only english letters are allowed', 'Message_error');
-    //
-    //   return
-    // };
-
-    // Show error if first letter is 'space'
-    // if (e.target.value.match(/^\s*$/gi)) {
-    //   // Show error alert
-    //   clearTimeout(this.timer);
-    //   this.timer = this.showAlert('Only english letters are allowed', 'Message_error');
-    //
-    //   return
-    // };
 
     // Update target input state
     this.setState({[state]: capitalize(e.target.value)});
@@ -409,11 +385,11 @@ class Data extends Component {
   render() {
     return (
       <div className='Product-Data'>
-        <Input data={this.props.inputs} values={this.props.inputsValues} onChange={this.props.onChange} />
+        <Inputs data={this.props.inputs} values={this.props.inputsValues} onChange={this.props.onChange} />
 
-        <Selects config={this.props.unitsSelect} value={this.props.unit} options={this.props.unitsOptions} onChange={this.props.onChange} />
+        <Select config={this.props.unitsSelect} value={this.props.unit} options={this.props.unitsOptions} onChange={this.props.onChange} />
 
-        <Selects config={this.props.categoriesSelect} value={this.props.category} options={this.props.categoriesOptions} onChange={this.props.onChange} />
+        <Select config={this.props.categoriesSelect} value={this.props.category} options={this.props.categoriesOptions} onChange={this.props.onChange} />
 
         <Disabled type='text' id='ccal' label='Calories' value={this.props.ccal} />
 

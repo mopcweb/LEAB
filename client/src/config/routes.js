@@ -10,3 +10,4 @@ export const DISHES = '/dishes';
 export const DISH = '/dishes/:dish';
 export const PRODUCTS = '/products';
 export const PRODUCT = '/products/:product';
+export const NOT_FOUND = '/notfound';

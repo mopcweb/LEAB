@@ -16,11 +16,14 @@ import * as routes from './config/routes';
 /* ------------------------------------------------------------------- */
 
 import Main from './components/Main';
+import Loader from './components/Loader';
 
 import Home from './containers/Home';
 import Register from './containers/Register';
 import Login from './containers/Login';
 import ResetPwd from './containers/ResetPwd';
+
+import NotFound from './containers/NotFound';
 
 import Profile from './containers/Profile';
 import Dashboard from './containers/Dashboard';
@@ -35,7 +38,7 @@ import Product from './containers/Product';
 /*                        Import Context & Firebase
 /* ------------------------------------------------------------------- */
 
-import {store, Context, FbContext, withFirebase, AuthContext, withAuth } from './config/store';
+import { FbContext, AuthContext, withAuth } from './config/store';
 import Firebase from './config/firebase';
 
 /* ------------------------------------------------------------------- */
@@ -46,18 +49,16 @@ import Firebase from './config/firebase';
 class App extends Component {
   render() {
     return (
-      <Router>
-        <Context.Provider value={store}>
-        <FbContext.Provider value={new Firebase()}>
-          <Routes />
-        </FbContext.Provider>
-        </Context.Provider>
-      </Router>
+      <FbContext.Provider value={new Firebase()}>
+        <Router>
+            <Routes />
+        </Router>
+      </FbContext.Provider>
     )
   };
 };
 
-// =====> Component-consumer of (authUser)
+// =====> Routes under Firebase Auth validation
 class Routes extends Component {
   render() {
     return (
@@ -70,16 +71,21 @@ class Routes extends Component {
             <Route path={routes.RESET_PWD} exact component={ResetPwd} />
             {authUser
               ? <Main>
-                  <Route path={routes.PROFILE} component={Profile} />
-                  <Route path={routes.DASHBOARD} component={Dashboard} />
-                  <Route path={routes.MENU} exact component={Menu} />
-                  <Route path={routes.MENU_ITEM} component={MenuItem} />
-                  <Route path={routes.DISHES} exact component={Dishes} />
-                  <Route path={routes.DISH} component={Dish} />
-                  <Route path={routes.PRODUCTS} exact component={Products} />
-                  <Route path={routes.PRODUCT} component={Product} />
+                  <Switch>
+                    <Route path={routes.PROFILE} component={Profile} />
+                    <Route path={routes.DASHBOARD} component={Dashboard} />
+                    <Route path={routes.MENU} exact component={Menu} />
+                    <Route path={routes.MENU_ITEM} component={MenuItem} />
+                    <Route path={routes.DISHES} exact component={Dishes} />
+                    <Route path={routes.DISH} component={Dish} />
+                    <Route path={routes.PRODUCTS} exact component={Products} />
+                    <Route path={routes.PRODUCT} component={Product} />
+                    <Route path='*' component={NotFound} />
+                  </Switch>
                 </Main>
-              : null
+              : <Switch>
+                  <Route path='*' component={Loader} />
+                </Switch>
             }
           </Switch>
         )}

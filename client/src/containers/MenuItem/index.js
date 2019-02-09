@@ -10,7 +10,7 @@ import './index.sass';
 /*                              My Components
 /* ------------------------------------------------------------------- */
 
-import { Input, Disabled, Select, Submit } from '../../components/FormElems';
+import { Inputs, Disabled, Select, Submit } from '../../components/FormElems';
 import {Wrapper} from '../../components/Main';
 import {capitalize} from '../../components/UsefulF';
 // import Modal from '../../components/Modal';
@@ -132,7 +132,7 @@ class Data extends Component {
     return (
       <div className='MenuItem-Data'>
 
-        <Input data={this.props.inputs} onChange={this.props.onChange} />
+        <Inputs data={this.props.inputs} onChange={this.props.onChange} />
 
         <Select data={this.props.catSelect} onChange={this.props.onChange} value={this.props.category} />
 
@@ -235,7 +235,7 @@ class AddProduct extends Component {
           onChange={this.props.onChange}
           value={this.props.select[0]}
         />
-        <Input data={this.props.input} />
+        <Inputs data={this.props.input} />
         <Submit value='Add' />
       </form>
     )

@@ -1,21 +1,11 @@
-import React, { Component, createContext } from 'react';
+import React, { createContext } from 'react';
+import { withRouter } from 'react-router-dom';
 
 /* ------------------------------------------------------- */
-/*                          Global
+/*                        Routes
 /* ------------------------------------------------------- */
 
-const menu = {
-  title: 'Menu',
-  changeTitle: (e) => {
-    menu.title = e.target.value;
-  }
-};
-
-export const store = {
-  menu: menu,
-};
-
-export const Context = createContext(store);
+import * as routes from './routes';
 
 /* ------------------------------------------------------- */
 /*                        Firebase
@@ -35,28 +25,47 @@ export const withFirebase = Component => props => (
 /*                        AuthUser
 /* ------------------------------------------------------- */
 
-// =====> AuthUser
+// =====> AuthUser Context
 export const AuthContext = createContext(null);
 
 // =====> AuthUser HOC
 export const withAuth = Component => {
-  class withAuth extends Component {
+  class WithAuth extends Component {
     constructor(props) {
       super(props);
 
       this.state = {
         authUser: null
       };
+
+      this.handleUserLoggedOut = this.handleUserLoggedOut.bind(this);
+      this.handleUserLoggedIn = this.handleUserLoggedIn.bind(this);
     }
 
-    // Check if there is loged in user
+    // Check if there is user logged in
     componentDidMount() {
       this.listener = this.props.firebase.auth.onAuthStateChanged(
         authUser => {
           authUser
-            ? this.setState({ authUser })
-            : this.setState({ authUser: null });
+            ? this.handleUserLoggedOut(authUser)
+            : this.handleUserLoggedIn()
       });
+    }
+
+    // =====> If user logged in -> change state & store user into localStorage
+    handleUserLoggedOut(authUser) {
+      this.setState({ authUser });
+
+      window.localStorage.setItem('user', JSON.stringify(authUser))
+    }
+
+    // =====> If user logged in -> clear localStorage & redirect to Home page
+    handleUserLoggedIn() {
+      this.setState({ authUser: null });
+
+      window.localStorage.clear();
+
+      this.props.history.push(routes.HOME)
     }
 
     // Remove listener on component destroy
@@ -71,7 +80,45 @@ export const withAuth = Component => {
         </AuthContext.Provider>
       );
     }
-  }
+  };
 
-  return withFirebase(withAuth);
+  return withRouter(withFirebase(WithAuth));
+};
+
+/* ------------------------------------------------------- */
+/*                        WithAuthorization
+/* ------------------------------------------------------- */
+
+// =====> Checking if there a user authorized. If not -> redirect to Home page
+export const withAuthorization = condition => Component => {
+  class WithAuthorization extends Component {
+
+    // Check if there is user logged in
+    componentDidMount() {
+      this.listener = this.props.firebase.auth.onAuthStateChanged(
+        authUser => {
+          if (!condition(authUser)) {
+            this.props.history.push(routes.HOME);
+          }
+        },
+      );
+    }
+
+    // Remove listener on component destroy
+    componentWillUnmount() {
+      this.listener();
+    }
+
+    render() {
+      return (
+        <AuthContext.Consumer>
+          {authUser =>
+            condition(authUser) ? <Component {...this.props} /> : null
+          }
+        </AuthContext.Consumer>
+      )
+    }
+  };
+
+  return withRouter(withFirebase(WithAuthorization))
 };

@@ -10,7 +10,7 @@ import './index.sass';
 /*                              My components
 /* ------------------------------------------------------------------- */
 
-import { Input, Submit } from '../FormElems';
+import { Inputs, Submit } from '../FormElems';
 import { capitalize } from '../UsefulF';
 
 /* ------------------------------------------------------------------- */
@@ -47,7 +47,7 @@ class Form extends Component {
         </label>
         <input id='catImg' type='file' onChange={this.props.onPreviewImg} />
 
-        <Input data={this.props.inputs} values={this.props.inputsValues} onChange={this.props.onChange} />
+        <Inputs data={this.props.inputs} values={this.props.inputsValues} onChange={this.props.onChange} />
         <Submit value='Add' onClick={this.props.onAdd} />
       </form>
     )

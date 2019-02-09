@@ -10,8 +10,7 @@ import './index.sass';
 /*                              My Components
 /* ------------------------------------------------------------------- */
 
-// import {Context, store} from '../../config/store';
-// import {Wrapper} from '../../components/Main';
+import {Wrapper} from '../../components/Main';
 
 /* ------------------------------------------------------------------- */
 /*                              Example data
@@ -25,64 +24,19 @@ import './index.sass';
 export default class Dashboard extends Component {
   render() {
     return (
-      <div>
+      <Wrapper addClass='Dashboard' header='Dashboard'>
         Dashboard
-      </div>
+      </Wrapper>
     )
   }
 }
 
-// export default class Dashboard extends Component {
-//   constructor(props) {
-//     super(props);
-//
-//     this.state = {
-//       store: store.menu
-//     }
-//   };
-//
-//   componentDidUpdate(props, state) {
-//     if (this.context !== state.store) {
-//       console.log(this.context.menu.title)
-//     }
-//   };
-//
+// class Diagrams extends Component {
 //   render() {
 //     return (
-//       <Wrapper addClass='Dashboard' header='Dashboard'>
-//         <div style={{color: 'red'}}>
-//           {this.state.store.title}
-//           <form>
-//           <input type='text' onChange={this.state.store.changeTitle} />
-//           <input type='submit' />
-//           </form>
-//         </div>
-//       </Wrapper>
-//       // <Context.Consumer>
-//       //     {store => (
-//       //       <Wrapper addClass='Dashboard' header='Dashboard'>
-//       //       <div style={{color: 'red'}}>
-//       //         {store.menu.title}
-//       //         <form>
-//       //         <input type='text' onChange={store.menu.changeTitle} />
-//       //         <input type='submit' />
-//       //         </form>
-//       //       </div>
-//       //       </Wrapper>
-//       //     )}
-//       // </Context.Consumer>
+//       <div className='Diargams'>
+//
+//       </div>
 //     )
 //   };
 // };
-//
-// Dashboard.contextType = Context;
-//
-// // class Diagrams extends Component {
-// //   render() {
-// //     return (
-// //       <div className='Diargams'>
-// //
-// //       </div>
-// //     )
-// //   };
-// // };
