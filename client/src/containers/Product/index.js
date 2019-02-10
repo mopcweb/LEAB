@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 
 /* ------------------------------------------------------------------- */
 /*                              Styles
@@ -26,7 +26,7 @@ import { capitalize, makeURL, request } from '../../components/UsefulF';
 /*                              Product component
 /* ------------------------------------------------------------------- */
 
-export default class Product extends Component {
+class Product extends Component {
   constructor(props) {
     super(props);
 
@@ -283,7 +283,18 @@ export default class Product extends Component {
       .then(res => product = res)
       .catch(err => console.log(err))
 
-    if (product === undefined || product === '') return
+    if (product === undefined || product === '') {
+      // Receive current field with product property name
+      const param = this.props.match ? Object.keys(this.props.match.params)[0] : '';
+
+      // If it equals 'new-item' (which is default for new item) -> just stop
+      if (this.props.match.params[param] === 'new-item') return
+
+      // If not -> redirect to NotFound page
+      this.props.history.push(routes.NOT_FOUND)
+
+      return
+    }
 
     console.log('=====> product', product)
 
@@ -438,3 +449,5 @@ class UsedItem extends Component {
     )
   };
 };
+
+export default withRouter(Product)

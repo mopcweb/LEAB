@@ -72,21 +72,22 @@ class Routes extends Component {
             {authUser
               ? <Main>
                   <Switch>
-                    <Route path={routes.PROFILE} component={Profile} />
-                    <Route path={routes.DASHBOARD} component={Dashboard} />
-                    <Route path={routes.MENU} exact component={Menu} />
-                    <Route path={routes.MENU_ITEM} component={MenuItem} />
-                    <Route path={routes.DISHES} exact component={Dishes} />
-                    <Route path={routes.DISH} component={Dish} />
-                    <Route path={routes.PRODUCTS} exact component={Products} />
-                    <Route path={routes.PRODUCT} component={Product} />
-                    <Route path='*' component={NotFound} />
+                    <Route exact path={routes.PROFILE} component={Profile} />
+                    <Route exact path={routes.DASHBOARD} component={Dashboard} />
+                    <Route exact path={routes.MENU} component={Menu} />
+                    <Route exact path={routes.MENU_ITEM} component={MenuItem} />
+                    <Route exact path={routes.DISHES} component={Dishes} />
+                    <Route exact path={routes.DISH} component={Dish} />
+                    <Route exact path={routes.PRODUCTS} component={Products} />
+                    <Route exact path={routes.PRODUCT} component={Product} />
+                    <Route component={NotFound} />
                   </Switch>
                 </Main>
               : <Switch>
                   <Route path='*' component={Loader} />
                 </Switch>
             }
+            <Route component={NotFound} />
           </Switch>
         )}
       </AuthContext.Consumer>
