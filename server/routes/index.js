@@ -6,6 +6,8 @@ import express from 'express';
 
 import products from './products';
 import categories from './categories';
+import test from './test';
+import productstest from './productstest';
 
 /* ------------------------------------------------------- */
 /*                         Config
@@ -22,5 +24,7 @@ const router = express.Router();
 
 router.use(config.PRODUCTS, products);
 router.use(config.PRODUCTS_CATEGORIES, categories);
+router.use('/api/test', test);
+router.use('/api/test/products', productstest);
 
 export default router
