@@ -1,33 +1,3 @@
-/* ------------------------------------------------------- */
-/*                         Config
-/* ------------------------------------------------------- */
-
-// =====> Api
-export const api = '/api';
-
-// =====> Routes
-export const HOME = api + '/';
-export const LOGIN = api + '/login';
-export const REGISTER = api + '/register';
-export const PROFILE = api + '/profile';
-export const DASHBOARD = api + '/dashboard';
-export const MENU = api + '/menu';
-export const DISHES = api + '/dishes';
-export const DISHES_CATEGORIES = api + '/dishesCategories';
-export const PRODUCTS = api + '/products';
-export const PRODUCTS_CATEGORIES = api + '/productsCategories';
-
-// =====> BodyParser options
-export const bp = {
-  json: {
-    limit: '50mb'
-  },
-  urlencoded: {
-    limit: '50mb',
-    extended: true
-  }
-};
-
 // =====> MongoURI
 const {user, pwd, host, port, db} = {
   user: 'admin',
@@ -37,15 +7,42 @@ const {user, pwd, host, port, db} = {
   db: 'leab'
 };
 
-export const MongoOpts = {
-  useNewUrlParser: true,
-  useFindAndModify: false
-};
+const MongoURI = `mongodb://${user}:${pwd}@${host}${port ? `:${port}` : ''}/${db}`;
 
-export const MongoURI = `mongodb://${user}:${pwd}@${host}${port ? `:${port}` : ''}/${db}`;
+/* ------------------------------------------------------- */
+/*                         Config
+/* ------------------------------------------------------- */
 
+const config = {
+  // =====> Port
+  port: 3001,
+  
+  // ======> Api
+  api: '/api',
 
+  // =====> BodyParser options
+  bp: {
+    json: {
+      limit: '50mb'
+    },
+    urlencoded: {
+      limit: '50mb',
+      extended: true
+    }
+  },
 
+  // =====> Mongo options
+  MongoOpts: {
+    useNewUrlParser: true,
+    useFindAndModify: false
+  },
 
+  // =====> Mongo URI
+  MongoURI
+}
 
-//
+/* ------------------------------------------------------- */
+/*                         Config
+/* ------------------------------------------------------- */
+
+module.exports = config;

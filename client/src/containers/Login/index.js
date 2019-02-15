@@ -12,6 +12,7 @@ import './index.sass';
 /* ------------------------------------------------------------------- */
 
 import * as routes from '../../config/routes';
+import * as api from '../../config/api';
 
 /* ------------------------------------------------------------------- */
 /*                              My components
@@ -19,6 +20,7 @@ import * as routes from '../../config/routes';
 
 import { Wrapper } from '../../components/Main';
 import Alert, { showAlert } from '../../components/Alert';
+import { request } from '../../components/UsefulF';
 
 import { withFirebase } from '../../config/store';
 
@@ -126,11 +128,23 @@ class Form extends Component {
 
     await this.props.firebase
       .doSignInWithEmailAndPassword(email, password)
-      .then(authUser => {
+      .then(async authUser => {
+        // Set to default empty value
         this.setState({
           email: '',
           password: ''
         });
+
+        // Check if user already exists
+        await request(api.USERS + '?email=' + email)
+          .then(res => {
+            console.log('=====> user', res)
+            // Put user into localStorage
+            window.localStorage.setItem('user', JSON.stringify(res));
+          })
+          .catch(err => console.log(err));
+
+        // Redirect to dashboard
         this.props.history.push(routes.DASHBOARD);
       })
       .catch(err => {

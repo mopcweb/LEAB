@@ -1,6 +1,6 @@
-import mongoose, { Schema } from 'mongoose'
+const mongoose = require('mongoose');
 
-const CategorySchema = new Schema(
+const CategorySchema = new mongoose.Schema(
   {
     title: String,
     img: Buffer
@@ -10,6 +10,4 @@ const CategorySchema = new Schema(
   }
 );
 
-const Category = mongoose.model('Category', CategorySchema);
-
-export default Category
+module.exports = mongoose.model('Category', CategorySchema);

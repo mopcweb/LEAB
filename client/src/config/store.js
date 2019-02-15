@@ -56,7 +56,7 @@ export const withAuth = Component => {
     handleUserLoggedOut(authUser) {
       this.setState({ authUser });
 
-      window.localStorage.setItem('user', JSON.stringify(authUser))
+      window.localStorage.setItem('token', JSON.stringify(authUser))
     }
 
     // =====> If user logged in -> clear localStorage & redirect to Home page

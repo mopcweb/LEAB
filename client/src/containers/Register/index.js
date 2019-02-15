@@ -1,6 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import { Link, withRouter } from 'react-router-dom';
 
+import axios from 'axios';
+
 /* ------------------------------------------------------------------- */
 /*                              Styles
 /* ------------------------------------------------------------------- */
@@ -8,10 +10,17 @@ import { Link, withRouter } from 'react-router-dom';
 import './index.sass';
 
 /* ------------------------------------------------------------------- */
-/*                              Routes
+/*                              Config
 /* ------------------------------------------------------------------- */
 
+// =====> Routes
 import * as routes from '../../config/routes';
+
+// =====> Api
+import * as api from '../../config/api';
+
+// =====> Constants
+import { register } from '../../config/constants';
 
 /* ------------------------------------------------------------------- */
 /*                              My components
@@ -19,11 +28,12 @@ import * as routes from '../../config/routes';
 
 import { Wrapper } from '../../components/Main';
 import Alert, { showAlert } from '../../components/Alert';
+import { capitalize } from '../../components/UsefulF';
 
 import { withFirebase } from '../../config/store';
 
 /* ------------------------------------------------------------------- */
-/*                              Register component
+/*                               Register
 /* ------------------------------------------------------------------- */
 
 export default class Register extends Component {
@@ -33,21 +43,21 @@ export default class Register extends Component {
         <Header />
 
         <div className='Register-Inner'>
-          <h2>Welcome to the LEAB app !</h2>
+          <h2>{register.welcome}</h2>
 
           <br/><br/>
 
-          <h1>Create your login and password, please!</h1>
+          <h1>{register.tip}</h1>
 
           <br/><br/>
 
           <SignUp />
 
           <div className='Register-Question'>
-            Have an account already ?
+            {register.question}
 
             <Link to={routes.LOGIN}>
-              Sign in
+              {register.questionBtn}
             </Link>
           </div>
 
@@ -57,23 +67,32 @@ export default class Register extends Component {
   };
 };
 
+/* ------------------------------------------------------------------- */
+/*                              Header
+/* ------------------------------------------------------------------- */
+
 class Header extends Component {
   render() {
+    const links = register.links.map((item, i) => (
+      <Link to={item.link} key={item.value + i}>
+        {item.value}
+      </Link>
+    ));
+
     return (
       <div className='Register-Header'>
-        <Link to={routes.HOME}>
-          Home
-        </Link>
-        <Link to={routes.LOGIN}>
-          Sign in
-        </Link>
+        {links}
         <span>
-          Register
+          {register.activePage}
         </span>
       </div>
     )
   };
 };
+
+/* ------------------------------------------------------------------- */
+/*                               Form
+/* ------------------------------------------------------------------- */
 
 class Form extends Component {
   constructor(props) {
@@ -97,7 +116,7 @@ class Form extends Component {
     this.showAlert = showAlert.bind(this);
   }
 
-  // Handler for closing alert by clicking on its cross
+  // =====> Handler for closing alert by clicking on its cross
   handleAlertClose(e) {
     clearTimeout(this.timer);
 
@@ -108,39 +127,77 @@ class Form extends Component {
     }});
   }
 
+  // =====> Handle Input value change
   handleChange(e) {
     this.setState({[e.target.name]: e.target.value});
+
+    if (e.target.name === 'username') this.setState({[e.target.name]: capitalize(e.target.value)});
   }
 
+  // =====> Handle click on submit btn
   async handleSubmit(e) {
     // Prevent default page reload
     e.preventDefault();
 
-    const { email, password } = this.state;
+    const { username, email, password } = this.state;
 
+    // Flag for check if already exist
+    let exists = '';
+
+    // Check if user already exists
+    await axios
+      .get(api.USERS + '/' + username)
+      .then(res => exists = res.data.username)
+      .catch(err => console.log(err));
+
+    // If exists -> stop running function
+    if (exists) {
+      clearTimeout(this.timer);
+      this.timer = this.showAlert(register.existMsg, 'Message_error');
+
+      return
+    };
+
+    // Firebase API for creating new User
     await this.props.firebase
       .doCreateUserWithEmailAndPassword(email, password)
-      .then(authUser => {
+      .then(async authUser => {
+
+        // Send data to the db
+        await axios
+          .post(api.USERS, {username, email})
+          .then(res => {
+            // Put user into localStorage
+            window.localStorage.setItem(register.userLC, JSON.stringify(res.data));
+          })
+          .catch(err => console.log(err));
+
+        // Set state to initial empty value
         this.setState({
           username: '',
           email: '',
           password: '',
           confirmPassword: ''
         });
+
+        // Redirect to dashboard
         this.props.history.push(routes.DASHBOARD);
       })
       .catch(err => {
         clearTimeout(this.timer);
         this.timer = this.showAlert(err.message, 'Message_error');
 
+        // For debug ONLY
         return console.log('=====> Error:', {status: 'Error', error: err.message})
       });
   }
 
+  // =====> Clear Alert interval on component destroy
   componentWillUnmount() {
     clearTimeout(this.timer);
   }
 
+  // =====> Render
   render() {
     // Check validation
     const isInvalid =
@@ -153,36 +210,36 @@ class Form extends Component {
       <Fragment>
         <form className='Register-Form' onSubmit={this.handleSubmit}>
           <Input
-            type='username'
+            type='text'
             name='username'
-            label='Username'
+            label={register.username}
             value={this.state.username}
             onChange={this.handleChange}
           />
           <Input
             type='email'
             name='email'
-            label='Email'
+            label={register.email}
             value={this.state.email}
             onChange={this.handleChange}
           />
           <Input
             type='password'
             name='password'
-            label='Password'
+            label={register.pwd}
             value={this.state.password}
             onChange={this.handleChange}
           />
           <Input
             type='password'
             name='confirmPassword'
-            label='Confirm password'
+            label={register.confirmPwd}
             value={this.state.confirmPassword}
             onChange={this.handleChange}
           />
 
           <button className='Register-Btn' disabled={isInvalid}>
-            Create account
+            {register.submit}
           </button>
         </form>
 
@@ -192,8 +249,12 @@ class Form extends Component {
   };
 };
 
-// Call Form with FbContext & Router
+// =====> Call Form with FbContext & Router
 const SignUp = withRouter(withFirebase(Form));
+
+/* ------------------------------------------------------------------- */
+/*                               Input
+/* ------------------------------------------------------------------- */
 
 class Input extends Component {
   constructor(props) {

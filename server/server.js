@@ -1,27 +1,27 @@
-import mongoose from 'mongoose';
-import express from 'express';
-import bodyParser from 'body-parser';
-import path from 'path';
+const mongoose = require('mongoose');
+const express = require('express');
+const bodyParser = require('body-parser');
+const path = require('path');
 
-import routes from './routes';
+const routes = require('./routes');
 
 /* ------------------------------------------------------- */
 /*                         Config
 /* ------------------------------------------------------- */
 
 // =====> Config
-import * as config from './config';
+const { bp, port } = require('./config');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || port;
 
 /* ------------------------------------------------------- */
 /*                      Middlewares
 /* ------------------------------------------------------- */
 
 // Define max size of data loaded
-app.use(bodyParser.json(config.bp.json));
-app.use(bodyParser.urlencoded(config.bp.urlencoded));
+app.use(bodyParser.json(bp.json));
+app.use(bodyParser.urlencoded(bp.urlencoded));
 
 app.use('/', routes);
 

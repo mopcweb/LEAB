@@ -102,7 +102,7 @@ export default class Products extends Component {
     // in purpose to console.log() result
       .then(data => {
         // Show success message
-        if (data.status === 'already exist') {
+        if (data.status.toLowerCase() === 'already exist') {
           clearTimeout(this.timer);
           this.timer = this.showAlert('Already exists', 'Message_error');
         }
@@ -210,7 +210,7 @@ export default class Products extends Component {
       await request(`${api.PRODUCTS_CATEGORIES}/${id}`, opts)
         .then(res => {
           // Show success message
-          if (res.status === 'already exist') {
+          if (res.status.toLowerCase() === 'already exist') {
             clearTimeout(this.timer);
             this.timer = this.showAlert('Already exists', 'Message_error');
           }

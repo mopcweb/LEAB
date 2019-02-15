@@ -1,20 +1,19 @@
-import express from 'express';
+const express = require('express');
 
 /* ------------------------------------------------------- */
 /*                     Import Models
 /* ------------------------------------------------------- */
 
-import products from './products';
-import categories from './categories';
-import test from './test';
-import productstest from './productstest';
+const users = require('./users');
+const products = require('./products');
+const categories = require('./categories');
 
 /* ------------------------------------------------------- */
 /*                         Config
 /* ------------------------------------------------------- */
 
 // =====> Config
-import * as config from '../config';
+const { api } = require('../config');
 
 const router = express.Router();
 
@@ -22,9 +21,23 @@ const router = express.Router();
 /*                         Routes
 /* ------------------------------------------------------- */
 
-router.use(config.PRODUCTS, products);
-router.use(config.PRODUCTS_CATEGORIES, categories);
-router.use('/api/test', test);
-router.use('/api/test/products', productstest);
+const HOME = api + '/';
+const LOGIN = api + '/login';
+const REGISTER = api + '/register';
+const USERS = api + '/users';
+const DASHBOARD = api + '/dashboard';
+const MENU = api + '/menu';
+const DISHES = api + '/dishes';
+const DISHES_CATEGORIES = api + '/dishesCategories';
+const PRODUCTS = api + '/products';
+const PRODUCTS_CATEGORIES = api + '/productsCategories';
 
-export default router
+/* ------------------------------------------------------- */
+/*                   Middlewares-routes
+/* ------------------------------------------------------- */
+
+router.use(USERS, users);
+router.use(PRODUCTS, products);
+router.use(PRODUCTS_CATEGORIES, categories);
+
+module.exports = router

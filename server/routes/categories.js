@@ -1,16 +1,16 @@
-import mongoose from 'mongoose';
-import express from 'express';
-import bodyParser from 'body-parser';
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
 
 /* ------------------------------------------------------- */
 /*                         Config
 /* ------------------------------------------------------- */
 
 // =====> Config
-import * as config from '../config';
+const { MongoOpts, MongoURI, bp } = require('../config');
 
 // =====> Import model for Category
-import CategoryModel from '../models/Category';
+const CategoryModel = require('../models/Category');
 
 // =====> Define router
 const router = express.Router();
@@ -21,15 +21,15 @@ const router = express.Router();
 
 // =====> Use bodyParser
 // Define max size of data loaded
-router.use(bodyParser.json(config.bp.json));
-router.use(bodyParser.urlencoded(config.bp.urlencoded));
+router.use(bodyParser.json(bp.json));
+router.use(bodyParser.urlencoded(bp.urlencoded));
 
 /* ------------------------------------------------------- */
 /*                         Mongodb
 /* ------------------------------------------------------- */
 
 // =====> Connect MongoDb
-mongoose.connect(config.MongoURI, config.MongoOpts);
+mongoose.connect(MongoURI, MongoOpts);
 
 /* ------------------------------------------------------- */
 /*                    Category API (CRUD)
@@ -136,4 +136,8 @@ router.delete('/:id', (req, res) => {
     .catch(err => res.json({status: err}));
 });
 
-export default router
+/* ------------------------------------------------------- */
+/*                         Export
+/* ------------------------------------------------------- */
+
+module.exports = router;
