@@ -39,8 +39,9 @@ class Profile extends Component {
 
     // =====> State
     this.state = {
-      user: profile.user,
+      user: profile.user ? profile.user : '',
       username: '',
+      email: '',
       img: profile.defaultImg,
       password: '',
       confirmPassword: '',
@@ -58,12 +59,6 @@ class Profile extends Component {
     };
 
     // =====> Bind all methods
-    this.handleChange = this.handleChange.bind(this);
-    this.handleAlertClose = this.handleAlertClose.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleSave = this.handleSave.bind(this);
-    this.handlePreviewImg = this.handlePreviewImg.bind(this);
-    this.updateUser = this.updateUser.bind(this);
     this.showAlert = showAlert.bind(this);
 
     // =====> Config for inputs of User Edit section
@@ -131,7 +126,7 @@ class Profile extends Component {
   };
 
   // =====> Handle inputs values changes
-  handleChange(e) {
+  handleChange = (e) => {
     const state = e.target.id;
 
     // Update target input state
@@ -140,8 +135,8 @@ class Profile extends Component {
     if (state === 'username') this.setState({[state]: capitalize(e.target.value)})
   }
 
-  // Handler for closing alert by clicking on its cross
-  handleAlertClose(e) {
+  // =====> Handle close alert by clicking on its cross
+  handleAlertClose = (e) => {
     clearTimeout(this.timer);
 
     this.setState({alert: {
@@ -151,13 +146,14 @@ class Profile extends Component {
     }});
   }
 
-  async handleSubmit(e) {
+  // =====> Handle submit btn
+  handleSubmit = (e) => {
     // Prevent default page reload
     e.preventDefault();
 
     const { password } = this.state;
 
-    await this.props.firebase
+    this.props.firebase
       .doPasswordUpdate(password)
       .then(() => {
         this.setState({password: '', confirmPassword: ''})
@@ -175,7 +171,7 @@ class Profile extends Component {
   }
 
   // =====> Handle img preview
-  handlePreviewImg(e) {
+  handlePreviewImg = (e) => {
     // Define file
     const file = e.target.files[0];
 
@@ -207,7 +203,7 @@ class Profile extends Component {
   }
 
   // =====> Handle save profile config (Edit)
-  async handleSave(e) {
+  handleSave = (e) => {
     // Prevent default page reload
     e.preventDefault();
 
@@ -215,7 +211,7 @@ class Profile extends Component {
     const { username, currency, img } = this.state;
 
     // Send data into db
-    await axios
+    axios
       .put(api.USERS + '/' + this.state.user._id, { username, currency, img })
       .then(res => {
         // Show success message
@@ -226,37 +222,38 @@ class Profile extends Component {
   }
 
   // =====> update state just after before component render
-  async componentDidMount() {
+  componentDidMount() {
+    this.getUser()
+  }
+
+  // =====> Get current User profile
+  getUser = () => {
     // Get token from localStorage
     const token = JSON.parse(window.localStorage.getItem(profile.tokenLC));
 
     // Receive email into variable
-    const email = token.email;
+    const email = token ? token.email : '';
+
+    // If there is no email (if user manually clear storage) -> recursice call of getUser()
+    if (!email) return setTimeout(() => this.getUser(), 0)
 
     // Request current user
-    await axios
-      .get(api.USERS + '?email=' + email)
+    axios
+      .get(api.USERS + '/' + email)
       .then(res => this.updateUser(res.data))
       .catch(err => console.log(err));
   }
 
   // =====> Upadte user state & localStorage
-  updateUser(data) {
+  updateUser = (user) => {
     // Put user into localStorage
-    window.localStorage.setItem(profile.userLC, JSON.stringify(data));
-
-    // Update state
-    this.setState({user: data});
+    window.localStorage.setItem(profile.userLC, JSON.stringify(user));
 
     // Receive neccesary fields
-    const { username, currency, img } = data;
+    const { username, currency, img } = user;
 
-    // Update their state
-    this.setState({
-      username,
-      currency,
-      img: img ? new Buffer(img) : ''
-    });
+    // Update state
+    this.setState({ user, username, currency, img: img ? new Buffer(img) : '' });
   }
 
   // =====> Clear Alert timer before component destroy

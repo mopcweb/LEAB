@@ -2,9 +2,9 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
-/* ------------------------------------------------------- */
-/*                         Config
-/* ------------------------------------------------------- */
+/* ------------------------------------------------------------------- */
+/*                               Config
+/* ------------------------------------------------------------------- */
 
 // =====> Config
 const { MongoOpts, MongoURI, bp } = require('../config');
@@ -15,138 +15,157 @@ const UserModel = require('../models/User');
 // =====> Define router
 const router = express.Router();
 
-/* ------------------------------------------------------- */
-/*                        Constants
-/* ------------------------------------------------------- */
+/* ------------------------------------------------------------------- */
+/*                              Constants
+/* ------------------------------------------------------------------- */
 
 const { errorRes, successRes } = require('../constants');
 
-/* ------------------------------------------------------- */
-/*                      Middlewares
-/* ------------------------------------------------------- */
+const {
+  existMsg, existCode, badReqCode, successCode,
+  updateSuccessMsg, updateErrorMsg, deleteSuccessMsg,
+  deleteErrorMsg, emailNoChangeMsg, forbiddenCode
+} = require('../constants').users;
+
+/* ------------------------------------------------------------------- */
+/*                             Middlewares
+/* ------------------------------------------------------------------- */
 
 // =====> Use bodyParser
 // Define max size of data loaded
 router.use(bodyParser.json(bp.json));
 router.use(bodyParser.urlencoded(bp.urlencoded));
 
-/* ------------------------------------------------------- */
-/*                         Mongodb
-/* ------------------------------------------------------- */
+/* ------------------------------------------------------------------- */
+/*                               MongoDb
+/* ------------------------------------------------------------------- */
 
 // =====> Connect MongoDb
 mongoose.connect(MongoURI, MongoOpts);
 
-/* ------------------------------------------------------- */
-/*                        API (CRUD)
-/* ------------------------------------------------------- */
+/* ------------------------------------------------------------------- */
+/*                                POST
+/* ------------------------------------------------------------------- */
 
-// =====> POST
 router.post('/', async (req, res) => {
-  const { username, email, img, currency } = req.body
+  let { username, email, img, currency } = req.body;
 
-  // Flag for existing title
-  let exist = false;
+  // LowerCase & trim() email -> to prevent errors and duplicate emails
+  if (email) email = email.toLowerCase().trim();
 
   // Check for this username. If it is -> exist = true
-  await UserModel
-    .findOne({username})
-    .then(user => {
-      if (user) exist = true;
-    })
-    .catch(err => res.send(errorRes(err)))
+  const exist = await UserModel
+    .findOne({ email })
+    .then(user => user)
+    .catch(err => res.status(badReqCode).send(errorRes(err, badReqCode)));
 
   // Stop running if already exists
-  if (exist) return res.send(successRes('Already exist'));
+  if (exist) return res
+    .status(existCode)
+    .send(errorRes(`${ existMsg } ${ email }`, existCode));
 
   // New User
   const user = new UserModel({
     username,
     email,
     img: img ? new Buffer(img) : '',
-    currency: currency ? currency : ''
+    currency
   });
 
   // Save user
   user
     .save()
     .then(user => res.send(user))
-    .catch(err => res.send(errorRes(err)))
+    .catch(err => res.status(badReqCode).send(errorRes(err, badReqCode)));
 });
 
-// =====> GET (all or just one by title)
-router.get('/:username?', (req, res) => {
+/* ------------------------------------------------------------------- */
+/*                                GET
+/* ------------------------------------------------------------------- */
+
+router.get('/:email?', (req, res) => {
   // Save title param into variable;
-  const username = req.params.username !== undefined ? req.params.username : '';
+  let { email } = req.params;
 
-  // If there is an email query -> search via email
-  const email = req.query.email;
+  // LowerCase & trim() email -> to prevent errors and duplicate emails
+  if (email) email = email.toLowerCase().trim();
 
-  // if (email !== undefined && email !== '') {
+  // Get by email
   if (email) {
     UserModel
-      .findOne({email})
+      .findOne({ email })
       .then(user => res.send(user))
-      .catch(err => res.send(errorRes(err)))
-
-    return
-  };
-
-  // If there is specific title in url -> get this one
-  if (username) {
-    UserModel
-      .findOne({username})
-      .then(user => res.send(user))
-      .catch(err => res.send(errorRes(err)))
+      .catch(err => res.status(badReqCode).send(errorRes(err, badReqCode)));
   } else {
     // Else get all
     UserModel
       .find()
       .then(users => res.send(users))
-      .catch(err => res.send(errorRes(err)))
+      .catch(err => res.status(badReqCode).send(errorRes(err, badReqCode)));
   };
 });
 
-// =====> PUT
+/* ------------------------------------------------------------------- */
+/*                                PUT
+/* ------------------------------------------------------------------- */
+
 router.put('/:id', (req, res) => {
+  // Receive data
+  const { email, username, img, currency } = req.body;
+
+  // If there is email specified under PUT request -> send Error
+  if (email) return res
+    .status(forbiddenCode)
+    .send(errorRes(emailNoChangeMsg, forbiddenCode));
+
   // Empty obj
   const data = {};
 
   // If there are some extra fields
-  if (req.body.username) data.username = req.body.username;
-  if (req.body.img) data.img = req.body.img;
-  if (req.body.currency) data.currency = req.body.currency;
+  if (username) data.username = username;
+  if (img) data.img = img;
+  if (currency) data.currency = currency;
 
+  // Update user
   UserModel
     .findOneAndUpdate({_id: req.params.id}, {$set: data})
-    .then(user => {
-      if (user) return res.send(user);
-
-      return res.send(errorRes('Error occured'));
-    })
-    .catch(err => res.send(errorRes(err)))
+    .then(user => user
+      ? res
+        .status(successCode)
+        .send(successRes(updateSuccessMsg, successCode))
+      : res
+        .status(badReqCode)
+        .send(errorRes(updateErrorMsg, badReqCode)))
+    .catch(err => res.status(badReqCode).send(errorRes(err, badReqCode)));
 });
 
-// =====> DELETE
-router.delete('/:id', (req, res) => {
-  const query = req.url.replace(/\//gi, '');
+/* ------------------------------------------------------------------- */
+/*                               DELETE
+/* ------------------------------------------------------------------- */
 
+router.delete('/:id', (req, res) => {
+  // Receive param
+  const { id } = req.params;
+
+  // Delete user(s)
   UserModel
     .deleteMany(
-      query === 'all'
+      id === 'all'
       ? {}
-      : {_id: req.params.id}
+      : {_id: id}
     )
-    .then(user => {
-      if (user) return res.send(successRes({status: 'User deleted', id: req.params.id}));
-
-      return res.send(errorRes('Error occured'));
-    })
-    .catch(err => res.send(errorRes(err)))
+    .then(user => user.deletedCount !== 0
+      ? res
+        .status(successCode)
+        .send(successRes(deleteSuccessMsg, successCode))
+      : res
+        .status(badReqCode)
+        .send(errorRes(deleteErrorMsg, badReqCode)))
+    .catch(err => res.status(badReqCode).send(errorRes(err, badReqCode)));
 });
 
-/* ------------------------------------------------------- */
-/*                         Export
-/* ------------------------------------------------------- */
+/* ------------------------------------------------------------------- */
+/*                               Export
+/* ------------------------------------------------------------------- */
 
 module.exports = router;

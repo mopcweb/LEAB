@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 
+import axios from 'axios';
+
 /* ------------------------------------------------------------------- */
 /*                              Styles
 /* ------------------------------------------------------------------- */
@@ -7,10 +9,15 @@ import React, { Component } from 'react';
 import './index.sass';
 
 /* ------------------------------------------------------------------- */
-/*                              My components
+/*                               Config
 /* ------------------------------------------------------------------- */
 
+// =====> Api
 import * as api from '../../config/api';
+
+/* ------------------------------------------------------------------- */
+/*                            My components
+/* ------------------------------------------------------------------- */
 
 import {Wrapper} from '../../components/Main';
 import List from '../../components/ListFilter';
@@ -20,13 +27,14 @@ import ListOfItems from '../../components/ListOfItems';
 import { capitalize, request } from '../../components/UsefulF';
 
 /* ------------------------------------------------------------------- */
-/*                              Products component
+/*                               Products
 /* ------------------------------------------------------------------- */
 
 export default class Products extends Component {
   constructor(props) {
     super(props);
 
+    // =====> State
     this.state = {
       isOpen: false,
       catTitle: '',
@@ -41,6 +49,7 @@ export default class Products extends Component {
       }
     };
 
+    // =====> Config input field for category in Modal
     this.inputs = [
       {
         type: 'text',
@@ -50,33 +59,26 @@ export default class Products extends Component {
       }
     ];
 
-    this.handleOpenModal = this.handleOpenModal.bind(this);
-    this.handleAddItem = this.handleAddItem.bind(this);
-    this.handleCatTitleChange = this.handleCatTitleChange.bind(this);
-    this.handleRemoveItem = this.handleRemoveItem.bind(this);
-    this.handlePreviewImg = this.handlePreviewImg.bind(this);
-    this.handleAlertClose = this.handleAlertClose.bind(this);
+    // =====> Bind showAlert method
     this.showAlert = showAlert.bind(this);
   };
 
   // =====> Handle open/close Modal component
-  handleOpenModal(e) {
+  handleOpenModal = (e) => {
     // Close onClick at btn or out of modal inner
-    if (e.target.closest('.Modal-Close') || !e.target.closest('.Modal-Inner')) this.setState(state => ({isOpen: !state.isOpen}))
+    if (e.target.closest('.Modal-Close') || !e.target.closest('.Modal-Inner'))
+    this.setState(state => ({isOpen: !state.isOpen}))
   }
 
   // =====> Handle click on add button
-  async handleAddItem(e) {
-    // Prevent default page reload onSubmit
+  handleAddItem = async (e) => {
+    // Prevent default page reload
     e.preventDefault();
 
-    // Stop running if there is no text (entered by accident for example)
+    // Stop running & show error message if there is no text (entered by accident for example)
     if (this.state.catTitle === '') {
-      // Show error message
       clearTimeout(this.timer);
-      this.timer = this.showAlert('Can not add category without title', 'Message_error');
-
-      return
+      return this.timer = this.showAlert('Can not add category without title', 'Message_error');
     };
 
     // Build data obj
@@ -85,24 +87,15 @@ export default class Products extends Component {
       img: this.state.catImg
     };
 
-    // Create Blob from data
-    const blob = new Blob(
-      [JSON.stringify(data)],
-      {type: 'application/json'}
-    );
-
-    // Options for request
-    const opts = {
-      method: 'POST',
-      body: blob
-    };
-
     // Post data
-    await request(api.PRODUCTS_CATEGORIES, opts)
+    // await request(api.PRODUCTS_CATEGORIES, opts)
+    await axios
+      .post(api.PRODUCTS_CATEGORIES, data)
     // in purpose to console.log() result
-      .then(data => {
+      .then(res => {
+        console.log(res.data)
         // Show success message
-        if (data.status.toLowerCase() === 'already exist') {
+        if (res.data.status.toLowerCase() === 'already exist') {
           clearTimeout(this.timer);
           this.timer = this.showAlert('Already exists', 'Message_error');
         }
@@ -110,8 +103,6 @@ export default class Products extends Component {
           clearTimeout(this.timer);
           this.timer = this.showAlert('Added new category', 'Message_success');
         };
-
-        console.log(data)
       })
       .catch(err => console.log(err));
 
@@ -123,7 +114,7 @@ export default class Products extends Component {
   }
 
   // =====> Handle preview img
-  handlePreviewImg(e) {
+  handlePreviewImg = (e) => {
     // Define file
     const file = e.target.files[0];
 
@@ -156,7 +147,7 @@ export default class Products extends Component {
   }
 
   // =====> Handle click on remove button
-  async handleRemoveItem(e) {
+  handleRemoveItem = async (e) => {
     // Define clicked category id
     const id = e.target.htmlFor;
     const rename = e.target.textContent;
@@ -279,21 +270,12 @@ export default class Products extends Component {
   }
 
   // =====> Handle catTitle input value changes
-  handleCatTitleChange(e) {
-    // Check for ONLY english letters usage
-    // if (!e.target.value.match(/^[A-Za-z0-9\s()]*$/gi) && e.target.tagName === 'INPUT') {
-    //   // Show error alert
-    //   clearTimeout(this.timer);
-    //   this.timer = this.showAlert('Only english letters are allowed', 'Message_error');
-    //
-    //   return
-    // };
-
+  handleCatTitleChange = (e) => {
     this.setState({catTitle: capitalize(e.target.value)});
   }
 
   // =====> Handle closing alert by clicking on its cross
-  handleAlertClose(e) {
+  handleAlertClose = (e) => {
     clearTimeout(this.timer);
 
     this.setState({alert: {
@@ -304,10 +286,10 @@ export default class Products extends Component {
   }
 
   // =====> Lifecycle hook (just before render)
-  async componentDidMount() {
+  componentDidMount() {
     // Get all categories before first render
-    await this.getCategories();
-    await this.getProducts();
+    this.getCategories();
+    this.getProducts();
   }
 
   // =====> Lifecycle hook (just after destroy)
@@ -316,7 +298,7 @@ export default class Products extends Component {
   }
 
   // =====> Get categories request
-  getCategories() {
+  getCategories = () => {
     return request(api.PRODUCTS_CATEGORIES)
       .then(data => {
         // Lowercased all data
@@ -339,7 +321,7 @@ export default class Products extends Component {
   }
 
   // =====> Get products request
-  getProducts() {
+  getProducts = () => {
     // Requesting data from server. Header 'data' specifies filename
     return request(api.PRODUCTS)
       .then(data => {

@@ -1,10 +1,10 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
-/* ------------------------------------------------------- */
-/*                         Config
-/* ------------------------------------------------------- */
+/* ------------------------------------------------------------------- */
+/*                               Config
+/* ------------------------------------------------------------------- */
 
 // =====> Config
 const { MongoOpts, MongoURI, bp } = require('../config');
@@ -15,147 +15,195 @@ const ProductModel = require('../models/Product');
 // =====> Define router
 const router = express.Router();
 
-/* ------------------------------------------------------- */
-/*                      Middlewares
-/* ------------------------------------------------------- */
+/* ------------------------------------------------------------------- */
+/*                              Constants
+/* ------------------------------------------------------------------- */
+
+const { errorRes, successRes } = require('../constants');
+
+const {
+  existMsg, existCode, badReqCode, successCode,
+  updateSuccessMsg, updateErrorMsg, deleteSuccessMsg,
+  deleteErrorMsg, userIdNoChangeMsg, forbiddenCode
+} = require('../constants').products;
+
+/* ------------------------------------------------------------------- */
+/*                             Middlewares
+/* ------------------------------------------------------------------- */
 
 // =====> Use bodyParser
 // Define max size of data loaded
 router.use(bodyParser.json(bp.json));
 router.use(bodyParser.urlencoded(bp.urlencoded));
 
-/* ------------------------------------------------------- */
-/*                         Mongodb
-/* ------------------------------------------------------- */
+/* ------------------------------------------------------------------- */
+/*                               MongoDb
+/* ------------------------------------------------------------------- */
 
 // =====> Connect MongoDb
 mongoose.connect(MongoURI, MongoOpts);
 
-/* ------------------------------------------------------- */
-/*                     Product API (CRUD)
-/* ------------------------------------------------------- */
+/* ------------------------------------------------------------------- */
+/*                               POST
+/* ------------------------------------------------------------------- */
 
-// =====> POST
 router.post('/', async (req, res) => {
-  const data = req.body;
+  let {
+    userId, title, link, img, amount, price,
+    proteins, fats, carbs, ccal, unit, category
+  } = req.body;
 
-  // Flag for existing title
-  let exist = false;
+  // LowerCase & trim() userId (which is email) -> to
+  // prevent errors and duplicate userIds
+  if (userId) userId = userId.toLowerCase().trim();
 
-  // Check fr this title. If it is -> exist = true
-  await ProductModel
-    .findOne({title: data.title})
-    .then(product => {
-      if (product) exist = true;
-    })
-    .catch(err => res.json({status: err}))
+  // Check for this title if it is already exist
+  const exist = await ProductModel
+    .findOne({ link })
+    .then(product => product)
+    .catch(err => res.status(badReqCode).send(errorRes(err, badReqCode)));
 
   // Stop running if already exists
-  if (exist) return res.send({status: 'already exist'});
+  if (exist) return res
+    .status(existCode)
+    .send(errorRes(`${ existMsg } ${ title }`, existCode));
 
   // New product
   const product = new ProductModel({
-    title: data.title,
-    link: data.link,
-    img: new Buffer(data.img),
-    amount: data.amount,
-    price: data.price,
-    proteins: data.proteins,
-    fats: data.fats,
-    carbs: data.carbs,
-    ccal: data.ccal,
-    unit: data.unit,
-    category: data.category
+    userId,
+    title,
+    link,
+    img: img ? new Buffer(img) : '',
+    amount,
+    price,
+    proteins,
+    fats,
+    carbs,
+    ccal,
+    unit,
+    category,
   });
 
   // Save product
   product
     .save()
-    .then(() => res.json({status: 'ok'}))
-    .catch(err => res.send({status: err}))
+    .then(user => res.send(user))
+    .catch(err => res.status(badReqCode).send(errorRes(err, badReqCode)));
 });
 
-// =====> GET (all or just one by title)
+/* ------------------------------------------------------------------- */
+/*                                GET
+/* ------------------------------------------------------------------- */
+
 router.get('/:link?', (req, res) => {
   // Save title param into variable;
-  const link = req.params.link !== undefined ? req.params.link : '';
+  const { link } = req.params;
 
-  // Save category query value into variable
-  const category = req.query.category;
+  // Save category & userId query values into variables
+  let { userId, category } = req.query;
+
+  // LowerCase & trim() userId (which is email) -> to
+  // prevent errors and duplicate userIds
+  if (userId) userId = userId.toLowerCase().trim();
 
   // If query by category is set -> find products with its value
-  if (category !== undefined) {
-    ProductModel
-      .find({category: category})
+  if (category && userId) {
+    return ProductModel
+      .find({ category, userId })
       .then(products => res.send(products))
-      .catch(err => res.json({status: err}));
-
-    return;
+      .catch(err => res.status(badReqCode).send(errorRes(err, badReqCode)));
   };
 
-  // If there is specific title in url -> get this one
-  if (link) {
+  // If there is specific title & userId -> get product using them
+  if (link && userId) {
     ProductModel
-      .findOne({link: link})
+      .findOne({ link, userId })
       .then(product => res.send(product))
-      .catch(err => res.json({status: err}));
+      .catch(err => res.status(badReqCode).send(errorRes(err, badReqCode)));
+  } else if (userId) {
+    // Else if there is only userId -> get all using it
+    ProductModel
+      .find({ userId })
+      .then(products => res.send(products))
+      .catch(err => res.status(badReqCode).send(errorRes(err, badReqCode)));
   } else {
     // Else get all
     ProductModel
       .find()
       .then(products => res.send(products))
-      .catch(err => res.json({status: err}));
+      .catch(err => res.status(badReqCode).send(errorRes(err, badReqCode)));
   };
 });
 
-// =====> PUT
+/* ------------------------------------------------------------------- */
+/*                                PUT
+/* ------------------------------------------------------------------- */
+
 router.put('/:id', (req, res) => {
+  const {
+    userId, title, link, img, amount, price,
+    proteins, fats, carbs, ccal, unit, category
+  } = req.body;
+
+  // If there is userId specified under PUT request -> send Error
+  if (userId) return res
+    .status(forbiddenCode)
+    .send(errorRes(userIdNoChangeMsg, forbiddenCode));
+
   // Empty obj
   const data = {};
 
   // If there are some extra fields
-  if (req.body.title) data.title = req.body.title;
-  if (req.body.link) data.link = req.body.link;
-  if (req.body.img) data.img = req.body.img;
-  if (req.body.amount) data.amount = req.body.amount;
-  if (req.body.price) data.price = req.body.price;
-  if (req.body.proteins) data.proteins = req.body.proteins;
-  if (req.body.fats) data.fats = req.body.fats;
-  if (req.body.carbs) data.carbs = req.body.carbs;
-  if (req.body.ccal) data.ccal = req.body.ccal;
-  if (req.body.unit) data.unit = req.body.unit;
-  if (req.body.category) data.category = req.body.category;
+  if (title) data.title = title;
+  if (link) data.link = link;
+  if (img) data.img = img;
+  if (amount) data.amount = amount;
+  if (price) data.price = price;
+  if (proteins) data.proteins = proteins;
+  if (fats) data.fats = fats;
+  if (carbs) data.carbs = carbs;
+  if (ccal) data.ccal = ccal;
+  if (unit) data.unit = unit;
+  if (category) data.category = category;
 
+  // Update product
   ProductModel
-    .findOneAndUpdate({_id: req.params.id}, {$set: data})
-    .then(product => {
-      if (product) return res.json({status: 'updated'});
-
-      return res.json({status: 'error'});
-    })
-    .catch(err => res.json({status: err}))
+  .findOneAndUpdate({_id: req.params.id}, {$set: data})
+  .then(product => product
+    ? res
+      .status(successCode)
+      .send(successRes(updateSuccessMsg, successCode))
+    : res
+      .status(badReqCode)
+      .send(errorRes(updateErrorMsg, badReqCode)))
+  .catch(err => res.status(badReqCode).send(errorRes(err, badReqCode)));
 });
 
-// =====> DELETE
+/* ------------------------------------------------------------------- */
+/*                               DELETE
+/* ------------------------------------------------------------------- */
+
 router.delete('/:id', (req, res) => {
-  const query = req.url.replace(/\//gi, '');
+  const { id } = req.params;
 
   ProductModel
     .deleteMany(
-      query === 'all'
+      id === 'all'
       ? {}
-      : {_id: req.params.id}
+      : {_id: id}
     )
-    .then(product => {
-      if (product) return res.json({status: 'product deleted', id: req.params.id});
-
-      return res.json({status: 'error'});
-    })
-    .catch(err => res.json({status: err}))
+    .then(product => product.deletedCount !== 0
+      ? res
+        .status(successCode)
+        .send(successRes(deleteSuccessMsg, successCode))
+      : res
+        .status(badReqCode)
+        .send(errorRes(deleteErrorMsg, badReqCode)))
+    .catch(err => res.status(badReqCode).send(errorRes(err, badReqCode)));
 });
 
-/* ------------------------------------------------------- */
-/*                         Export
-/* ------------------------------------------------------- */
+/* ------------------------------------------------------------------- */
+/*                               Export
+/* ------------------------------------------------------------------- */
 
 module.exports = router;

@@ -98,6 +98,7 @@ class Form extends Component {
   constructor(props) {
     super(props);
 
+    // =====> State
     this.state = {
       username: '',
       email: '',
@@ -110,14 +111,12 @@ class Form extends Component {
       }
     };
 
-    this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleAlertClose = this.handleAlertClose.bind(this);
+    // =====> Bind showAlert method
     this.showAlert = showAlert.bind(this);
   }
 
   // =====> Handler for closing alert by clicking on its cross
-  handleAlertClose(e) {
+  handleAlertClose = (e) => {
     clearTimeout(this.timer);
 
     this.setState({alert: {
@@ -128,48 +127,40 @@ class Form extends Component {
   }
 
   // =====> Handle Input value change
-  handleChange(e) {
+  handleChange = (e) => {
     this.setState({[e.target.name]: e.target.value});
 
     if (e.target.name === 'username') this.setState({[e.target.name]: capitalize(e.target.value)});
   }
 
   // =====> Handle click on submit btn
-  async handleSubmit(e) {
+  handleSubmit = async (e) => {
     // Prevent default page reload
     e.preventDefault();
 
     const { username, email, password } = this.state;
 
-    // Flag for check if already exist
-    let exists = '';
-
     // Check if user already exists
-    await axios
+    const exist = await axios
       .get(api.USERS + '/' + username)
-      .then(res => exists = res.data.username)
+      .then(user => user.data)
       .catch(err => console.log(err));
 
     // If exists -> stop running function
-    if (exists) {
+    if (exist) {
       clearTimeout(this.timer);
-      this.timer = this.showAlert(register.existMsg, 'Message_error');
-
-      return
+      return this.timer = this.showAlert(register.existMsg, 'Message_error');
     };
 
     // Firebase API for creating new User
-    await this.props.firebase
+    this.props.firebase
       .doCreateUserWithEmailAndPassword(email, password)
       .then(async authUser => {
 
         // Send data to the db
         await axios
-          .post(api.USERS, {username, email})
-          .then(res => {
-            // Put user into localStorage
-            window.localStorage.setItem(register.userLC, JSON.stringify(res.data));
-          })
+          .post(api.USERS, {username, email, img: register.defaultImg})
+          .then(user => window.localStorage.setItem(register.userLC, JSON.stringify(user.data)))
           .catch(err => console.log(err));
 
         // Set state to initial empty value
@@ -186,13 +177,10 @@ class Form extends Component {
       .catch(err => {
         clearTimeout(this.timer);
         this.timer = this.showAlert(err.message, 'Message_error');
-
-        // For debug ONLY
-        return console.log('=====> Error:', {status: 'Error', error: err.message})
       });
   }
 
-  // =====> Clear Alert interval on component destroy
+  // =====> Clear Alert timeout on component destroy
   componentWillUnmount() {
     clearTimeout(this.timer);
   }
@@ -243,7 +231,12 @@ class Form extends Component {
           </button>
         </form>
 
-        <Alert value={this.state.alert.value} addClass={this.state.alert.class} isShow={this.state.alert.show} onClick={this.handleAlertClose} />
+        <Alert
+          value={this.state.alert.value}
+          addClass={this.state.alert.class}
+          isShow={this.state.alert.show}
+          onClick={this.handleAlertClose}
+        />
       </Fragment>
     )
   };
@@ -260,17 +253,18 @@ class Input extends Component {
   constructor(props) {
     super(props);
 
+    // =====> State
     this.state = {
       isFocused: false
     };
-
-    this.handleFocus = this.handleFocus.bind(this);
   }
 
-  handleFocus(e) {
+  // =====> Handle focus
+  handleFocus = (e) => {
     this.setState(state => ({isFocused: !state.isFocused}))
   }
 
+  // =====> Render
   render() {
     return (
       <div onFocus={this.handleFocus} onBlur={this.handleFocus}>

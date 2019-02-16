@@ -1,7 +1,25 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
+/* ------------------------------------------------------------------- */
+/*                               Models
+/* ------------------------------------------------------------------- */
+
+// =====> User model
+const User = require('./User');
+
+/* ------------------------------------------------------------------- */
+/*                           Product Schema
+/* ------------------------------------------------------------------- */
+
+// =====> Schema
 const ProductSchema = new mongoose.Schema(
   {
+    userId: {
+      type: String,
+      lowercase: true,
+      required: 'userId is required',
+    },
     title: String,
     link: String,
     img: Buffer,
@@ -18,5 +36,9 @@ const ProductSchema = new mongoose.Schema(
     timestamps: true
   }
 );
+
+/* ------------------------------------------------------------------- */
+/*                              Export
+/* ------------------------------------------------------------------- */
 
 module.exports = mongoose.model('Product', ProductSchema);

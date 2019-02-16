@@ -34,15 +34,13 @@ export const withAuth = Component => {
     constructor(props) {
       super(props);
 
+      // =====> State
       this.state = {
         authUser: null
       };
-
-      this.handleUserLoggedOut = this.handleUserLoggedOut.bind(this);
-      this.handleUserLoggedIn = this.handleUserLoggedIn.bind(this);
     }
 
-    // Check if there is user logged in
+    // =====> Check if there is user logged in
     componentDidMount() {
       this.listener = this.props.firebase.auth.onAuthStateChanged(
         authUser => {
@@ -50,29 +48,38 @@ export const withAuth = Component => {
             ? this.handleUserLoggedOut(authUser)
             : this.handleUserLoggedIn()
       });
+
+      // if (!window.localStorage.getItem('token')) this.props.firebase.doSignOut()
     }
 
     // =====> If user logged in -> change state & store user into localStorage
-    handleUserLoggedOut(authUser) {
+    handleUserLoggedOut = (authUser) => {
       this.setState({ authUser });
 
-      window.localStorage.setItem('token', JSON.stringify(authUser))
+      window.localStorage.setItem('token', JSON.stringify(authUser));
     }
 
     // =====> If user logged in -> clear localStorage & redirect to Home page
-    handleUserLoggedIn() {
+    handleUserLoggedIn = () => {
       this.setState({ authUser: null });
 
       window.localStorage.clear();
 
-      this.props.history.push(routes.HOME)
+      this.props.history.push(routes.HOME);
     }
 
-    // Remove listener on component destroy
+    // =====> Remove listener on component destroy
     componentWillUnmount() {
       this.listener();
     }
 
+    componentDidUpdate(prevProps, prevState) {
+      // if (this.state.authUser.email !== JSON.parse(window.localStorage.getItem('token')).email) {
+      //   this.handleUserLoggedIn()
+      // }
+    }
+
+    // =====> Render
     render() {
       return (
         <AuthContext.Provider value={this.state.authUser}>
@@ -82,6 +89,7 @@ export const withAuth = Component => {
     }
   };
 
+  // =====> Apply Firebase & Router props
   return withRouter(withFirebase(WithAuth));
 };
 
@@ -90,35 +98,35 @@ export const withAuth = Component => {
 /* ------------------------------------------------------- */
 
 // =====> Checking if there a user authorized. If not -> redirect to Home page
-export const withAuthorization = condition => Component => {
-  class WithAuthorization extends Component {
-
-    // Check if there is user logged in
-    componentDidMount() {
-      this.listener = this.props.firebase.auth.onAuthStateChanged(
-        authUser => {
-          if (!condition(authUser)) {
-            this.props.history.push(routes.HOME);
-          }
-        },
-      );
-    }
-
-    // Remove listener on component destroy
-    componentWillUnmount() {
-      this.listener();
-    }
-
-    render() {
-      return (
-        <AuthContext.Consumer>
-          {authUser =>
-            condition(authUser) ? <Component {...this.props} /> : null
-          }
-        </AuthContext.Consumer>
-      )
-    }
-  };
-
-  return withRouter(withFirebase(WithAuthorization))
-};
+// export const withAuthorization = condition => Component => {
+//   class WithAuthorization extends Component {
+//
+//     // Check if there is user logged in
+//     componentDidMount() {
+//       this.listener = this.props.firebase.auth.onAuthStateChanged(
+//         authUser => {
+//           if (!condition(authUser)) {
+//             this.props.history.push(routes.HOME);
+//           }
+//         },
+//       );
+//     }
+//
+//     // Remove listener on component destroy
+//     componentWillUnmount() {
+//       this.listener();
+//     }
+//
+//     render() {
+//       return (
+//         <AuthContext.Consumer>
+//           {authUser =>
+//             condition(authUser) ? <Component {...this.props} /> : null
+//           }
+//         </AuthContext.Consumer>
+//       )
+//     }
+//   };
+//
+//   return withRouter(withFirebase(WithAuthorization))
+// };

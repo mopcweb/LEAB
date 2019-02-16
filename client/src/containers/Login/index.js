@@ -1,6 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import { Link, withRouter } from 'react-router-dom';
 
+import axios from 'axios';
+
 /* ------------------------------------------------------------------- */
 /*                              Styles
 /* ------------------------------------------------------------------- */
@@ -11,7 +13,10 @@ import './index.sass';
 /*                              Routes
 /* ------------------------------------------------------------------- */
 
+// =====> Routes
 import * as routes from '../../config/routes';
+
+// =====> Api
 import * as api from '../../config/api';
 
 /* ------------------------------------------------------------------- */
@@ -20,12 +25,11 @@ import * as api from '../../config/api';
 
 import { Wrapper } from '../../components/Main';
 import Alert, { showAlert } from '../../components/Alert';
-import { request } from '../../components/UsefulF';
 
 import { withFirebase } from '../../config/store';
 
 /* ------------------------------------------------------------------- */
-/*                              Login component
+/*                               Login
 /* ------------------------------------------------------------------- */
 
 export default class Login extends Component {
@@ -67,6 +71,10 @@ export default class Login extends Component {
   };
 };
 
+/* ------------------------------------------------------------------- */
+/*                               Header
+/* ------------------------------------------------------------------- */
+
 class Header extends Component {
   render() {
     return (
@@ -85,10 +93,15 @@ class Header extends Component {
   };
 };
 
+/* ------------------------------------------------------------------- */
+/*                               Form
+/* ------------------------------------------------------------------- */
+
 class Form extends Component {
   constructor(props) {
     super(props);
 
+    // =====> State
     this.state = {
       email: '',
       password: '',
@@ -99,14 +112,12 @@ class Form extends Component {
       }
     };
 
-    this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleAlertClose = this.handleAlertClose.bind(this);
+    // =====> Bind showAlert method
     this.showAlert = showAlert.bind(this);
   }
 
-  // Handler for closing alert by clicking on its cross
-  handleAlertClose(e) {
+  // =====> Handle close alert by clicking on its cross
+  handleAlertClose = (e) => {
     clearTimeout(this.timer);
 
     this.setState({alert: {
@@ -116,32 +127,30 @@ class Form extends Component {
     }});
   }
 
-  handleChange(e) {
+  // =====> Handle input value change
+  handleChange = (e) => {
     this.setState({[e.target.name]: e.target.value});
   }
 
-  async handleSubmit(e) {
+  // ======> Handle submit btn
+  handleSubmit = (e) => {
     // Prevent default page reload
     e.preventDefault();
 
     const { email, password } = this.state;
 
-    await this.props.firebase
+    this.props.firebase
       .doSignInWithEmailAndPassword(email, password)
-      .then(async authUser => {
+      .then(authUser => {
         // Set to default empty value
         this.setState({
           email: '',
           password: ''
         });
 
-        // Check if user already exists
-        await request(api.USERS + '?email=' + email)
-          .then(res => {
-            console.log('=====> user', res)
-            // Put user into localStorage
-            window.localStorage.setItem('user', JSON.stringify(res));
-          })
+        // Receive current user into localStorage
+        axios(api.USERS + '/' + email)
+          .then(res => window.localStorage.setItem('user', JSON.stringify(res)))
           .catch(err => console.log(err));
 
         // Redirect to dashboard
@@ -150,20 +159,18 @@ class Form extends Component {
       .catch(err => {
         clearTimeout(this.timer);
         this.timer = this.showAlert(err.message, 'Message_error');
-
-        return console.log('=====> Error:', {status: 'Error', error: err.message})
       });
   }
 
+  // =====> Clear Alert timeout before destroy component
   componentWillUnmount() {
     clearTimeout(this.timer);
   }
 
+  // =====> Render
   render() {
     // Check validation
-    const isInvalid =
-      this.state.password === '' ||
-      this.state.email === '';
+    const isInvalid = this.state.password === '' || this.state.email === '';
 
     return (
       <Fragment>
@@ -188,30 +195,40 @@ class Form extends Component {
           </button>
         </form>
 
-        <Alert value={this.state.alert.value} addClass={this.state.alert.class} isShow={this.state.alert.show} onClick={this.handleAlertClose} />
+        <Alert
+          value={this.state.alert.value}
+          addClass={this.state.alert.class}
+          isShow={this.state.alert.show}
+          onClick={this.handleAlertClose}
+        />
       </Fragment>
     )
   };
 };
 
-// Call Form with FbContext & Router
+// =====> Call Form with FbContext & Router
 const SignIn = withRouter(withFirebase(Form));
+
+/* ------------------------------------------------------------------- */
+/*                               Input
+/* ------------------------------------------------------------------- */
 
 class Input extends Component {
   constructor(props) {
     super(props);
 
+    // =====> State
     this.state = {
       isFocused: false
     };
-
-    this.handleFocus = this.handleFocus.bind(this);
   }
 
-  handleFocus(e) {
+  // =====> Handle focus
+  handleFocus = (e) => {
     this.setState(state => ({isFocused: !state.isFocused}))
   }
 
+  // =====> Render
   render() {
     return (
       <div onFocus={this.handleFocus} onBlur={this.handleFocus}>

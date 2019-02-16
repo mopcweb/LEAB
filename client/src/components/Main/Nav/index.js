@@ -8,9 +8,10 @@ import { NavLink, withRouter } from 'react-router-dom';
 import './index.sass';
 
 /* ------------------------------------------------------------------- */
-/*                               Routes
+/*                               Config
 /* ------------------------------------------------------------------- */
 
+// =====> Routes
 import * as routes from '../../../config/routes';
 
 /* ------------------------------------------------------------------- */
@@ -23,15 +24,16 @@ import { withFirebase } from '../../../config/store';
 /*                            Example data
 /* ------------------------------------------------------------------- */
 
- // Profile img
+ // =====> Profile img
 import img from './imgs/user.jpg';
 
-// List icons
+// =====> List icons
 import dashboard from './imgs/dashboard.svg';
 import menu from './imgs/menu.svg';
 import dish from './imgs/dish.svg';
 import product from './imgs/product.svg';
 
+// =====> Values for nav
 const values = {
   img: img,
   // list: ['dashboard', 'menu', 'dishes', 'products'],
@@ -41,40 +43,44 @@ const values = {
 };
 
 /* ------------------------------------------------------------------- */
-/*                              Nav Component
+/*                                 Nav
 /* ------------------------------------------------------------------- */
 
 export default class Nav extends Component {
   constructor(props) {
     super(props);
 
+    // =====> State
     this.state = {
       shown: false
     };
   };
 
-  // Click handler for nav opener
+  // =====> Click handler for nav opener
   onOpenerClickHandler = (e) => {
     if (!e.target.closest('.Nav-Opener')) return;
 
     this.setState(state => ({shown: !state.shown}));
   };
 
-  // Click hadler for whole document
-  onDocClickHander = (e) => {
+  // =====> Click hadler for whole document
+  onDocClickHandler = (e) => {
     if (!e.target.closest('.Nav') && this.state.shown) {
       this.setState(state => ({shown: !state.shown}))
     }
   }
 
+  // =====> On before component render
   componentDidMount() {
-    document.addEventListener('click', this.onDocClickHander);
+    document.addEventListener('click', this.onDocClickHandler);
   };
 
+  // =====> On before component detroy
   componentWillUnmount() {
-    document.removeEventListener('click', this.onDocClickHander);
+    document.removeEventListener('click', this.onDocClickHandler);
   };
 
+  // =====> Render
   render() {
     return (
       <nav className={this.state.shown ? 'Nav Nav_shown' : 'Nav'}>
@@ -93,6 +99,10 @@ export default class Nav extends Component {
   };
 };
 
+/* ------------------------------------------------------------------- */
+/*                              NavOpener
+/* ------------------------------------------------------------------- */
+
 class NavOpener extends Component {
   render() {
     return (
@@ -103,6 +113,10 @@ class NavOpener extends Component {
     )
   };
 };
+
+/* ------------------------------------------------------------------- */
+/*                              NavProfile
+/* ------------------------------------------------------------------- */
 
 class NavProfile extends Component {
   render() {
@@ -122,6 +136,10 @@ class NavProfile extends Component {
   };
 };
 
+/* ------------------------------------------------------------------- */
+/*                             BtnSignOut
+/* ------------------------------------------------------------------- */
+
 class BtnSignOut extends Component {
   handleClick = async e => {
     // Sign out
@@ -140,8 +158,12 @@ class BtnSignOut extends Component {
   };
 };
 
-// Use Router & FbContext to BtnSignOut
+// =====> Use Router & FbContext to BtnSignOut
 const SignOut = withRouter(withFirebase(BtnSignOut));
+
+/* ------------------------------------------------------------------- */
+/*                              NavList
+/* ------------------------------------------------------------------- */
 
 class NavList extends Component {
   render() {
@@ -155,6 +177,10 @@ class NavList extends Component {
     )
   };
 };
+
+/* ------------------------------------------------------------------- */
+/*                           ListItem (Links)
+/* ------------------------------------------------------------------- */
 
 class ListItem extends Component {
   render() {
@@ -171,6 +197,10 @@ class ListItem extends Component {
   };
 };
 
+/* ------------------------------------------------------------------- */
+/*                              Social
+/* ------------------------------------------------------------------- */
+
 class Social extends Component {
   render() {
     const links = this.props.links.map((item, i) => (
@@ -183,6 +213,10 @@ class Social extends Component {
     )
   };
 };
+
+/* ------------------------------------------------------------------- */
+/*                             Copyright
+/* ------------------------------------------------------------------- */
 
 class Copy extends Component {
   render() {
