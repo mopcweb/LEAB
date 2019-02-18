@@ -22,9 +22,8 @@ const router = express.Router();
 const { errorRes, successRes } = require('../constants');
 
 const {
-  existMsg, existCode, badReqCode, successCode,
-  updateSuccessMsg, updateErrorMsg, deleteSuccessMsg,
-  deleteErrorMsg, userIdNoChangeMsg, forbiddenCode
+  existCode, badReqCode, successCode, existMsg, updateSuccessMsg,
+  updateErrorMsg, deleteSuccessMsg, deleteErrorMsg
 } = require('../constants').categories;
 
 /* ------------------------------------------------------------------- */
@@ -49,24 +48,21 @@ mongoose.connect(MongoURI, MongoOpts);
 
 // =====> POST
 router.post('/', async (req, res) => {
-  let { userId, title, img } = req.body;
+  const { title, img } = req.body;
 
-  // LowerCase & trim() userId (which is email) -> to
-  // prevent errors and duplicate userIds
-  if (userId) userId = userId.toLowerCase().trim();
+  // Receive userId
+  const { userId } = res;
 
   // Check for this title if it is already exist
   const exist = await CategoryModel
-    .findOne({ title })
+    .findOne({ title, userId })
     .then(category => category)
-    .catch(err => res.status(badReqCode).send(errorRes(err, badReqCode)));
+    .catch(err => errorRes(res, badReqCode, err));
 
   // Stop running if already exists
-  if (exist) return res
-    .status(existCode)
-    .send(errorRes(`${ existMsg } ${ title }`, existCode));
+  if (exist) return errorRes(res, existCode, `${ existMsg } ${ title }`);
 
-  // New category
+  // Define new category
   const category = new CategoryModel({
     userId,
     title,
@@ -77,7 +73,7 @@ router.post('/', async (req, res) => {
   category
     .save()
     .then(user => res.send(user))
-    .catch(err => res.status(badReqCode).send(errorRes(err, badReqCode)));
+    .catch(err => errorRes(res, badReqCode, err));
 });
 
 /* ------------------------------------------------------------------- */
@@ -88,31 +84,34 @@ router.get('/:title?', (req, res) => {
   // Save title param into variable;
   const { title } = req.params;
 
-  // Save userId query values into variables
-  let { userId } = req.query;
-
-  // LowerCase & trim() userId (which is email) -> to
-  // prevent errors and duplicate userIds
-  if (userId) userId = userId.toLowerCase().trim();
+  // Receive userId
+  const { userId } = res;
 
   // If there is specific title & userId -> get product using them
   if (title && userId) {
     CategoryModel
       .findOne({ title, userId })
       .then(category => res.send(category))
-      .catch(err => res.status(badReqCode).send(errorRes(err, badReqCode)));
+      .catch(err => errorRes(res, badReqCode, err));
+  } else if (title) {
+    // ===================> SHOULD BE REMOVED LATER
+    // Else if there is only title -> get all using it
+    CategoryModel
+      .findOne({ title })
+      .then(category => res.send(category))
+      .catch(err => errorRes(res, badReqCode, err));
   } else if (userId) {
     // Else if there is only userId -> get all using it
     CategoryModel
       .find({ userId })
       .then(categories => res.send(categories))
-      .catch(err => res.status(badReqCode).send(errorRes(err, badReqCode)));
+      .catch(err => errorRes(res, badReqCode, err));
   } else {
     // Else get all
     CategoryModel
       .find()
       .then(categories => res.send(categories))
-      .catch(err => res.status(badReqCode).send(errorRes(err, badReqCode)));
+      .catch(err => errorRes(res, badReqCode, err));
   };
 });
 
@@ -121,12 +120,22 @@ router.get('/:title?', (req, res) => {
 /* ------------------------------------------------------------------- */
 
 router.put('/:id', async (req, res) => {
-  const { userId, title, img } = req.body;
+  const { title, img } = req.body;
 
-  // If there is userId specified under PUT request -> send Error
-  if (userId) return res
-    .status(forbiddenCode)
-    .send(errorRes(userIdNoChangeMsg, forbiddenCode));
+  // Receive id
+  const { id } = req.params;
+
+  // Receive userId
+  const { userId } = res;
+
+  // Check for this title if it is already exist
+  const exist = await CategoryModel
+    .findOne({ title, userId })
+    .then(category => category)
+    .catch(err => errorRes(res, badReqCode, err));
+
+  // Stop running if already exists
+  if (exist) return errorRes(res, existCode, `${ existMsg } ${ title }`);
 
   // Empty obj
   const data = {};
@@ -135,27 +144,12 @@ router.put('/:id', async (req, res) => {
   if (title) data.title = title;
   if (img) data.img = img;
 
-  // Check for this title if it is already exist
-  const exist = await CategoryModel
-    .findOne({ title })
-    .then(category => category)
-    .catch(err => res.status(badReqCode).send(errorRes(err, badReqCode)));
-
-  // Stop running if already exists
-  if (exist) return res
-    .status(existCode)
-    .send(errorRes(`${ existMsg } ${ title }`, existCode));
-
   CategoryModel
-    .findOneAndUpdate({_id: req.params.id}, {$set: data})
+    .findOneAndUpdate({_id: id}, {$set: data})
     .then(category => category
-      ? res
-        .status(successCode)
-        .send(successRes(updateSuccessMsg, successCode))
-      : res
-        .status(badReqCode)
-        .send(errorRes(updateErrorMsg, badReqCode)))
-    .catch(err => res.status(badReqCode).send(errorRes(err, badReqCode)));
+      ? successRes(res, successCode, updateSuccessMsg)
+      : errorRes(res, badReqCode, updateErrorMsg))
+    .catch(err => errorRes(res, badReqCode, err));
 });
 
 /* ------------------------------------------------------------------- */
@@ -172,13 +166,9 @@ router.delete('/:id', (req, res) => {
       : {_id: id}
     )
     .then(category => category.deletedCount !== 0
-      ? res
-        .status(successCode)
-        .send(successRes(deleteSuccessMsg, successCode))
-      : res
-        .status(badReqCode)
-        .send(errorRes(deleteErrorMsg, badReqCode)))
-    .catch(err => res.status(badReqCode).send(errorRes(err, badReqCode)));
+      ? successRes(res, successCode, deleteSuccessMsg)
+      : errorRes(res, badReqCode, deleteErrorMsg))
+    .catch(err => errorRes(res, badReqCode, err));
 });
 
 /* ------------------------------------------------------------------- */

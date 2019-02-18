@@ -6,10 +6,14 @@ import * as serviceWorker from './serviceWorker';
 import './index.sass';
 
 /* ------------------------------------------------------------------- */
-/*                              Routes
+/*                              Config
 /* ------------------------------------------------------------------- */
 
+// =====> Routes
 import * as routes from './config/routes';
+
+// =====> Axios
+import axios from 'axios';
 
 /* ------------------------------------------------------------------- */
 /*                              Import My Components
@@ -38,7 +42,7 @@ import Product from './containers/Product';
 /*                        Import Context & Firebase
 /* ------------------------------------------------------------------- */
 
-import { FbContext, AuthContext, withAuth } from './config/store';
+import { FbContext, withAuth } from './config/store';
 import Firebase from './config/firebase';
 
 /* ------------------------------------------------------------------- */
@@ -61,36 +65,38 @@ class App extends Component {
 // =====> Routes under Firebase Auth validation
 class Routes extends Component {
   render() {
+    // Receive authUser prop
+    const { authUser } = this.props;
+
+    // Set default header for request via axios
+    if (authUser) axios.defaults.headers.common['userid'] = authUser.email;
+
     return (
-      <AuthContext.Consumer>
-        {authUser => (
-          <Switch>
-            <Route path={routes.HOME} exact component={Home} />
-            <Route path={routes.REGISTER} exact component={Register} />
-            <Route path={routes.LOGIN} exact component={Login} />
-            <Route path={routes.RESET_PWD} exact component={ResetPwd} />
-            {authUser
-              ? <Main>
-                  <Switch>
-                    <Route exact path={routes.PROFILE} component={Profile} />
-                    <Route exact path={routes.DASHBOARD} component={Dashboard} />
-                    <Route exact path={routes.MENU} component={Menu} />
-                    <Route exact path={routes.MENU_ITEM} component={MenuItem} />
-                    <Route exact path={routes.DISHES} component={Dishes} />
-                    <Route exact path={routes.DISH} component={Dish} />
-                    <Route exact path={routes.PRODUCTS} component={Products} />
-                    <Route exact path={routes.PRODUCT} component={Product} />
-                    <Route component={NotFound} />
-                  </Switch>
-                </Main>
-              : <Switch>
-                  <Route path='*' component={Loader} />
-                </Switch>
-            }
-            <Route component={NotFound} />
-          </Switch>
-        )}
-      </AuthContext.Consumer>
+      <Switch>
+        <Route path={routes.HOME} exact component={Home} />
+        <Route path={routes.REGISTER} exact component={Register} />
+        <Route path={routes.LOGIN} exact component={Login} />
+        <Route path={routes.RESET_PWD} exact component={ResetPwd} />
+        {authUser
+          ? <Main>
+              <Switch>
+                <Route exact path={routes.PROFILE} component={Profile} />
+                <Route exact path={routes.DASHBOARD} component={Dashboard} />
+                <Route exact path={routes.MENU} component={Menu} />
+                <Route exact path={routes.MENU_ITEM} component={MenuItem} />
+                <Route exact path={routes.DISHES} component={Dishes} />
+                <Route exact path={routes.DISH} component={Dish} />
+                <Route exact path={routes.PRODUCTS} component={Products} />
+                <Route exact path={routes.PRODUCT} component={Product} />
+                <Route component={NotFound} />
+              </Switch>
+            </Main>
+          : <Switch>
+              <Route path='*' component={Loader} />
+            </Switch>
+        }
+        <Route component={NotFound} />
+      </Switch>
     )
   };
 };

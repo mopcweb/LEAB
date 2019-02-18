@@ -24,7 +24,7 @@ const { errorRes, successRes } = require('../constants');
 const {
   existMsg, existCode, badReqCode, successCode,
   updateSuccessMsg, updateErrorMsg, deleteSuccessMsg,
-  deleteErrorMsg, emailNoChangeMsg, forbiddenCode
+  deleteErrorMsg, emailNoChangeMsg, forbiddenCode, noEmailMsg
 } = require('../constants').users;
 
 /* ------------------------------------------------------------------- */
@@ -48,35 +48,38 @@ mongoose.connect(MongoURI, MongoOpts);
 /* ------------------------------------------------------------------- */
 
 router.post('/', async (req, res) => {
-  let { username, email, img, currency } = req.body;
+  let { username, email, img, currency, standart, big } = req.body;
+
+  console.log(res.userId)
 
   // LowerCase & trim() email -> to prevent errors and duplicate emails
-  if (email) email = email.toLowerCase().trim();
+  // If there is no email -> send error
+  if (email) email = email.toLowerCase().trim()
+  else errorRes(res, badReqCode, noEmailMsg);
 
   // Check for this username. If it is -> exist = true
   const exist = await UserModel
     .findOne({ email })
     .then(user => user)
-    .catch(err => res.status(badReqCode).send(errorRes(err, badReqCode)));
+    .catch(err => errorRes(res, badReqCode, err));
 
-  // Stop running if already exists
-  if (exist) return res
-    .status(existCode)
-    .send(errorRes(`${ existMsg } ${ email }`, existCode));
+  if (exist) return errorRes(res, existCode, `${ existMsg } ${ email }`);
 
   // New User
   const user = new UserModel({
     username,
     email,
     img: img ? new Buffer(img) : '',
-    currency
+    currency,
+    standart,
+    big
   });
 
   // Save user
   user
     .save()
     .then(user => res.send(user))
-    .catch(err => res.status(badReqCode).send(errorRes(err, badReqCode)));
+    .catch(err => errorRes(res, badReqCode, err));
 });
 
 /* ------------------------------------------------------------------- */
@@ -95,13 +98,13 @@ router.get('/:email?', (req, res) => {
     UserModel
       .findOne({ email })
       .then(user => res.send(user))
-      .catch(err => res.status(badReqCode).send(errorRes(err, badReqCode)));
+      .catch(err => errorRes(res, badReqCode, err));
   } else {
     // Else get all
     UserModel
       .find()
       .then(users => res.send(users))
-      .catch(err => res.status(badReqCode).send(errorRes(err, badReqCode)));
+      .catch(err => errorRes(res, badReqCode, err));
   };
 });
 
@@ -111,7 +114,7 @@ router.get('/:email?', (req, res) => {
 
 router.put('/:id', (req, res) => {
   // Receive data
-  const { email, username, img, currency } = req.body;
+  const { email, username, img, currency, standart, big } = req.body;
 
   // If there is email specified under PUT request -> send Error
   if (email) return res
@@ -125,18 +128,16 @@ router.put('/:id', (req, res) => {
   if (username) data.username = username;
   if (img) data.img = img;
   if (currency) data.currency = currency;
+  if (standart) data.standart = standart;
+  if (big) data.big = big;
 
   // Update user
   UserModel
     .findOneAndUpdate({_id: req.params.id}, {$set: data})
     .then(user => user
-      ? res
-        .status(successCode)
-        .send(successRes(updateSuccessMsg, successCode))
-      : res
-        .status(badReqCode)
-        .send(errorRes(updateErrorMsg, badReqCode)))
-    .catch(err => res.status(badReqCode).send(errorRes(err, badReqCode)));
+      ? successRes(res, successCode, updateSuccessMsg)
+      : errorRes(res, badReqCode, updateErrorMsg))
+    .catch(err => errorRes(res, badReqCode, err));
 });
 
 /* ------------------------------------------------------------------- */
@@ -155,13 +156,9 @@ router.delete('/:id', (req, res) => {
       : {_id: id}
     )
     .then(user => user.deletedCount !== 0
-      ? res
-        .status(successCode)
-        .send(successRes(deleteSuccessMsg, successCode))
-      : res
-        .status(badReqCode)
-        .send(errorRes(deleteErrorMsg, badReqCode)))
-    .catch(err => res.status(badReqCode).send(errorRes(err, badReqCode)));
+      ? successRes(res, successCode, deleteSuccessMsg)
+      : errorRes(res, badReqCode, deleteErrorMsg))
+    .catch(err => errorRes(res, badReqCode, err));
 });
 
 /* ------------------------------------------------------------------- */

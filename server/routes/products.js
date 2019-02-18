@@ -22,9 +22,8 @@ const router = express.Router();
 const { errorRes, successRes } = require('../constants');
 
 const {
-  existMsg, existCode, badReqCode, successCode,
-  updateSuccessMsg, updateErrorMsg, deleteSuccessMsg,
-  deleteErrorMsg, userIdNoChangeMsg, forbiddenCode
+  existCode, badReqCode, successCode, existMsg, updateSuccessMsg,
+  updateErrorMsg, deleteSuccessMsg, deleteErrorMsg
 } = require('../constants').products;
 
 /* ------------------------------------------------------------------- */
@@ -49,24 +48,21 @@ mongoose.connect(MongoURI, MongoOpts);
 
 router.post('/', async (req, res) => {
   let {
-    userId, title, link, img, amount, price,
-    proteins, fats, carbs, ccal, unit, category
+    title, link, img, amount, price, proteins,
+    fats, carbs, ccal, unit, category
   } = req.body;
 
-  // LowerCase & trim() userId (which is email) -> to
-  // prevent errors and duplicate userIds
-  if (userId) userId = userId.toLowerCase().trim();
+  // Receive userId
+  const { userId } = res;
 
   // Check for this title if it is already exist
   const exist = await ProductModel
-    .findOne({ link })
+    .findOne({ link, userId })
     .then(product => product)
-    .catch(err => res.status(badReqCode).send(errorRes(err, badReqCode)));
+    .catch(err => errorRes(res, badReqCode, err));
 
   // Stop running if already exists
-  if (exist) return res
-    .status(existCode)
-    .send(errorRes(`${ existMsg } ${ title }`, existCode));
+  if (exist) return errorRes(res, existCode, `${ existMsg } ${ title }`);
 
   // New product
   const product = new ProductModel({
@@ -88,7 +84,7 @@ router.post('/', async (req, res) => {
   product
     .save()
     .then(user => res.send(user))
-    .catch(err => res.status(badReqCode).send(errorRes(err, badReqCode)));
+    .catch(err => errorRes(res, badReqCode, err));
 });
 
 /* ------------------------------------------------------------------- */
@@ -99,19 +95,25 @@ router.get('/:link?', (req, res) => {
   // Save title param into variable;
   const { link } = req.params;
 
-  // Save category & userId query values into variables
-  let { userId, category } = req.query;
+  // Get category query value
+  const { category } = req.query;
 
-  // LowerCase & trim() userId (which is email) -> to
-  // prevent errors and duplicate userIds
-  if (userId) userId = userId.toLowerCase().trim();
+  // Receive userId
+  const { userId } = res;
 
-  // If query by category is set -> find products with its value
+  // If there is specific category & userId -> get product using them
   if (category && userId) {
     return ProductModel
       .find({ category, userId })
       .then(products => res.send(products))
-      .catch(err => res.status(badReqCode).send(errorRes(err, badReqCode)));
+      .catch(err => errorRes(res, badReqCode, err));
+  } else if (category) {
+    // ===================> SHOULD BE REMOVED LATER
+    // Else if there is only category -> get all using it
+    return ProductModel
+      .find({ category })
+      .then(products => res.send(products))
+      .catch(err => errorRes(res, badReqCode, err));
   };
 
   // If there is specific title & userId -> get product using them
@@ -119,19 +121,26 @@ router.get('/:link?', (req, res) => {
     ProductModel
       .findOne({ link, userId })
       .then(product => res.send(product))
-      .catch(err => res.status(badReqCode).send(errorRes(err, badReqCode)));
+      .catch(err => errorRes(res, badReqCode, err));
+  } else if (link) {
+    // ===================> SHOULD BE REMOVED LATER
+    // Else if there is only link -> get all using it
+    ProductModel
+      .findOne({ link })
+      .then(product => res.send(product))
+      .catch(err => errorRes(res, badReqCode, err));
   } else if (userId) {
     // Else if there is only userId -> get all using it
     ProductModel
       .find({ userId })
       .then(products => res.send(products))
-      .catch(err => res.status(badReqCode).send(errorRes(err, badReqCode)));
+      .catch(err => errorRes(res, badReqCode, err));
   } else {
     // Else get all
     ProductModel
       .find()
       .then(products => res.send(products))
-      .catch(err => res.status(badReqCode).send(errorRes(err, badReqCode)));
+      .catch(err => errorRes(res, badReqCode, err));
   };
 });
 
@@ -139,16 +148,28 @@ router.get('/:link?', (req, res) => {
 /*                                PUT
 /* ------------------------------------------------------------------- */
 
-router.put('/:id', (req, res) => {
+router.put('/:id', async (req, res) => {
   const {
-    userId, title, link, img, amount, price,
+    title, link, img, amount, price,
     proteins, fats, carbs, ccal, unit, category
   } = req.body;
 
-  // If there is userId specified under PUT request -> send Error
-  if (userId) return res
-    .status(forbiddenCode)
-    .send(errorRes(userIdNoChangeMsg, forbiddenCode));
+  // Receive id
+  const { id } = req.params;
+
+  // Receive userId
+  const { userId } = res;
+
+  // Check for this title (link) if it is already exist
+  if (link) {
+    const exist = await ProductModel
+      .findOne({ link, userId })
+      .then(product => product._id == id ? null : product)
+      .catch(err => errorRes(res, badReqCode, err));
+
+    // Stop running if already exists
+    if (exist) return errorRes(res, existCode, `${ existMsg } ${ title }`);
+  };
 
   // Empty obj
   const data = {};
@@ -168,15 +189,11 @@ router.put('/:id', (req, res) => {
 
   // Update product
   ProductModel
-  .findOneAndUpdate({_id: req.params.id}, {$set: data})
+  .findOneAndUpdate({_id: id}, {$set: data})
   .then(product => product
-    ? res
-      .status(successCode)
-      .send(successRes(updateSuccessMsg, successCode))
-    : res
-      .status(badReqCode)
-      .send(errorRes(updateErrorMsg, badReqCode)))
-  .catch(err => res.status(badReqCode).send(errorRes(err, badReqCode)));
+    ? successRes(res, successCode, updateSuccessMsg)
+    : errorRes(res, badReqCode, updateErrorMsg))
+  .catch(err => errorRes(res, badReqCode, err));
 });
 
 /* ------------------------------------------------------------------- */
@@ -193,13 +210,9 @@ router.delete('/:id', (req, res) => {
       : {_id: id}
     )
     .then(product => product.deletedCount !== 0
-      ? res
-        .status(successCode)
-        .send(successRes(deleteSuccessMsg, successCode))
-      : res
-        .status(badReqCode)
-        .send(errorRes(deleteErrorMsg, badReqCode)))
-    .catch(err => res.status(badReqCode).send(errorRes(err, badReqCode)));
+      ? successRes(res, successCode, deleteSuccessMsg)
+      : errorRes(res, badReqCode, deleteErrorMsg))
+    .catch(err => errorRes(res, badReqCode, err));
 });
 
 /* ------------------------------------------------------------------- */

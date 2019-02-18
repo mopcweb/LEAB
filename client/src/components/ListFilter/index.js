@@ -8,13 +8,13 @@ import { Link } from 'react-router-dom';
 import './index.sass';
 
 /* ------------------------------------------------------------------- */
-/*                              My components
+/*                            My components
 /* ------------------------------------------------------------------- */
 
 import { capitalize } from '../UsefulF';
 
 /* ------------------------------------------------------------------- */
-/*                              Products component
+/*                                List
 /* ------------------------------------------------------------------- */
 
 export default class List extends Component {
@@ -146,6 +146,10 @@ export default class List extends Component {
   };
 };
 
+/* ------------------------------------------------------------------- */
+/*                             Categories
+/* ------------------------------------------------------------------- */
+
 class Categories extends Component {
   render() {
     const cats = this.props.cats.map(item => (
@@ -172,18 +176,21 @@ class Categories extends Component {
   };
 };
 
+/* ------------------------------------------------------------------- */
+/*                              Category
+/* ------------------------------------------------------------------- */
+
 class Category extends Component {
   render() {
-    let clicked = false;
+    const { clicked, value } = this.props;
 
-    // Check if clicked category is that filtered by which. Then add class
-    if (this.props.clicked === this.props.value || (this.props.clicked === '' && this.props.value === 'Show all')) {
-      clicked = true;
-    };
+    const filter =
+      clicked.toLowerCase() === value.toLowerCase() ||
+      (clicked.toLowerCase() === '' && value === 'Show all')
 
     return (
       <button
-        className={clicked ? 'List-Category List-Category_clicked' : 'List-Category'}
+        className={filter ? 'List-Category List-Category_clicked' : 'List-Category'}
         style={{'backgroundImage': this.props.img ? `url(${this.props.img})` : ''}}>
         <span>
           {capitalize(this.props.value)}
@@ -192,6 +199,10 @@ class Category extends Component {
     )
   };
 };
+
+/* ------------------------------------------------------------------- */
+/*                               Filter
+/* ------------------------------------------------------------------- */
 
 class Filter extends Component {
   render() {
@@ -205,6 +216,10 @@ class Filter extends Component {
     )
   };
 };
+
+/* ------------------------------------------------------------------- */
+/*                              Table
+/* ------------------------------------------------------------------- */
 
 class Table extends Component {
   render() {
@@ -234,6 +249,10 @@ class Table extends Component {
   };
 };
 
+/* ------------------------------------------------------------------- */
+/*                              Header
+/* ------------------------------------------------------------------- */
+
 class Header extends Component {
   render() {
     let cliked = false;
@@ -254,10 +273,14 @@ class Header extends Component {
   };
 };
 
+/* ------------------------------------------------------------------- */
+/*                                Rows
+/* ------------------------------------------------------------------- */
+
 class Rows extends Component {
   render() {
     // Save data in variable for convenience
-    const data = this.props.data;
+    const { data } = this.props;
 
     // Filter data with category
     const filteredcat = data.filter(item => item.category.toLowerCase().indexOf(this.props.filterCat) !== -1);
@@ -287,6 +310,10 @@ class Rows extends Component {
     )
   };
 };
+
+/* ------------------------------------------------------------------- */
+/*                                Cell
+/* ------------------------------------------------------------------- */
 
 class Cell extends Component {
   render() {

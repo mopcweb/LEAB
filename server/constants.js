@@ -23,16 +23,27 @@ const statusCodes = {
 };
 
 /* ------------------------------------------------------------------- */
+/*                              General
+/* ------------------------------------------------------------------- */
+
+const general = {
+  // =====> No userId provided error
+  noUserIdMsg: 'There were no userId provided',
+
+  // =====> 400: Bad Request
+  badReqCode: statusCodes.badReqCode,
+};
+
+/* ------------------------------------------------------------------- */
 /*                              Error
 /* ------------------------------------------------------------------- */
 
 const error = {
-  // =====> Response msg
-  response: {
-    status: 'Error',
-    statusCode: statusCodes.notFoundCode,
-    result: 'No such api provided via web-server'
-  }
+  // =====> No userId provided error
+  errorMsg: 'No such api provided via web-server',
+
+  // =====> 400: Bad Request
+  notFoundCode: statusCodes.notFoundCode,
 };
 
 /* ------------------------------------------------------------------- */
@@ -51,6 +62,9 @@ const users = {
 
   // =====> Delete error
   deleteErrorMsg: 'Error occured while deleting',
+
+  // =====> No email provided error
+  noEmailMsg: 'There were no email provided',
 
   // =====> 400: Bad Request
   badReqCode: statusCodes.badReqCode,
@@ -99,12 +113,6 @@ const products = {
 
   // =====> 200: OK
   successCode: statusCodes.successCode,
-
-  // =====> Error -> can't change userId
-  userIdNoChangeMsg: 'It is not allowed to change userId property',
-
-  // =====> 403: Forbidden
-  forbiddenCode: statusCodes.forbiddenCode,
 };
 
 /* ------------------------------------------------------------------- */
@@ -135,24 +143,18 @@ const categories = {
 
   // =====> 200: OK
   successCode: statusCodes.successCode,
-
-  // =====> Error -> can't change userId
-  userIdNoChangeMsg: 'It is not allowed to change userId property',
-
-  // =====> 403: Forbidden
-  forbiddenCode: statusCodes.forbiddenCode,
 };
 
 /* ------------------------------------------------------------------- */
 /*                             Functions
 /* ------------------------------------------------------------------- */
 
-const errorRes = (result, statusCode) => {
-  return {status: 'Error', statusCode, result}
+const successRes = (res, status, result) => {
+  return res.status(status).send({status, statusText: 'Success', result})
 };
 
-const successRes = (result, statusCode) => {
-  return {status: 'Success', statusCode, result}
+const errorRes = (res, status, result) => {
+  return res.status(status).send({status, statusText: 'Error', result})
 };
 
 /* ------------------------------------------------------------------- */
@@ -162,6 +164,7 @@ const successRes = (result, statusCode) => {
 const constants = {
   errorRes,
   successRes,
+  general,
   error,
   users,
   products,

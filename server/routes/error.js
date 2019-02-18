@@ -15,6 +15,11 @@ const router = express.Router();
 // =====> Import constants
 const { response } = require('../constants').error;
 
+// =====> Constants
+const { errorRes } = require('../constants');
+
+const { errorMsg, notFoundCode } = require('../constants').error;
+
 /* ------------------------------------------------------------------- */
 /*                             Middlewares
 /* ------------------------------------------------------------------- */
@@ -29,26 +34,22 @@ router.use(bodyParser.urlencoded({extended: true}));
 
 // =====> GET
 router.get('/*', (req, res) => {
-  res.status(404);
-  res.send(response);
+  errorRes(res, notFoundCode, errorMsg);
 });
 
 // =====> POST
 router.post('/*', (req, res) => {
-  res.status(404);
-  res.send(response);
+  errorRes(res, notFoundCode, errorMsg);
 });
 
 // =====> PUT
 router.put('/*', (req, res) => {
-  res.status(404);
-  res.send(response);
+  errorRes(res, notFoundCode, errorMsg);
 });
 
 // =====> DELETE
 router.delete('/*', (req, res) => {
-  res.status(404);
-  res.send(response);
+  errorRes(res, notFoundCode, errorMsg);
 });
 
 

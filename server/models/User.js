@@ -18,7 +18,9 @@ const UserSchema = new Schema(
     username: String,
     email: String,
     img: Buffer,
-    currency: String
+    currency: String,
+    standart: Number,
+    big: Number
   },
   {
     timestamps: true

@@ -13,38 +13,48 @@ const categories = require('./categories');
 /*                               Config
 /* ------------------------------------------------------------------- */
 
-// =====> Config
-const { api } = require('../config');
+// =====> Api & Routes
+const { api, routes } = require('../config');
 
+// =====> Constants
+const { errorRes } = require('../constants');
+
+const { noUserIdMsg, badReqCode } = require('../constants').general;
+
+// =====> Define router
 const router = express.Router();
+
+/* ------------------------------------------------------------------- */
+/*                             Middleware
+/* ------------------------------------------------------------------- */
+
+// =====> Provide userId
+const provideUserId = (req, res, next) => {
+  // Get userId header
+  const { userid } = req.headers;
+
+  // Save into res.variable
+  // LowerCase & trim() userId (which is email) -> to
+  // prevent errors and duplicate userIds
+  // If there is no userId -> send error
+  if (userid) res.userId = userid.toLowerCase().trim()
+  else return errorRes(res, badReqCode, noUserIdMsg);
+
+  // Path results further
+  return next();
+};
 
 /* ------------------------------------------------------------------- */
 /*                               Routes
 /* ------------------------------------------------------------------- */
 
-const ERROR = api;
-const HOME = api + '/';
-const LOGIN = api + '/login';
-const REGISTER = api + '/register';
-const USERS = api + '/users';
-const DASHBOARD = api + '/dashboard';
-const MENU = api + '/menu';
-const DISHES = api + '/dishes';
-const DISHES_CATEGORIES = api + '/dishesCategories';
-const PRODUCTS = api + '/products';
-const PRODUCTS_CATEGORIES = api + '/productsCategories';
-
-/* ------------------------------------------------------------------- */
-/*                          Middlewares-routes
-/* ------------------------------------------------------------------- */
-
-// =====> Routes
-router.use(USERS, users);
-router.use(PRODUCTS, products);
-router.use(PRODUCTS_CATEGORIES, categories);
+// =====> General
+router.use(routes.USERS, users);
+router.use(routes.PRODUCTS, provideUserId, products);
+router.use(routes.PRODUCTS_CATEGORIES, provideUserId, categories);
 
 // =====> Errors
-router.use(ERROR, error);
+router.use(routes.ERROR, error);
 
 /* ------------------------------------------------------------------- */
 /*                               Export

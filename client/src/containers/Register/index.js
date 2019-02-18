@@ -115,7 +115,10 @@ class Form extends Component {
     this.showAlert = showAlert.bind(this);
   }
 
-  // =====> Handler for closing alert by clicking on its cross
+  // ==================>                             <================== //
+  //             Handle close alert by clicking on its cross
+  // ==================>                             <================== //
+
   handleAlertClose = (e) => {
     clearTimeout(this.timer);
 
@@ -126,14 +129,20 @@ class Form extends Component {
     }});
   }
 
-  // =====> Handle Input value change
+  // ==================>                             <================== //
+  //                     Handle Input value change
+  // ==================>                             <================== //
+
   handleChange = (e) => {
     this.setState({[e.target.name]: e.target.value});
 
     if (e.target.name === 'username') this.setState({[e.target.name]: capitalize(e.target.value)});
   }
 
-  // =====> Handle click on submit btn
+  // ==================>                             <================== //
+  //                     Handle click on submit btn
+  // ==================>                             <================== //
+
   handleSubmit = async (e) => {
     // Prevent default page reload
     e.preventDefault();
@@ -142,7 +151,7 @@ class Form extends Component {
 
     // Check if user already exists
     const exist = await axios
-      .get(api.USERS + '/' + username)
+      .get(api.USERS + '/' + email)
       .then(user => user.data)
       .catch(err => console.log(err));
 
@@ -152,40 +161,57 @@ class Form extends Component {
       return this.timer = this.showAlert(register.existMsg, 'Message_error');
     };
 
+    if (password.length < 6) {
+      clearTimeout(this.timer);
+      return this.timer = this.showAlert(register.weakPwdMsg, 'Message_error');
+    };
+
+    // I have to do it before calling Firebase API
+    // Because when API called, we'll be redirected out of Register
+    // BUT this.setState would be called after that -> error & memory leak
+    // Set state to initial empty value
+    this.setState({
+      username: '', email: '', password: '', confirmPassword: ''
+    });
+
     // Firebase API for creating new User
-    this.props.firebase
+    const user = await this.props.firebase
       .doCreateUserWithEmailAndPassword(email, password)
-      .then(async authUser => {
-
-        // Send data to the db
-        await axios
-          .post(api.USERS, {username, email, img: register.defaultImg})
-          .then(user => window.localStorage.setItem(register.userLC, JSON.stringify(user.data)))
-          .catch(err => console.log(err));
-
-        // Set state to initial empty value
-        this.setState({
-          username: '',
-          email: '',
-          password: '',
-          confirmPassword: ''
-        });
-
-        // Redirect to dashboard
-        this.props.history.push(routes.DASHBOARD);
-      })
+      .then(res => res)
       .catch(err => {
         clearTimeout(this.timer);
         this.timer = this.showAlert(err.message, 'Message_error');
       });
+
+    // If there is error -> don't save user data into db
+    if (!user) return;
+
+    // Send data to the db
+    axios
+      .post(api.USERS, {
+        username, email,
+        img: register.defaultImg,
+        standart: register.defaultStandart,
+        big: register.defaultBig
+      })
+      .catch(err => console.log('=====> Error', err));
+
+    // Redirect to dashboard
+    this.props.history.push(routes.DASHBOARD);
   }
 
-  // =====> Clear Alert timeout on component destroy
+  // ==================>                             <================== //
+  //                  Lifecycle hook (just before destroy)
+  // ==================>                             <================== //
+
   componentWillUnmount() {
     clearTimeout(this.timer);
   }
 
-  // =====> Render
+  // ==================>                             <================== //
+  //                               Render
+  // ==================>                             <================== //
+
   render() {
     // Check validation
     const isInvalid =
@@ -259,12 +285,18 @@ class Input extends Component {
     };
   }
 
-  // =====> Handle focus
+  // ==================>                             <================== //
+  //                            Handle focus
+  // ==================>                             <================== //
+
   handleFocus = (e) => {
     this.setState(state => ({isFocused: !state.isFocused}))
   }
 
-  // =====> Render
+  // ==================>                             <================== //
+  //                               Render
+  // ==================>                             <================== //
+
   render() {
     return (
       <div onFocus={this.handleFocus} onBlur={this.handleFocus}>

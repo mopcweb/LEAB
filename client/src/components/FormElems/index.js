@@ -44,25 +44,31 @@ class Inputs extends Component {
 /*                              Disabled
 /* ------------------------------------------------------------------- */
 
-class Disabled extends Component {
+class Input extends Component {
   render() {
+    // Get this.props variables
+    const {
+      label, type, id, placeholder, value, disabled, onChange
+    } = this.props;
+
     return (
       <div className='Form-Rows'>
 
-        {this.props.label
-          ? <label htmlFor={this.props.id}>
-              {this.props.label}
+        {label
+          ? <label htmlFor={id}>
+              {label}
             </label>
           : ''
         }
 
         <input
-          type={this.props.type ? this.props.type : ''}
-          name={this.props.id ? this.props.id : ''}
-          id={this.props.id ? this.props.id : ''}
-          placeholder={this.props.placeholder ? this.props.placeholder : ''}
-          value={this.props.value}
-          disabled={true}
+          type={type}
+          name={id}
+          id={id}
+          placeholder={placeholder ? placeholder : ''}
+          value={value}
+          disabled={disabled ? true : false}
+          onChange={onChange}
         />
 
       </div>
@@ -134,4 +140,4 @@ class Select extends Component {
 /*                              Export
 /* ------------------------------------------------------------------- */
 
-export {Inputs, Disabled, Select, Submit, SubmitLink};
+export {Inputs, Input, Select, Submit, SubmitLink};

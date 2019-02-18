@@ -10,7 +10,7 @@ import './index.sass';
 /*                              My Components
 /* ------------------------------------------------------------------- */
 
-import { Inputs, Disabled, Select, Submit } from '../../components/FormElems';
+import { Inputs, Input, Select, Submit } from '../../components/FormElems';
 import {Wrapper} from '../../components/Main';
 import {capitalize} from '../../components/UsefulF';
 // import Modal from '../../components/Modal';
@@ -137,11 +137,11 @@ class Data extends Component {
         <Select data={this.props.catSelect} onChange={this.props.onChange} value={this.props.category} />
 
 
-        <Disabled type='text' id='weight' label='Weight' value={this.props.ccal} />
-        <Disabled type='text' id='ccal' label='Calories' value={this.props.ccal} />
-        <Disabled type='text' id='protein' label='Proteins' value={this.props.ccal} />
-        <Disabled type='text' id='fats' label='Fats' value={this.props.ccal} />
-        <Disabled type='text' id='carbs' label='Carbohydrates' value={this.props.ccal} />
+        <Input type='text' id='weight' label='Weight' value={this.props.ccal} />
+        <Input type='text' id='ccal' label='Calories' value={this.props.ccal} />
+        <Input type='text' id='protein' label='Proteins' value={this.props.ccal} />
+        <Input type='text' id='fats' label='Fats' value={this.props.ccal} />
+        <Input type='text' id='carbs' label='Carbohydrates' value={this.props.ccal} />
 
         <div className='Form-Rows'>
           <Submit value='Delete' />

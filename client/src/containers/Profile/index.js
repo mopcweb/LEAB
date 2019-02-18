@@ -18,6 +18,9 @@ import * as api from '../../config/api';
 // =====> Constants
 import { profile } from '../../config/constants';
 
+// =====> Store
+import { withFirebase, withUser } from '../../config/store';
+
 /* ------------------------------------------------------------------- */
 /*                            My Components
 /* ------------------------------------------------------------------- */
@@ -26,8 +29,6 @@ import { Wrapper } from '../../components/Main';
 import { Inputs, Select, Submit } from '../../components/FormElems';
 import { capitalize } from '../../components/UsefulF';
 import Alert, { showAlert } from '../../components/Alert';
-
-import { withFirebase } from '../../config/store';
 
 /* ------------------------------------------------------------------- */
 /*                               Profile
@@ -39,7 +40,7 @@ class Profile extends Component {
 
     // =====> State
     this.state = {
-      user: profile.user ? profile.user : '',
+      user: '',
       username: '',
       email: '',
       img: profile.defaultImg,
@@ -51,6 +52,8 @@ class Profile extends Component {
       carbs: '',
       currencies: [{title: 'USD', id: '1'}, {title: 'EUR', id: '2'}, {title: 'UAH', id: '3'}],
       currency: 'USD',
+      standart: '',
+      big: '',
       alert: {
         show: false,
         value: '',
@@ -86,6 +89,20 @@ class Profile extends Component {
         id: 'username',
         label: profile.username,
         placeholder: profile.username,
+        onChange: this.handleChange
+      },
+      {
+        type: 'number',
+        id: 'standart',
+        label: profile.standart,
+        placeholder: profile.standart,
+        onChange: this.handleChange
+      },
+      {
+        type: 'number',
+        id: 'big',
+        label: profile.big,
+        placeholder: profile.big,
         onChange: this.handleChange
       },
       // {
@@ -125,7 +142,10 @@ class Profile extends Component {
     };
   };
 
-  // =====> Handle inputs values changes
+  // ==================>                             <================== //
+  //                    Handle inputs values changes
+  // ==================>                             <================== //
+
   handleChange = (e) => {
     const state = e.target.id;
 
@@ -135,7 +155,10 @@ class Profile extends Component {
     if (state === 'username') this.setState({[state]: capitalize(e.target.value)})
   }
 
-  // =====> Handle close alert by clicking on its cross
+  // ==================>                             <================== //
+  //             Handle close alert by clicking on its cross
+  // ==================>                             <================== //
+
   handleAlertClose = (e) => {
     clearTimeout(this.timer);
 
@@ -146,31 +169,39 @@ class Profile extends Component {
     }});
   }
 
-  // =====> Handle submit btn
+  // ==================>                             <================== //
+  //                        Handle submit btn
+  // ==================>                             <================== //
+
   handleSubmit = (e) => {
     // Prevent default page reload
     e.preventDefault();
 
+    // Receive pwd value from state
     const { password } = this.state;
 
+    // Call Firebase Api -> Update pwd
     this.props.firebase
       .doPasswordUpdate(password)
       .then(() => {
+        // If success -> reset state
         this.setState({password: '', confirmPassword: ''})
 
+        // And show success msg
         clearTimeout(this.timer);
         this.timer = this.showAlert(profile.pwdUpdateMsg, 'Message_success');
       })
       .catch(err => {
+        // Show error msg
         clearTimeout(this.timer);
         this.timer = this.showAlert(err.message, 'Message_error');
-
-        // =====> For debug only
-        return console.log('=====> Error:', {status: 'Error', error: err.message})
       });
   }
 
-  // =====> Handle img preview
+  // ==================>                             <================== //
+  //                         Handle img preview
+  // ==================>                             <================== //
+
   handlePreviewImg = (e) => {
     // Define file
     const file = e.target.files[0];
@@ -178,17 +209,13 @@ class Profile extends Component {
     // Show error alert if file type is not image
     if (file && file.type.indexOf('image') === -1) {
       clearTimeout(this.timer);
-      this.timer = this.showAlert(profile.onlyImgsMsg, 'Message_error');
-
-      return
+      return this.timer = this.showAlert(profile.onlyImgsMsg, 'Message_error');
     };
 
     // Show error alert if jile size more than profile.fileSize
     if (file && file.size > profile.fileSize) {
       clearTimeout(this.timer);
-      this.timer = this.showAlert(profile.fileTooBigMsg, 'Message_error');
-
-      return
+      return this.timer = this.showAlert(profile.fileTooBigMsg, 'Message_error');
     };
 
     // New reader
@@ -202,17 +229,22 @@ class Profile extends Component {
     else this.setState({img: profile.defaultImg})
   }
 
-  // =====> Handle save profile config (Edit)
+  // ==================>                             <================== //
+  //                  Handle save profile config (Edit)
+  // ==================>                             <================== //
+
   handleSave = (e) => {
     // Prevent default page reload
     e.preventDefault();
 
     // Receive data from state for usage
-    const { username, currency, img } = this.state;
+    const { username, currency, img, standart, big } = this.state;
 
     // Send data into db
     axios
-      .put(api.USERS + '/' + this.state.user._id, { username, currency, img })
+      .put(api.USERS + '/' + this.state.user._id, {
+        username, currency, img, standart, big
+       })
       .then(res => {
         // Show success message
         clearTimeout(this.timer);
@@ -221,21 +253,22 @@ class Profile extends Component {
       .catch(err => console.log(err));
   }
 
-  // =====> update state just after before component render
+  // ==================>                             <================== //
+  //                  Lifecycle hook (just before render)
+  // ==================>                             <================== //
+
   componentDidMount() {
     this.getUser()
   }
 
-  // =====> Get current User profile
+  // ==================>                             <================== //
+  //                  Get current User profile
+  // ==================>                             <================== //
+
   getUser = () => {
-    // Get token from localStorage
-    const token = JSON.parse(window.localStorage.getItem(profile.tokenLC));
+    const { email } = this.props.authUser;
 
-    // Receive email into variable
-    const email = token ? token.email : '';
-
-    // If there is no email (if user manually clear storage) -> recursice call of getUser()
-    if (!email) return setTimeout(() => this.getUser(), 0)
+    if (!email) return setTimeout(() => this.getUser(), 0);
 
     // Request current user
     axios
@@ -244,62 +277,69 @@ class Profile extends Component {
       .catch(err => console.log(err));
   }
 
-  // =====> Upadte user state & localStorage
-  updateUser = (user) => {
-    // Put user into localStorage
-    window.localStorage.setItem(profile.userLC, JSON.stringify(user));
+  // ==================>                             <================== //
+  //                  Upadte user state & localStorage
+  // ==================>                             <================== //
 
+  updateUser = (user) => {
     // Receive neccesary fields
-    const { username, currency, img } = user;
+    const { username, currency, img, standart, big } = user;
 
     // Update state
-    this.setState({ user, username, currency, img: img ? new Buffer(img) : '' });
+    this.setState({
+      user, username, currency, img: img ? new Buffer(img) : '', standart, big
+    });
   }
 
-  // =====> Clear Alert timer before component destroy
+  // ==================>                             <================== //
+  //                  Lifecycle hook (just before destroy)
+  // ==================>                             <================== //
+
   componentWillUnmount() {
     clearTimeout(this.timer);
   }
 
-  // =====> Render
+  // ==================>                             <================== //
+  //                               Render
+  // ==================>                             <================== //
+
   render() {
+    // Receive state variables
+    const {
+      username, user, password, confirmPassword, currency, currencies,
+      img, standart, big, ccal, proteins, fats, carbs, alert
+    } = this.state;
+
     // Check validation
-    const isInvalid = this.state.password !== this.state.confirmPassword ||
-    this.state.password === '';
+    const isInvalid = password !== confirmPassword || password === '';
 
     // Check if input fileds are unchanged
     const isInvalidEdit =
-      this.state.username === this.state.user.username &&
-      this.state.currency === this.state.user.currency &&
-      this.state.img === this.state.user.img
+      username === user.username &&
+      currency === user.currency &&
+      img === user.img
 
     return (
       <Fragment>
         <Wrapper
           addClass='Profile'
-          header={`${this.state.username}'s profile`}
+          header={`${username}'s profile`}
         >
           <User
             inputs={this.user}
             inputsValues={{
-              password: this.state.password,
-              confirmPassword: this.state.confirmPassword
+              password: password,
+              confirmPassword: confirmPassword
             }}
-            img={this.state.img}
-            username={this.state.username}
+            img={img}
+            username={username}
             isInvalid={isInvalid}
             onSubmit={this.handleSubmit}
             onPreview={this.handlePreviewImg}
            />
           <Form
             inputs={this.config}
-            values={{
-              username: this.state.username,
-              ccal: this.state.ccal,
-              proteins: this.state.proteins,
-              fats: this.state.fats,
-              carbs: this.state.carbs
-            }}
+            values={{ username, standart, big, ccal, proteins, fats, carbs }}
             title={profile.form2Title}
             isInvalid={isInvalidEdit}
             submit={profile.form2Submit}
@@ -307,14 +347,16 @@ class Profile extends Component {
           >
             <Select
               config={this.currency}
-              value={this.state.currency}
-              options={this.state.currencies}
+              value={currency}
+              options={currencies}
               onChange={this.handleChange}
             />
           </Form>
         </Wrapper>
 
-        <Alert value={this.state.alert.value} addClass={this.state.alert.class} isShow={this.state.alert.show} onClick={this.handleAlertClose} />
+        <Alert value={alert.value} addClass={alert.class} isShow={alert.show}
+          onClick={this.handleAlertClose}
+        />
       </Fragment>
     )
   };
@@ -389,4 +431,4 @@ class Form extends Component {
 /* ------------------------------------------------------------------- */
 
 // =====> Call Form with FbContext & Router
-export default withFirebase(Profile);
+export default withFirebase(withUser(Profile));

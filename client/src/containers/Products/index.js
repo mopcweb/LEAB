@@ -15,6 +15,12 @@ import './index.sass';
 // =====> Api
 import * as api from '../../config/api';
 
+// =====> Constants
+import { products } from '../../config/constants';
+
+// =====> Store
+import { withUser } from '../../config/store';
+
 /* ------------------------------------------------------------------- */
 /*                            My components
 /* ------------------------------------------------------------------- */
@@ -24,13 +30,13 @@ import List from '../../components/ListFilter';
 import Modal from '../../components/Modal';
 import Alert, { showAlert } from '../../components/Alert';
 import ListOfItems from '../../components/ListOfItems';
-import { capitalize, request } from '../../components/UsefulF';
+import { capitalize } from '../../components/UsefulF';
 
 /* ------------------------------------------------------------------- */
 /*                               Products
 /* ------------------------------------------------------------------- */
 
-export default class Products extends Component {
+class Products extends Component {
   constructor(props) {
     super(props);
 
@@ -39,7 +45,7 @@ export default class Products extends Component {
       isOpen: false,
       catTitle: '',
       catImg: '',
-      catImgTitle: 'Image for category',
+      catImgTitle: products.catImgTitle,
       categories: [],
       products: [],
       alert: {
@@ -54,7 +60,7 @@ export default class Products extends Component {
       {
         type: 'text',
         id: 'catTitle',
-        placeholder: 'Category title',
+        placeholder: products.catTitle,
         onChange: this.handleCatTitleChange.bind(this),
       }
     ];
@@ -63,77 +69,81 @@ export default class Products extends Component {
     this.showAlert = showAlert.bind(this);
   };
 
-  // =====> Handle open/close Modal component
+  // ==================>                             <================== //
+  //                  Handle open/close Modal component
+  // ==================>                             <================== //
+
   handleOpenModal = (e) => {
     // Close onClick at btn or out of modal inner
     if (e.target.closest('.Modal-Close') || !e.target.closest('.Modal-Inner'))
     this.setState(state => ({isOpen: !state.isOpen}))
   }
 
-  // =====> Handle click on add button
+  // ==================>                             <================== //
+  //                     Handle click on add button
+  // ==================>                             <================== //
+
   handleAddItem = async (e) => {
     // Prevent default page reload
     e.preventDefault();
 
-    // Stop running & show error message if there is no text (entered by accident for example)
+    // Receive data from State
+    const { catTitle, catImg } = this.state;
+
+    // Stop running & show error message if there is no text
     if (this.state.catTitle === '') {
       clearTimeout(this.timer);
-      return this.timer = this.showAlert('Can not add category without title', 'Message_error');
+      return this.timer = this.showAlert(products.addEmptyCatTitleMsg, 'Message_error');
     };
 
-    // Build data obj
-    const data = {
-      title: capitalize(this.state.catTitle),
-      img: this.state.catImg
-    };
-
-    // Post data
-    // await request(api.PRODUCTS_CATEGORIES, opts)
+    // Save & send new category
     await axios
-      .post(api.PRODUCTS_CATEGORIES, data)
-    // in purpose to console.log() result
+      .post(api.PRODUCTS_CATEGORIES, { img: catImg, title: capitalize(catTitle) })
       .then(res => {
-        console.log(res.data)
         // Show success message
-        if (res.data.status.toLowerCase() === 'already exist') {
-          clearTimeout(this.timer);
-          this.timer = this.showAlert('Already exists', 'Message_error');
-        }
-        else {
-          clearTimeout(this.timer);
-          this.timer = this.showAlert('Added new category', 'Message_success');
-        };
+        clearTimeout(this.timer);
+        this.timer = this.showAlert(products.addCategoryMsg, 'Message_success');
+
+        // Console.log result of request
+        console.log('=====> New category', res.data)
       })
-      .catch(err => console.log(err));
+      .catch(err => {
+        // Show error message
+        clearTimeout(this.timer);
+        this.timer = this.showAlert(`${products.existMsg}`, 'Message_error');
+
+        // Console.log result of request
+        console.log('=====> Error ', err)
+      });
 
     // Reset input value
-    this.setState({catTitle: '', catImg: '', catImgTitle: 'Image for category'});
+    this.setState({ catTitle: '', catImg: '', catImgTitle: products.catImgTitle });
 
-    // Get new data
+    // Request new categories
     await this.getCategories()
   }
 
-  // =====> Handle preview img
+  // ==================>                             <================== //
+  //                         Handle preview img
+  // ==================>                             <================== //
+
   handlePreviewImg = (e) => {
     // Define file
     const file = e.target.files[0];
 
-    // Show error alert if file type is not image
+    // =====> Error: file type is not image
     if (file && file.type.indexOf('image') === -1) {
       clearTimeout(this.timer);
-      this.timer = this.showAlert('Only images allowed', 'Message_error');
-
-      return
+      return this.timer = this.showAlert(products.onlyImgsMsg, 'Message_error');
     };
 
-    // Show error alert if jile size more than 1000kb (1000000bytes)
-    if (file && file.size > 1000000) {
+    // =====> Error: jile size is more than products.fileSize
+    if (file && file.size > products.fileSize) {
       clearTimeout(this.timer);
-      this.timer = this.showAlert('File too big. Max size is 100 kb', 'Message_error');
-
-      return
+      return this.timer = this.showAlert(products.fileTooBigMsg, 'Message_error');
     };
 
+    // Change label value of file input
     if (file) this.setState({catImgTitle: file.name});
 
     // New reader
@@ -146,135 +156,127 @@ export default class Products extends Component {
     if (file) reader.readAsDataURL(file);
   }
 
-  // =====> Handle click on remove button
-  handleRemoveItem = async (e) => {
-    // Define clicked category id
-    const id = e.target.htmlFor;
-    const rename = e.target.textContent;
+  // ==================>                             <================== //
+  //                     Handle click on remove btn
+  // ==================>                             <================== //
 
-    const inputValue = document.getElementById(id).value;
+  handleRemoveItem = async (e) => {
+    // Define clicked category: id, label text, value of assotiated input
+    this.id = e.target.htmlFor;
+    this.rename = e.target.textContent;
+    this.inputValue = document.getElementById(this.id).value;
 
     // Find category title by id
-    const title = capitalize(this.state.categories.find(item => item.id === id).title);
+    const { categories } = this.state;
+    this.title = capitalize(categories.find(item => item.id === this.id).title);
 
-    // Ask if sure
-    const confirm = window.confirm('Are you sure?');
-
-    if (!confirm) return
-
-    // Empty array for existing products
-    let existProducts = [];
+    // =====> Ask if sure & stop running if not sure
+    if (!window.confirm('Are you sure?')) return
 
     // Check if there any products using this category
-    await request(`${api.PRODUCTS}?category=${title}`)
-      .then(data => existProducts = data)
+    // If they are -> save into array
+    this.existProducts = await axios
+      .get(api.PRODUCTS, { params: { category: this.title } })
+      .then(res => res.data)
       .catch(err => console.log(err));
 
-    // Can't rename into empty string
-    if (rename.toLowerCase() === 'rename' && inputValue === '') {
-      clearTimeout(this.timer);
-      this.timer = this.showAlert('Can\'t rename into empty string', 'Message_error');
+    console.log(this.existProducts)
 
-      return
+    // =====> Error: Can't rename into empty string
+    if (this.rename.toLowerCase() === 'rename' && this.inputValue === '') {
+      clearTimeout(this.timer);
+      return this.timer = this.showAlert(products.renameEmptyCatTitleMsg, 'Message_error');
     };
 
-    // If btn value is 'rename' and input Value !== initial title ->  PUT request to change category name
-    // Also if there are any products with in this category -> PUT into them new category title
-    if (rename.toLowerCase() === 'rename' && inputValue !== title) {
-      let data = {
-        title: capitalize(inputValue)
-      };
+    // If btn value is 'rename' & input Value !== initial title
+    // Then -> PUT request to change category title
+    // Also if there are any products in this category
+    // Then -> PUT request to change their category title
+    if (await this.handleRenameItem()) return;
 
-      // Create Blob from data
-      let blob = new Blob(
-        [JSON.stringify(data)],
-        {type: 'application/json'}
-      );
+    // If there are products in category -> decline DELETE
+    if (this.existProducts.length > 0) {
+      clearTimeout(this.timer);
+      return this.timer = this.showAlert(products.notEmptyCategoryMsg, 'Message_error');
+    };
 
-      // Options for request
-      let opts = {
-        method: 'PUT',
-        body: blob
-      };
+    await axios
+      .delete(`${api.PRODUCTS_CATEGORIES}/${this.id}`)
+      .then(res => {
+        // Show success message
+        clearTimeout(this.timer);
+        this.timer = this.showAlert(products.deleteCategoryMsg, 'Message_success');
 
-      // PUT new category title into category's collection in db
-      await request(`${api.PRODUCTS_CATEGORIES}/${id}`, opts)
+        console.log('=====> Category deleted', res.data)
+      })
+      .catch(err => console.log('=====> Error', err));
+
+    // Request & update categories
+    await this.getCategories();
+  }
+
+  // ==================>                             <================== //
+  //                       Handle rename category
+  // ==================>                             <================== //
+
+  handleRenameItem = async () => {
+    if (this.rename.toLowerCase() === 'rename' && this.inputValue !== this.title) {
+      await axios
+        .put(`${api.PRODUCTS_CATEGORIES}/${this.id}`, { title: capitalize(this.inputValue) })
         .then(res => {
           // Show success message
-          if (res.status.toLowerCase() === 'already exist') {
-            clearTimeout(this.timer);
-            this.timer = this.showAlert('Already exists', 'Message_error');
-          }
-          else {
-            clearTimeout(this.timer);
-            this.timer = this.showAlert('Category updated', 'Message_success');
-          };
+          clearTimeout(this.timer);
+          this.timer = this.showAlert(products.updateCategoryMsg, 'Message_success');
 
-          console.log('=====> updated category', res)
+          // Console.log result of request
+          console.log('=====> Updated category', res.data);
         })
-        .catch(err => console.log(err))
+        .catch(err => {
+          // Show error message
+          clearTimeout(this.timer);
+          this.timer = this.showAlert(products.existMsg, 'Message_error');
 
-      // Stop running if there is no matching products
-      if (existProducts.length > 0) {
-        data = {
-          category: capitalize(inputValue)
-        };
-
-        // Create Blob from data
-        blob = new Blob(
-          [JSON.stringify(data)],
-          {type: 'application/json'}
-        );
-
-        // Options for request
-        opts = {
-          method: 'PUT',
-          body: blob
-        };
-
-        // PUT new category title into matching products
-        await existProducts.forEach( async item => {
-          await request(`${api.PRODUCTS}/${item._id}`, opts)
-            .then(res => console.log('=====> updated product\'s category', res))
-            .catch(err => console.log(err))
+          // Console.log result of request
+          console.log('=====> Error', err)
         });
-      }
 
-      // Request again for updated categories and products
+      // If there are any matching products
+      // Then -> PUT new category title into matching products
+      if (this.existProducts.length > 0) {
+        await this.existProducts.forEach( async item => {
+
+          await axios
+            .put(`${api.PRODUCTS}/${item._id}`, { category: capitalize(this.inputValue) })
+            .then(res => console.log('=====> updated product\'s category', res.data))
+            .catch(err => console.log('=====> Error', err));
+
+        });
+      };
+
+      // Request again updated categories and products
       this.getCategories();
       this.getProducts();
 
-      return false
+      // Return true value -> to stop running DELETE func further
+      return true
     };
 
-    // If there are products in category -> decline
-    if (existProducts.length > 0) {
-      clearTimeout(this.timer);
-      this.timer = this.showAlert('Can\'t delete category with products in it', 'Message_error');
-
-      return
-    };
-
-    await request(`${api.PRODUCTS_CATEGORIES}/${id}`, {method: 'DELETE'})
-    // in purpose to console.log() result
-      .then(data => {
-        // Show success message
-        clearTimeout(this.timer);
-        this.timer = this.showAlert('Category deleted', 'Message_success');
-
-        console.log(data)
-      })
-      .catch(err => console.log(err));
-
-    await this.getCategories()
+    // Return false value -> to proceed DELETE func
+    return false;
   }
 
-  // =====> Handle catTitle input value changes
+  // ==================>                             <================== //
+  //                 Handle catTitle input value changes
+  // ==================>                             <================== //
+
   handleCatTitleChange = (e) => {
     this.setState({catTitle: capitalize(e.target.value)});
   }
 
-  // =====> Handle closing alert by clicking on its cross
+  // ==================>                             <================== //
+  //            Handle closing alert by clicking on its cross
+  // ==================>                             <================== //
+
   handleAlertClose = (e) => {
     clearTimeout(this.timer);
 
@@ -285,61 +287,74 @@ export default class Products extends Component {
     }});
   }
 
-  // =====> Lifecycle hook (just before render)
+  // ==================>                             <================== //
+  //                 Lifecycle hook (just before render)
+  // ==================>                             <================== //
+
   componentDidMount() {
     // Get all categories before first render
     this.getCategories();
     this.getProducts();
   }
 
-  // =====> Lifecycle hook (just after destroy)
+  // ==================>                             <================== //
+  //                Lifecycle hook (just before destroy)
+  // ==================>                             <================== //
+
   componentWillUnmount() {
     clearTimeout(this.timer);
   }
 
-  // =====> Get categories request
+  // ==================>                             <================== //
+  //                       Get categories request
+  // ==================>                             <================== //
+
   getCategories = () => {
-    return request(api.PRODUCTS_CATEGORIES)
-      .then(data => {
-        // Lowercased all data
-        let cats = data.map(item => ({
-          title: item.title.toLowerCase().trim(),
+    return axios
+      .get(api.PRODUCTS_CATEGORIES)
+      .then(res => {
+        const categories = res.data.map(item => ({
+          title: item.title,
           img: new Buffer(item.img.data).toString(),
-          // img: new Buffer(item.img.data),
           id: item._id
         }));
 
         // Default sorting from a -> b
-        cats.sort((a, b) => {
-          return a.title.localeCompare(b.title);
-        });
+        categories.sort((a, b) => a.title.localeCompare(b.title));
 
         // Update State
-        this.setState({categories: cats})
+        this.setState({categories})
       })
-      .catch(err => console.log(err));
+      .catch(err => console.log('=====> Error', err));
   }
 
-  // =====> Get products request
+  // ==================>                             <================== //
+  //                        Get products request
+  // ==================>                             <================== //
+
   getProducts = () => {
     // Requesting data from server. Header 'data' specifies filename
-    return request(api.PRODUCTS)
-      .then(data => {
-        // Default sorting by item
-        data.sort((a, b) => {
+    return axios
+      .get(api.PRODUCTS)
+      .then(products => {
+        // Default sorting by title
+        products.data.sort((a, b) => {
           return a.title.localeCompare(b.title);
         });
 
         // Update State
-        this.setState({products: data})
+        this.setState({products: products.data})
       })
-      .catch(err => console.log(err));
+      .catch(err => console.log('=====> Error', err));
   }
 
-  // =====> Render
+  // ==================>                             <================== //
+  //                                Render
+  // ==================>                             <================== //
+
   render() {
     return (
-      <Wrapper addClass='Products' header='Products'>
+      <Wrapper addClass='Products' header={products.header}>
         <List
           onModalOpen={this.handleOpenModal}
           categories={this.state.categories}
@@ -366,8 +381,11 @@ export default class Products extends Component {
   };
 };
 
+/* ------------------------------------------------------------------- */
+/*                   Provide authUser prop & Export
+/* ------------------------------------------------------------------- */
 
-
+export default (withUser(Products))
 
 
 //
