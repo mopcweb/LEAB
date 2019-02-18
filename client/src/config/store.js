@@ -1,6 +1,8 @@
 import React, { createContext } from 'react';
 import { withRouter } from 'react-router-dom';
 
+import axios from 'axios';
+
 /* ------------------------------------------------------------------- */
 /*                              Config
 /* ------------------------------------------------------------------- */
@@ -52,8 +54,6 @@ export const withAuth = Component => {
             ? this.handleUserLoggedIn(authUser)
             : this.handleUserLoggedOut()
       });
-
-      // if (!window.localStorage.getItem('token')) this.props.firebase.doSignOut()
     }
 
     // ==================>                             <================== //
@@ -66,7 +66,7 @@ export const withAuth = Component => {
 
       // Save current user lo localStorage
       window.localStorage.setItem('token', JSON.stringify(authUser));
-      
+
       // Receive router props
       const { location, history } = this.props;
 
@@ -131,6 +131,38 @@ export const withUser = Component => props => (
     {authUser => <Component {...props} authUser={authUser} />}
   </AuthContext.Consumer>
 );
+
+/* ------------------------------------------------------------------- */
+/*                              withLang
+/* ------------------------------------------------------------------- */
+
+const LangContext = createContext(null);
+
+export const withLang = Component => {
+  class WithLang extends Component {
+    constructor(props) {
+      super(props);
+
+      this.stste = {
+        lang: 'en'
+      };
+    }
+
+    componentDidMount() {
+      
+    }
+
+    render() {
+      return (
+        <LangContext.Provider value={this.state.lang}>
+          <Component {...this.props} />
+        </LangContext.Provider>
+      )
+    }
+  }
+
+  return WithLang
+}
 
 /* ------------------------------------------------------------------- */
 /*                           WithAuthorization

@@ -1,9 +1,9 @@
 import app from 'firebase/app';
 import 'firebase/auth';
 
-/* ------------------------------------------------------- */
-/*                        Config
-/* ------------------------------------------------------- */
+/* ------------------------------------------------------------------- */
+/*                              Config
+/* ------------------------------------------------------------------- */
 
 // const devConfig = {
 //   apiKey: process.env.REACT_APP_DEV_API_KEY,
@@ -34,18 +34,21 @@ const config = {
   messagingSenderId: "17150711236"
 };
 
-/* ------------------------------------------------------- */
-/*                        Firebase
-/* ------------------------------------------------------- */
+/* ------------------------------------------------------------------- */
+/*                              Firebase
+/* ------------------------------------------------------------------- */
 
-class Firebase {
+export default class Firebase {
   constructor() {
     app.initializeApp(config);
 
     this.auth = app.auth();
   }
 
-  // =====> Auth API
+  // ==================>                             <================== //
+  //                             Auth API
+  // ==================>                             <================== //
+
   doCreateUserWithEmailAndPassword = (email, password) =>
     this.auth.createUserWithEmailAndPassword(email, password)
 
@@ -60,8 +63,6 @@ class Firebase {
     this.auth.currentUser.updatePassword(password)
 };
 
-/* ------------------------------------------------------- */
-/*                        Export
-/* ------------------------------------------------------- */
 
-export default Firebase;
+
+//

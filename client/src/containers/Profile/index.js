@@ -50,8 +50,12 @@ class Profile extends Component {
       proteins: '',
       fats: '',
       carbs: '',
-      currencies: [{title: 'USD', id: '1'}, {title: 'EUR', id: '2'}, {title: 'UAH', id: '3'}],
+      currencies: [
+        { title: 'USD', id: 1 }, { title: 'EUR', id: 2 }, { title: 'UAH', id: 3 }
+      ],
       currency: 'USD',
+      langs: [{ title: 'en', id: 1 }, { title: 'ru', id: 2 }],
+      lang: 'en',
       standart: '',
       big: '',
       alert: {
@@ -139,6 +143,12 @@ class Profile extends Component {
     this.currency = {
       label: profile.currency,
       id: 'currency'
+    };
+
+    // =====> Config for lang select
+    this.lang = {
+      label: 'Choose lang',
+      id: 'lang'
     };
   };
 
@@ -307,7 +317,7 @@ class Profile extends Component {
     // Receive state variables
     const {
       username, user, password, confirmPassword, currency, currencies,
-      img, standart, big, ccal, proteins, fats, carbs, alert
+      img, standart, big, ccal, proteins, fats, carbs, alert, lang, langs
     } = this.state;
 
     // Check validation
@@ -327,10 +337,7 @@ class Profile extends Component {
         >
           <User
             inputs={this.user}
-            inputsValues={{
-              password: password,
-              confirmPassword: confirmPassword
-            }}
+            inputsValues={{ password, confirmPassword }}
             img={img}
             username={username}
             isInvalid={isInvalid}
@@ -349,6 +356,12 @@ class Profile extends Component {
               config={this.currency}
               value={currency}
               options={currencies}
+              onChange={this.handleChange}
+            />
+            <Select
+              config={this.lang}
+              value={lang}
+              options={langs}
               onChange={this.handleChange}
             />
           </Form>

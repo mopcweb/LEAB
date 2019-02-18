@@ -5,7 +5,7 @@ const express = require('express');
 /* ------------------------------------------------------------------- */
 
 // =====> Import model
-const UserModel = require('../models/User');
+const LangModel = require('../models/Lang');
 
 // =====> Define router
 const router = express.Router();
@@ -27,35 +27,31 @@ const {
 /* ------------------------------------------------------------------- */
 
 router.post('/', async (req, res) => {
-  let { username, email, img, currency, standart, big } = req.body;
+  let { title, constants } = req.body;
 
   // LowerCase & trim() email -> to prevent errors and duplicate emails
   // If there is no email -> send error
-  if (email) email = email.toLowerCase().trim()
+  if (title) title = title.toLowerCase().trim()
   else errorRes(res, badReqCode, noEmailMsg);
 
   // Check for this username. If it is -> exist = true
-  const exist = await UserModel
-    .findOne({ email })
-    .then(user => user)
+  const exist = await LangModel
+    .findOne({ title })
+    .then(lang => lang)
     .catch(err => errorRes(res, badReqCode, err));
 
-  if (exist) return errorRes(res, existCode, `${ existMsg } ${ email }`);
+  if (exist) return errorRes(res, existCode, `${ existMsg } ${ title }`);
 
   // New User
-  const user = new UserModel({
-    username,
-    email,
-    img: img ? new Buffer(img) : '',
-    currency,
-    standart,
-    big
+  const lang = new LangModel({
+    title,
+    constants
   });
 
   // Save user
-  user
+  lang
     .save()
-    .then(user => res.send(user))
+    .then(lang => res.send(lang))
     .catch(err => errorRes(res, badReqCode, err));
 });
 
@@ -63,22 +59,22 @@ router.post('/', async (req, res) => {
 /*                                GET
 /* ------------------------------------------------------------------- */
 
-router.get('/:email?', (req, res) => {
+router.get('/:title?', (req, res) => {
   // Save title param into variable;
-  let { email } = req.params;
+  let { title } = req.params;
 
   // LowerCase & trim() email -> to prevent errors and duplicate emails
-  if (email) email = email.toLowerCase().trim();
+  if (title) title = title.toLowerCase().trim();
 
   // Get by email
-  if (email) {
-    UserModel
-      .findOne({ email })
+  if (title) {
+    LangModel
+      .findOne({ title })
       .then(user => res.send(user))
       .catch(err => errorRes(res, badReqCode, err));
   } else {
     // Else get all
-    UserModel
+    LangModel
       .find()
       .then(users => res.send(users))
       .catch(err => errorRes(res, badReqCode, err));
@@ -109,7 +105,7 @@ router.put('/:id', (req, res) => {
   if (big) data.big = big;
 
   // Update user
-  UserModel
+  LangModel
     .findOneAndUpdate({_id: req.params.id}, {$set: data})
     .then(user => user
       ? successRes(res, successCode, updateSuccessMsg)
@@ -126,13 +122,13 @@ router.delete('/:id', (req, res) => {
   const { id } = req.params;
 
   // Delete user(s)
-  UserModel
+  LangModel
     .deleteMany(
       id === 'all'
       ? {}
       : {_id: id}
     )
-    .then(user => user.deletedCount !== 0
+    .then(lang => lang.deletedCount !== 0
       ? successRes(res, successCode, deleteSuccessMsg)
       : errorRes(res, badReqCode, deleteErrorMsg))
     .catch(err => errorRes(res, badReqCode, err));

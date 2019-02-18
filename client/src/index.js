@@ -19,16 +19,22 @@ import axios from 'axios';
 /*                              Import My Components
 /* ------------------------------------------------------------------- */
 
+// =====> Main Container
 import Main from './components/Main';
+
+// =====> Loader
 import Loader from './components/Loader';
 
+// =====> Unprotected routes
 import Home from './containers/Home';
 import Register from './containers/Register';
 import Login from './containers/Login';
 import ResetPwd from './containers/ResetPwd';
 
+// =====> Not Found
 import NotFound from './containers/NotFound';
 
+// =====> Protected routes
 import Profile from './containers/Profile';
 import Dashboard from './containers/Dashboard';
 import Menu from './containers/Menu';

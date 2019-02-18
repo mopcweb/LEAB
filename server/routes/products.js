@@ -1,13 +1,8 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
 
 /* ------------------------------------------------------------------- */
 /*                               Config
 /* ------------------------------------------------------------------- */
-
-// =====> Config
-const { MongoOpts, MongoURI, bp } = require('../config');
 
 // =====> Import model for Product
 const ProductModel = require('../models/Product');
@@ -25,22 +20,6 @@ const {
   existCode, badReqCode, successCode, existMsg, updateSuccessMsg,
   updateErrorMsg, deleteSuccessMsg, deleteErrorMsg
 } = require('../constants').products;
-
-/* ------------------------------------------------------------------- */
-/*                             Middlewares
-/* ------------------------------------------------------------------- */
-
-// =====> Use bodyParser
-// Define max size of data loaded
-router.use(bodyParser.json(bp.json));
-router.use(bodyParser.urlencoded(bp.urlencoded));
-
-/* ------------------------------------------------------------------- */
-/*                               MongoDb
-/* ------------------------------------------------------------------- */
-
-// =====> Connect MongoDb
-mongoose.connect(MongoURI, MongoOpts);
 
 /* ------------------------------------------------------------------- */
 /*                               POST

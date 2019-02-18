@@ -93,7 +93,8 @@ class Product extends Component {
 
     // Create obj with data
     const data = {
-      title, link, img, amount, price, ccal, unit, category,
+      title, link, img, price, ccal, unit, category,
+      amount: amount ? amount : 100,
       proteins: proteins ? proteins : 0,
       fats: fats ? fats : 0,
       carbs: carbs ? carbs : 0,
@@ -357,7 +358,9 @@ class Data extends Component {
     }
 
     // =====> Config for units options
-    this.units = [ {title: '1 peace', id: '1'}, {title: '100 gr (ml)', id: '2'} ];
+    this.units = [
+      { title: '1 peace', id: '1' }, { title: '100 gr (ml)', id: '2' }
+    ];
 
     // =====> Config for inputs
     this.inputs = [

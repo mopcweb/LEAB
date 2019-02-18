@@ -111,8 +111,10 @@ class SubmitLink extends Component {
 
 class Select extends Component {
   render() {
-    const options = (
-      this.props.options.map((item) => (
+    const { options, value, config, onChange } = this.props;
+
+    const opts = (
+      options.map((item) => (
         <option value={item.title} key={item.id}>
           {item.title}
         </option>
@@ -121,15 +123,15 @@ class Select extends Component {
 
     return (
       <div className='Form-Rows'>
-        <label htmlFor={this.props.config.id}>
-          {this.props.config.label}
+        <label htmlFor={config.id}>
+          {config.label}
         </label>
         <select
-          id={this.props.config.id}
-          value={this.props.value}
-          onChange={this.props.onChange}
+          id={config.id}
+          value={value}
+          onChange={onChange}
           >
-          {options}
+          {opts}
         </select>
       </div>
     )

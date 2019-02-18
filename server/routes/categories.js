@@ -1,13 +1,8 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
 
 /* ------------------------------------------------------------------- */
 /*                               Config
 /* ------------------------------------------------------------------- */
-
-// =====> Config
-const { MongoOpts, MongoURI, bp } = require('../config');
 
 // =====> Import model for Category
 const CategoryModel = require('../models/Category');
@@ -27,26 +22,9 @@ const {
 } = require('../constants').categories;
 
 /* ------------------------------------------------------------------- */
-/*                             Middlewares
-/* ------------------------------------------------------------------- */
-
-// =====> Use bodyParser
-// Define max size of data loaded
-router.use(bodyParser.json(bp.json));
-router.use(bodyParser.urlencoded(bp.urlencoded));
-
-/* ------------------------------------------------------------------- */
-/*                               MongoDb
-/* ------------------------------------------------------------------- */
-
-// =====> Connect MongoDb
-mongoose.connect(MongoURI, MongoOpts);
-
-/* ------------------------------------------------------------------- */
 /*                               POST
 /* ------------------------------------------------------------------- */
 
-// =====> POST
 router.post('/', async (req, res) => {
   const { title, img } = req.body;
 

@@ -24,6 +24,7 @@ const routes = {
   LOGIN: api + '/login',
   REGISTER: api + '/register',
   USERS: api + '/users',
+  LANGS: api + '/langs',
   DASHBOARD: api + '/dashboard',
   MENU: api + '/menu',
   DISHES: api + '/dishes',
