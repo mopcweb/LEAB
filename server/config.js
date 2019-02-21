@@ -38,14 +38,23 @@ const routes = {
 /* ------------------------------------------------------------------- */
 
 const config = {
-  // =====> Port
-  port: 3001,
-
   // ======> Api
   api,
 
   // =====> Routes
   routes,
+
+  // =====> Mongo URI
+  MongoURI,
+
+  // =====> Mongo options
+  MongoOpts: {
+    useNewUrlParser: true,
+    useFindAndModify: false
+  },
+
+  // =====> Port
+  port: 3001,
 
   // =====> BodyParser options
   bp: {
@@ -58,14 +67,6 @@ const config = {
     }
   },
 
-  // =====> Mongo options
-  MongoOpts: {
-    useNewUrlParser: true,
-    useFindAndModify: false
-  },
-
-  // =====> Mongo URI
-  MongoURI
 }
 
 /* ------------------------------------------------------------------- */

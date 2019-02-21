@@ -19,7 +19,7 @@ import * as api from '../../config/api';
 import { profile } from '../../config/constants';
 
 // =====> Store
-import { withFirebase, withUser } from '../../config/store';
+import { withFirebase, withUser, withLang, changeLang } from '../../config/store';
 
 /* ------------------------------------------------------------------- */
 /*                            My Components
@@ -162,7 +162,9 @@ class Profile extends Component {
     // Update target input state
     this.setState({[state]: e.target.value});
 
-    if (state === 'username') this.setState({[state]: capitalize(e.target.value)})
+    if (state === 'username') this.setState({[state]: capitalize(e.target.value)});
+
+    // if (state === 'lang') this.props.changeLang();
   }
 
   // ==================>                             <================== //
@@ -248,17 +250,19 @@ class Profile extends Component {
     e.preventDefault();
 
     // Receive data from state for usage
-    const { username, currency, img, standart, big } = this.state;
+    const { username, currency, img, standart, big, lang } = this.state;
 
     // Send data into db
     axios
       .put(api.USERS + '/' + this.state.user._id, {
-        username, currency, img, standart, big
+        username, currency, img, standart, big, lang
        })
       .then(res => {
         // Show success message
         clearTimeout(this.timer);
         this.timer = this.showAlert(profile.profileUpMsg, 'Message_success');
+
+        this.props.changeLang();
       })
       .catch(err => console.log(err));
   }
@@ -278,7 +282,7 @@ class Profile extends Component {
   getUser = () => {
     const { email } = this.props.authUser;
 
-    if (!email) return setTimeout(() => this.getUser(), 0);
+    // if (!email) return setTimeout(() => this.getUser(), 0);
 
     // Request current user
     axios
@@ -293,11 +297,11 @@ class Profile extends Component {
 
   updateUser = (user) => {
     // Receive neccesary fields
-    const { username, currency, img, standart, big } = user;
+    const { username, currency, img, standart, big, lang } = user;
 
     // Update state
     this.setState({
-      user, username, currency, img: img ? new Buffer(img) : '', standart, big
+      user, username, currency, img: img ? new Buffer(img) : '', standart, big, lang
     });
   }
 
@@ -319,6 +323,8 @@ class Profile extends Component {
       username, user, password, confirmPassword, currency, currencies,
       img, standart, big, ccal, proteins, fats, carbs, alert, lang, langs
     } = this.state;
+
+    // const lg = this.props.lang.constants ? this.props.lang.constants.global : ''
 
     // Check validation
     const isInvalid = password !== confirmPassword || password === '';
@@ -444,4 +450,4 @@ class Form extends Component {
 /* ------------------------------------------------------------------- */
 
 // =====> Call Form with FbContext & Router
-export default withFirebase(withUser(Profile));
+export default withFirebase(withUser(withLang(changeLang(Profile))));

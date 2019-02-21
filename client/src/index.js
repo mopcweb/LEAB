@@ -48,7 +48,7 @@ import Product from './containers/Product';
 /*                        Import Context & Firebase
 /* ------------------------------------------------------------------- */
 
-import { FbContext, withAuth } from './config/store';
+import { FbContext, withAuth, provideLang } from './config/store';
 import Firebase from './config/firebase';
 
 /* ------------------------------------------------------------------- */
@@ -108,7 +108,7 @@ class Routes extends Component {
 };
 
 // =====> Provide Auth to Routes component
-Routes = withAuth(Routes);
+Routes = withAuth(provideLang(Routes));
 
 // =====> Render App
 ReactDOM.render(

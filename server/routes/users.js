@@ -27,7 +27,7 @@ const {
 /* ------------------------------------------------------------------- */
 
 router.post('/', async (req, res) => {
-  let { username, email, img, currency, standart, big } = req.body;
+  let { username, email, img, currency, standart, big, lang } = req.body;
 
   // LowerCase & trim() email -> to prevent errors and duplicate emails
   // If there is no email -> send error
@@ -49,7 +49,8 @@ router.post('/', async (req, res) => {
     img: img ? new Buffer(img) : '',
     currency,
     standart,
-    big
+    big,
+    lang
   });
 
   // Save user
@@ -91,7 +92,7 @@ router.get('/:email?', (req, res) => {
 
 router.put('/:id', (req, res) => {
   // Receive data
-  const { email, username, img, currency, standart, big } = req.body;
+  const { email, username, img, currency, standart, big, lang } = req.body;
 
   // If there is email specified under PUT request -> send Error
   if (email) return res
@@ -107,6 +108,7 @@ router.put('/:id', (req, res) => {
   if (currency) data.currency = currency;
   if (standart) data.standart = standart;
   if (big) data.big = big;
+  if (lang) data.lang = lang;
 
   // Update user
   UserModel

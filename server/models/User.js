@@ -20,7 +20,8 @@ const UserSchema = new Schema(
     img: Buffer,
     currency: String,
     standart: Number,
-    big: Number
+    big: Number,
+    lang: String
   },
   {
     timestamps: true

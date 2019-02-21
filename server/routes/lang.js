@@ -85,32 +85,76 @@ router.get('/:title?', (req, res) => {
 /*                                PUT
 /* ------------------------------------------------------------------- */
 
-router.put('/:id', (req, res) => {
+router.put('/:title', async (req, res) => {
   // Receive data
-  const { email, username, img, currency, standart, big } = req.body;
+  const body = req.body;
 
-  // If there is email specified under PUT request -> send Error
-  if (email) return res
-    .status(forbiddenCode)
-    .send(errorRes(emailNoChangeMsg, forbiddenCode));
+  // Get title
+  const { title } = req.params;
 
-  // Empty obj
-  const data = {};
+  const param = Object.keys(req.query)[0];
 
-  // If there are some extra fields
-  if (username) data.username = username;
-  if (img) data.img = img;
-  if (currency) data.currency = currency;
-  if (standart) data.standart = standart;
-  if (big) data.big = big;
+  console.log(param)
 
-  // Update user
-  LangModel
-    .findOneAndUpdate({_id: req.params.id}, {$set: data})
-    .then(user => user
-      ? successRes(res, successCode, updateSuccessMsg)
-      : errorRes(res, badReqCode, updateErrorMsg))
-    .catch(err => errorRes(res, badReqCode, err));
+  let lang = await LangModel
+    .findOne({ title })
+    // .select({[param]: 1, '_id': 0})
+    .distinct(param)
+    .then(lang => {
+      lang.lala = 'asd';
+      lang.save()
+    })
+    .catch(err => res.send(err))
+
+  // // const test = lang
+  // lang.lala = 'asd';
+  // console.log(lang)
+  //
+  // // res.send(lang)
+  //
+  // LangModel
+  //   .save()
+
+  // return res.send('ok')
+
+  // Get field to modify/add
+  // const { field, property } = req.query;
+
+  // Stop running if no field
+  // if (!field) errorRes(res, badReqCode, updateErrorMsg)
+
+  // Get constants field
+  // await LangModel
+  //   .findOne({ title })
+  //   .select('constants')
+  //   .then(async lang => {
+  //     // Get constants variable from lang
+  //     const { constants } = lang;
+  //
+  //     await LangModel
+  //       .findOne({ title })
+  //       .select(constants[field])
+  //       .then(res => console.log(res))
+  //       .catch(err => err)
+  //
+  //     res.send('ok')
+  //     // if (property) {
+  //     //   await LangModel
+  //     //     .
+  //     // }
+  //
+  //     // Add new field
+  //     // constants[field] = body;
+  //
+  //     // Update lang
+  //     // await LangModel
+  //     //   .updateOne({ title }, { $set: { "constants": constants } })
+  //     //   .then(lang => lang
+  //     //     ? successRes(res, successCode, updateSuccessMsg)
+  //     //     : errorRes(res, badReqCode, updateErrorMsg))
+  //     //   .catch(err => errorRes(res, badReqCode, err));
+  //   })
+  //   .catch(err => errorRes(res, badReqCode, err));
 });
 
 /* ------------------------------------------------------------------- */
