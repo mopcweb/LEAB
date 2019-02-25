@@ -48,7 +48,8 @@ import Product from './containers/Product';
 /*                        Import Context & Firebase
 /* ------------------------------------------------------------------- */
 
-import { FbContext, withAuth, provideLang } from './config/store';
+import { FbContext, withAuth } from './config/store';
+import { provideLang } from './config/lang';
 import Firebase from './config/firebase';
 
 /* ------------------------------------------------------------------- */

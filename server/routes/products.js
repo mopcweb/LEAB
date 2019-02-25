@@ -146,8 +146,11 @@ router.put('/:id', async (req, res) => {
       .then(product => product._id == id ? null : product)
       .catch(err => errorRes(res, badReqCode, err));
 
+    console.log('=====> exist', exist)
+
     // Stop running if already exists
-    if (exist) return errorRes(res, existCode, `${ existMsg } ${ title }`);
+    if (exist.statusCode === badReqCode) return
+    else return errorRes(res, existCode, `${ existMsg } ${ title }`);
   };
 
   // Empty obj

@@ -86,6 +86,34 @@ const users = {
 };
 
 /* ------------------------------------------------------------------- */
+/*                              Langs
+/* ------------------------------------------------------------------- */
+
+const langs = {
+  // =====> Updated success
+  updateSuccessMsg: 'Updated lang: success',
+
+  // =====> Updated error
+  updateErrorMsg: 'Error occured while updating',
+
+  // =====> Delete success
+  deleteSuccessMsg: 'Deleted lang: success',
+
+  // =====> Delete error
+  deleteErrorMsg: 'Error occured while deleting',
+
+  // =====> No email provided error
+  noEmailMsg: 'There were no title provided',
+
+  // =====> Exist response
+  existMsg: 'There is already exists a lang with title:',
+
+  // =====> Error -> can't change email
+  emailNoChangeMsg: 'It is not allowed to change email property',
+
+};
+
+/* ------------------------------------------------------------------- */
 /*                              Products
 /* ------------------------------------------------------------------- */
 
@@ -162,11 +190,13 @@ const errorRes = (res, status, result) => {
 /* ------------------------------------------------------------------- */
 
 const constants = {
+  statusCodes,
   errorRes,
   successRes,
   general,
   error,
   users,
+  langs,
   products,
   categories
 };

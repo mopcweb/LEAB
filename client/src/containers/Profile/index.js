@@ -16,10 +16,11 @@ import './index.sass';
 import * as api from '../../config/api';
 
 // =====> Constants
-import { profile } from '../../config/constants';
+import { globalC } from '../../config/constants';
 
 // =====> Store
-import { withFirebase, withUser, withLang, changeLang } from '../../config/store';
+import { withFirebase, withUser } from '../../config/store';
+import { withLang, changeLang } from '../../config/lang';
 
 /* ------------------------------------------------------------------- */
 /*                            My Components
@@ -43,7 +44,7 @@ class Profile extends Component {
       user: '',
       username: '',
       email: '',
-      img: profile.defaultImg,
+      img: globalC.defaultImg,
       password: '',
       confirmPassword: '',
       ccal: '',
@@ -54,7 +55,8 @@ class Profile extends Component {
         { title: 'USD', id: 1 }, { title: 'EUR', id: 2 }, { title: 'UAH', id: 3 }
       ],
       currency: 'USD',
-      langs: [{ title: 'en', id: 1 }, { title: 'ru', id: 2 }],
+      // langs: [{ title: 'en', id: 1 }, { title: 'ru', id: 2 }],
+      langs: this.props.lang ? this.props.lang.constants.global.langs : '',
       lang: 'en',
       standart: '',
       big: '',
@@ -68,88 +70,35 @@ class Profile extends Component {
     // =====> Bind all methods
     this.showAlert = showAlert.bind(this);
 
-    // =====> Config for inputs of User Edit section
-    this.user = [
-      {
-        type: 'password',
-        id: 'password',
-        label: profile.pwd,
-        placeholder: profile.pwd,
-        onChange: this.handleChange
-      },
-      {
-        type: 'password',
-        id: 'confirmPassword',
-        label: profile.confirmPwd,
-        placeholder: profile.confirmPwd,
-        onChange: this.handleChange
-      }
-    ];
-
     // =====> Config for inputs of config section
-    this.config = [
-      {
-        type: 'text',
-        id: 'username',
-        label: profile.username,
-        placeholder: profile.username,
-        onChange: this.handleChange
-      },
-      {
-        type: 'number',
-        id: 'standart',
-        label: profile.standart,
-        placeholder: profile.standart,
-        onChange: this.handleChange
-      },
-      {
-        type: 'number',
-        id: 'big',
-        label: profile.big,
-        placeholder: profile.big,
-        onChange: this.handleChange
-      },
-      // {
-      //   type: 'text',
-      //   id: 'ccal',
-      //   label: 'Calories target per day',
-      //   placeholder: 'Calories target per day',
-      //   onChange: this.handleChange
-      // },
-      // {
-      //   type: 'text',
-      //   id: 'proteins',
-      //   label: 'Proteins target per day',
-      //   placeholder: 'Proteins target per day',
-      //   onChange: this.handleChange
-      // },
-      // {
-      //   type: 'text',
-      //   id: 'fats',
-      //   label: 'Fats target per day',
-      //   placeholder: 'Fats target per day',
-      //   onChange: this.handleChange
-      // },
-      // {
-      //   type: 'text',
-      //   id: 'carbs',
-      //   label: 'Carbohydrates target per day',
-      //   placeholder: 'Carbohydrates target per day',
-      //   onChange: this.handleChange
-      // }
-    ];
-
-    // =====> Config for currency select
-    this.currency = {
-      label: profile.currency,
-      id: 'currency'
-    };
-
-    // =====> Config for lang select
-    this.lang = {
-      label: 'Choose lang',
-      id: 'lang'
-    };
+    // {
+    //   type: 'text',
+    //   id: 'ccal',
+    //   label: 'Calories target per day',
+    //   placeholder: 'Calories target per day',
+    //   onChange: this.handleChange
+    // },
+    // {
+    //   type: 'text',
+    //   id: 'proteins',
+    //   label: 'Proteins target per day',
+    //   placeholder: 'Proteins target per day',
+    //   onChange: this.handleChange
+    // },
+    // {
+    //   type: 'text',
+    //   id: 'fats',
+    //   label: 'Fats target per day',
+    //   placeholder: 'Fats target per day',
+    //   onChange: this.handleChange
+    // },
+    // {
+    //   type: 'text',
+    //   id: 'carbs',
+    //   label: 'Carbohydrates target per day',
+    //   placeholder: 'Carbohydrates target per day',
+    //   onChange: this.handleChange
+    // }
   };
 
   // ==================>                             <================== //
@@ -192,6 +141,9 @@ class Profile extends Component {
     // Receive pwd value from state
     const { password } = this.state;
 
+    // Get language profile config
+    const profile = this.props.lang ? this.props.lang.constants.profile : '';
+
     // Call Firebase Api -> Update pwd
     this.props.firebase
       .doPasswordUpdate(password)
@@ -218,16 +170,19 @@ class Profile extends Component {
     // Define file
     const file = e.target.files[0];
 
+    // Get language global config
+    const globalL = this.props.lang ? this.props.lang.constants.global : '';
+
     // Show error alert if file type is not image
     if (file && file.type.indexOf('image') === -1) {
       clearTimeout(this.timer);
-      return this.timer = this.showAlert(profile.onlyImgsMsg, 'Message_error');
+      return this.timer = this.showAlert(globalL.onlyImgsMsg, 'Message_error');
     };
 
-    // Show error alert if jile size more than profile.fileSize
-    if (file && file.size > profile.fileSize) {
+    // Show error alert if jile size more than global.fileSize
+    if (file && file.size > globalL.fileSize) {
       clearTimeout(this.timer);
-      return this.timer = this.showAlert(profile.fileTooBigMsg, 'Message_error');
+      return this.timer = this.showAlert(globalL.fileTooBigMsg, 'Message_error');
     };
 
     // New reader
@@ -238,7 +193,7 @@ class Profile extends Component {
 
     // Put reader.result into file
     if (file) reader.readAsDataURL(file)
-    else this.setState({img: profile.defaultImg})
+    else this.setState({img: globalC.defaultImg})
   }
 
   // ==================>                             <================== //
@@ -251,6 +206,9 @@ class Profile extends Component {
 
     // Receive data from state for usage
     const { username, currency, img, standart, big, lang } = this.state;
+
+    // Get language profile config
+    const profile = this.props.lang ? this.props.lang.constants.profile : '';
 
     // Send data into db
     axios
@@ -281,8 +239,6 @@ class Profile extends Component {
 
   getUser = () => {
     const { email } = this.props.authUser;
-
-    // if (!email) return setTimeout(() => this.getUser(), 0);
 
     // Request current user
     axios
@@ -324,7 +280,8 @@ class Profile extends Component {
       img, standart, big, ccal, proteins, fats, carbs, alert, lang, langs
     } = this.state;
 
-    // const lg = this.props.lang.constants ? this.props.lang.constants.global : ''
+    // Get language into variable
+    const profile = this.props.lang ? this.props.lang.constants.profile : '';
 
     // Check validation
     const isInvalid = password !== confirmPassword || password === '';
@@ -342,6 +299,7 @@ class Profile extends Component {
           header={`${username}'s profile`}
         >
           <User
+            lang={profile}
             inputs={this.user}
             inputsValues={{ password, confirmPassword }}
             img={img}
@@ -349,9 +307,32 @@ class Profile extends Component {
             isInvalid={isInvalid}
             onSubmit={this.handleSubmit}
             onPreview={this.handlePreviewImg}
+            onChange={this.handleChange}
            />
           <Form
-            inputs={this.config}
+            inputs={[
+              {
+                type: 'text',
+                id: 'username',
+                label: profile.username,
+                placeholder: profile.username,
+                onChange: this.handleChange
+              },
+              {
+                type: 'number',
+                id: 'standart',
+                label: profile.standart,
+                placeholder: profile.standart,
+                onChange: this.handleChange
+              },
+              {
+                type: 'number',
+                id: 'big',
+                label: profile.big,
+                placeholder: profile.big,
+                onChange: this.handleChange
+              }
+            ]}
             values={{ username, standart, big, ccal, proteins, fats, carbs }}
             title={profile.form2Title}
             isInvalid={isInvalidEdit}
@@ -359,13 +340,19 @@ class Profile extends Component {
             onSubmit={this.handleSave}
           >
             <Select
-              config={this.currency}
+              config={{
+                label: profile.currency,
+                id: 'currency'
+              }}
               value={currency}
               options={currencies}
               onChange={this.handleChange}
             />
             <Select
-              config={this.lang}
+              config={{
+                label: profile.lang,
+                id: 'lang'
+              }}
               value={lang}
               options={langs}
               onChange={this.handleChange}
@@ -389,12 +376,31 @@ class User extends Component {
   render() {
     return (
       <div className='Profile-User'>
-        <Img src={this.props.img} alt={this.props.username} onPreview={this.props.onPreview} />
+        <Img
+          lang={this.props.lang}
+          src={this.props.img}
+          alt={this.props.username}
+          onPreview={this.props.onPreview} />
         <Form
-          inputs={this.props.inputs}
+          inputs={[
+            {
+              type: 'password',
+              id: 'password',
+              label: this.props.lang.pwd,
+              placeholder: this.props.lang.pwd,
+              onChange: this.props.onChange
+            },
+            {
+              type: 'password',
+              id: 'confirmPassword',
+              label: this.props.lang.confirmPwd,
+              placeholder: this.props.lang.confirmPwd,
+              onChange: this.props.onChange
+            }
+          ]}
           values={this.props.inputsValues}
-          title={profile.form1Title}
-          submit={profile.form1Submit}
+          title={this.props.lang.form1Title}
+          submit={this.props.lang.form1Submit}
           isInvalid={this.props.isInvalid}
           onSubmit={this.props.onSubmit}
         />
@@ -413,7 +419,7 @@ class Img extends Component {
       <div className='Profile-Img'>
         <img src={this.props.src} alt={this.props.username} />
         <form>
-          <label htmlFor='upload'>{profile.imgUpload}</label>
+          <label htmlFor='upload'>{this.props.lang.imgUpload}</label>
           <input type='file' id='upload' onChange={this.props.onPreview} />
         </form>
       </div>
@@ -446,8 +452,8 @@ class Form extends Component {
 };
 
 /* ------------------------------------------------------------------- */
-/*                  Export with Firebase & Router config
+/*             Export with Firebase & Router & Lang config
 /* ------------------------------------------------------------------- */
 
-// =====> Call Form with FbContext & Router
+// =====> Call Form with FbContext & Router & Lang
 export default withFirebase(withUser(withLang(changeLang(Profile))));

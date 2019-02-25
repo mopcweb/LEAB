@@ -15,6 +15,8 @@ import defaultImg from './default.svg';
 const fileSize = 1000000;
 
 export const globalC = {
+  defaultImg,
+
   // =====> localStorage 'user'
   userLC: 'user',
 
@@ -81,59 +83,6 @@ export const register = {
 };
 
 /* ------------------------------------------------------------------- */
-/*                              Profile
-/* ------------------------------------------------------------------- */
-
-export const profile = {
-  // =====> Default img
-  defaultImg,
-
-  // =====> File max size
-  fileSize,
-
-  // =====> localStorage 'user'
-  userLC: globalC.userLC,
-
-  // =====> localStorage 'token'
-  tokenLC: globalC.tokenLC,
-
-  // =====> Error: Only images allowed error Msg
-  onlyImgsMsg: globalC.onlyImgsMsg,
-
-  // =====> Error: File too big error msg
-  fileTooBigMsg: globalC.fileTooBigMsg,
-
-  // =====> Success: pwd update message
-  pwdUpdateMsg: 'Password update success',
-
-  // =====> Success: Profile update success
-  profileUpMsg: 'Updated profile',
-
-  // =====> Form 1 (Change pwd)
-  form1Title: 'Change password',
-  form1Submit: 'Update',
-
-  // =====> Change pwd input labels
-  pwd: 'New password',
-  confirmPwd: 'Confirm password',
-
-  // =====> Form 2 (Edit)
-  form2Title: 'Edit',
-  form2Submit: 'Save',
-
-  // =====> Edit input labels
-  username: 'Username',
-  standart: 'Standart portion (in grams)',
-  big: 'Big portion (in grams)',
-
-  // =====> Select labels
-  currency: 'Choose currency',
-
-  // =====> Img btn-label
-  imgUpload: 'Upload',
-};
-
-/* ------------------------------------------------------------------- */
 /*                             Products
 /* ------------------------------------------------------------------- */
 
@@ -183,7 +132,6 @@ export const products = {
 export const constants = {
   globalC,
   register,
-  profile,
   products
 };
 

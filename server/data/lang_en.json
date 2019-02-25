@@ -1,0 +1,47 @@
+{
+  "global": {
+    "onlyImgsMsg": "Only images allowed",
+    "fileTooBigMsg": "File too big. Max size is 1000 kb",
+    "fileSize": "1000000",
+    "langs": [
+      { "title": "en", "id": 1 },
+      { "title": "ru", "id": 2 }
+    ]
+  },
+  "register": {
+    "existMsg": "User with this email already exists",
+    "weakPwdMsg": "Password should be at least 6 characters",
+    "welcome": "Welcome to the LEAB app !",
+    "tip": "Create your login and password, please!",
+    "question": "Have an account already ?",
+    "questionBtn": "Sign in",
+    "links": [
+  	"Home",
+  	"Sign in"
+    ],
+    "activePage": "Register",
+    "username": "Username",
+    "email": "Email",
+    "pwd": "Password",
+    "confirmPwd": "Confirm password",
+    "defaultStandart": 500,
+    "defaultBig": 250,
+    "submit": "Create account"
+  },
+  "profile": {
+    "pwdUpdateMsg": "Password update success",
+    "profileUpMsg": "Updated profile",
+    "form1Title": "Change password",
+    "form1Submit": "Update",
+    "pwd": "New password",
+    "confirmPwd": "Confirm password",
+    "form2Title": "Edit",
+    "form2Submit": "Save",
+    "username": "Username",
+    "standart": "Standart portion (in grams)",
+    "big": "Big portion (in grams)",
+    "currency": "Choose currency",
+    "lang": "Choose language",
+    "imgUpload": "Upload"
+  }
+}
