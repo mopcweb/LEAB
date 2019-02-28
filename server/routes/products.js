@@ -26,10 +26,13 @@ const {
 /* ------------------------------------------------------------------- */
 
 router.post('/', async (req, res) => {
-  let {
+  const {
     title, link, img, amount, price, proteins,
     fats, carbs, ccal, unit, category
   } = req.body;
+
+  // Get url & method for error response
+  const { originalUrl, method } = req;
 
   // Receive userId
   const { userId } = res;
@@ -38,10 +41,10 @@ router.post('/', async (req, res) => {
   const exist = await ProductModel
     .findOne({ link, userId })
     .then(product => product)
-    .catch(err => errorRes(res, badReqCode, err));
+    .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
 
   // Stop running if already exists
-  if (exist) return errorRes(res, existCode, `${ existMsg } ${ title }`);
+  if (exist) return errorRes(res, existCode, `${ existMsg } ${ title }`, originalUrl, method);
 
   // New product
   const product = new ProductModel({
@@ -63,7 +66,7 @@ router.post('/', async (req, res) => {
   product
     .save()
     .then(user => res.send(user))
-    .catch(err => errorRes(res, badReqCode, err));
+    .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
 });
 
 /* ------------------------------------------------------------------- */
@@ -77,6 +80,9 @@ router.get('/:link?', (req, res) => {
   // Get category query value
   const { category } = req.query;
 
+  // Get url & method for error response
+  const { originalUrl, method } = req;
+
   // Receive userId
   const { userId } = res;
 
@@ -85,14 +91,14 @@ router.get('/:link?', (req, res) => {
     return ProductModel
       .find({ category, userId })
       .then(products => res.send(products))
-      .catch(err => errorRes(res, badReqCode, err));
+      .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
   } else if (category) {
     // ===================> SHOULD BE REMOVED LATER
     // Else if there is only category -> get all using it
     return ProductModel
       .find({ category })
       .then(products => res.send(products))
-      .catch(err => errorRes(res, badReqCode, err));
+      .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
   };
 
   // If there is specific title & userId -> get product using them
@@ -100,26 +106,26 @@ router.get('/:link?', (req, res) => {
     ProductModel
       .findOne({ link, userId })
       .then(product => res.send(product))
-      .catch(err => errorRes(res, badReqCode, err));
+      .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
   } else if (link) {
     // ===================> SHOULD BE REMOVED LATER
     // Else if there is only link -> get all using it
     ProductModel
       .findOne({ link })
       .then(product => res.send(product))
-      .catch(err => errorRes(res, badReqCode, err));
+      .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
   } else if (userId) {
     // Else if there is only userId -> get all using it
     ProductModel
       .find({ userId })
       .then(products => res.send(products))
-      .catch(err => errorRes(res, badReqCode, err));
+      .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
   } else {
     // Else get all
     ProductModel
       .find()
       .then(products => res.send(products))
-      .catch(err => errorRes(res, badReqCode, err));
+      .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
   };
 });
 
@@ -136,6 +142,9 @@ router.put('/:id', async (req, res) => {
   // Receive id
   const { id } = req.params;
 
+  // Get url & method for error response
+  const { originalUrl, method } = req;
+
   // Receive userId
   const { userId } = res;
 
@@ -143,14 +152,11 @@ router.put('/:id', async (req, res) => {
   if (link) {
     const exist = await ProductModel
       .findOne({ link, userId })
-      .then(product => product._id == id ? null : product)
-      .catch(err => errorRes(res, badReqCode, err));
-
-    console.log('=====> exist', exist)
+      .then(product => product && product._id == id ? null : product)
+      .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
 
     // Stop running if already exists
-    if (exist.statusCode === badReqCode) return
-    else return errorRes(res, existCode, `${ existMsg } ${ title }`);
+    if (exist) return errorRes(res, existCode, `${ existMsg } ${ title }`, originalUrl, method);
   };
 
   // Empty obj
@@ -173,9 +179,9 @@ router.put('/:id', async (req, res) => {
   ProductModel
   .findOneAndUpdate({_id: id}, {$set: data})
   .then(product => product
-    ? successRes(res, successCode, updateSuccessMsg)
-    : errorRes(res, badReqCode, updateErrorMsg))
-  .catch(err => errorRes(res, badReqCode, err));
+    ? successRes(res, successCode, updateSuccessMsg, originalUrl, method)
+    : errorRes(res, badReqCode, updateErrorMsg, originalUrl, method))
+  .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
 });
 
 /* ------------------------------------------------------------------- */
@@ -185,6 +191,9 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', (req, res) => {
   const { id } = req.params;
 
+  // Get url & method for error response
+  const { originalUrl, method } = req;
+
   ProductModel
     .deleteMany(
       id === 'all'
@@ -192,9 +201,9 @@ router.delete('/:id', (req, res) => {
       : {_id: id}
     )
     .then(product => product.deletedCount !== 0
-      ? successRes(res, successCode, deleteSuccessMsg)
-      : errorRes(res, badReqCode, deleteErrorMsg))
-    .catch(err => errorRes(res, badReqCode, err));
+      ? successRes(res, successCode, deleteSuccessMsg, originalUrl, method)
+      : errorRes(res, badReqCode, deleteErrorMsg, originalUrl, method))
+    .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
 });
 
 /* ------------------------------------------------------------------- */

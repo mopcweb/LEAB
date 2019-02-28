@@ -15,11 +15,9 @@ import './index.sass';
 // =====> Api
 import * as api from '../../config/api';
 
-// =====> Constants
-import { products } from '../../config/constants';
-
 // =====> Store
 import { withUser } from '../../config/store';
+import { withLang } from '../../config/lang';
 
 /* ------------------------------------------------------------------- */
 /*                            My components
@@ -45,7 +43,7 @@ class Products extends Component {
       isOpen: false,
       catTitle: '',
       catImg: '',
-      catImgTitle: products.catImgTitle,
+      catImgTitle: this.props.lang.constants.products.catImgTitle,
       categories: [],
       products: [],
       alert: {
@@ -54,16 +52,6 @@ class Products extends Component {
         class: '',
       }
     };
-
-    // =====> Config input field for category in Modal
-    this.inputs = [
-      {
-        type: 'text',
-        id: 'catTitle',
-        placeholder: products.catTitle,
-        onChange: this.handleCatTitleChange.bind(this),
-      }
-    ];
 
     // =====> Bind showAlert method
     this.showAlert = showAlert.bind(this);
@@ -89,6 +77,9 @@ class Products extends Component {
 
     // Receive data from State
     const { catTitle, catImg } = this.state;
+
+    // Get products prop from lang
+    const { products } = this.props.lang.constants;
 
     // Stop running & show error message if there is no text
     if (this.state.catTitle === '') {
@@ -131,16 +122,19 @@ class Products extends Component {
     // Define file
     const file = e.target.files[0];
 
+    // Get global prop from lang
+    const { global } = this.props.lang.constants;
+
     // =====> Error: file type is not image
     if (file && file.type.indexOf('image') === -1) {
       clearTimeout(this.timer);
-      return this.timer = this.showAlert(products.onlyImgsMsg, 'Message_error');
+      return this.timer = this.showAlert(global.onlyImgsMsg, 'Message_error');
     };
 
-    // =====> Error: jile size is more than products.fileSize
-    if (file && file.size > products.fileSize) {
+    // =====> Error: jile size is more than global.fileSize
+    if (file && file.size > global.fileSize) {
       clearTimeout(this.timer);
-      return this.timer = this.showAlert(products.fileTooBigMsg, 'Message_error');
+      return this.timer = this.showAlert(global.fileTooBigMsg, 'Message_error');
     };
 
     // Change label value of file input
@@ -173,14 +167,15 @@ class Products extends Component {
     // =====> Ask if sure & stop running if not sure
     if (!window.confirm('Are you sure?')) return
 
+    // Get products prop from lang
+    const { products } = this.props.lang.constants;
+
     // Check if there any products using this category
     // If they are -> save into array
     this.existProducts = await axios
       .get(api.PRODUCTS, { params: { category: this.title } })
       .then(res => res.data)
-      .catch(err => console.log(err));
-
-    console.log(this.existProducts)
+      .catch(err => console.log('=====> Error', err));
 
     // =====> Error: Can't rename into empty string
     if (this.rename.toLowerCase() === 'rename' && this.inputValue === '') {
@@ -221,12 +216,32 @@ class Products extends Component {
 
   handleRenameItem = async () => {
     if (this.rename.toLowerCase() === 'rename' && this.inputValue !== this.title) {
+      // Get products prop from lang
+      const { products } = this.props.lang.constants;
+
       await axios
         .put(`${api.PRODUCTS_CATEGORIES}/${this.id}`, { title: capitalize(this.inputValue) })
-        .then(res => {
+        .then(async res => {
           // Show success message
           clearTimeout(this.timer);
           this.timer = this.showAlert(products.updateCategoryMsg, 'Message_success');
+
+          // If there are any matching products
+          // Then -> PUT new category title into matching products
+          if (this.existProducts.length > 0) {
+            await this.existProducts.forEach( async item => {
+
+              await axios
+                .put(`${api.PRODUCTS}/${item._id}`, { category: capitalize(this.inputValue) })
+                .then(res => console.log('=====> updated product\'s category', res.data))
+                .catch(err => console.log('=====> Error', err));
+
+            });
+          };
+
+          // Request again updated categories and products
+          this.getCategories();
+          this.getProducts();
 
           // Console.log result of request
           console.log('=====> Updated category', res.data);
@@ -239,23 +254,6 @@ class Products extends Component {
           // Console.log result of request
           console.log('=====> Error', err)
         });
-
-      // If there are any matching products
-      // Then -> PUT new category title into matching products
-      if (this.existProducts.length > 0) {
-        await this.existProducts.forEach( async item => {
-
-          await axios
-            .put(`${api.PRODUCTS}/${item._id}`, { category: capitalize(this.inputValue) })
-            .then(res => console.log('=====> updated product\'s category', res.data))
-            .catch(err => console.log('=====> Error', err));
-
-        });
-      };
-
-      // Request again updated categories and products
-      this.getCategories();
-      this.getProducts();
 
       // Return true value -> to stop running DELETE func further
       return true
@@ -353,16 +351,37 @@ class Products extends Component {
   // ==================>                             <================== //
 
   render() {
+    // Get products prop from lang
+    const { products } = this.props.lang.constants;
+
+    const { listHeaders } = products;
+
     return (
       <Wrapper addClass='Products' header={products.header}>
         <List
+          headers={[
+            { colS: 2, type: 'string', filter: 'Title', value: listHeaders.title.value, span: listHeaders.title.span },
+            { type: 'string', filter: 'Ccal', value: listHeaders.ccal.value, span: listHeaders.ccal.span },
+            { type: 'number', filter: 'Proteins', value: listHeaders.proteins.value, span: listHeaders.proteins.span },
+            { type: 'number', filter: 'Fats', value: listHeaders.fats.value, span: listHeaders.fats.span },
+            { type: 'number', filter: 'Carbs', value: listHeaders.carbs.value, span: listHeaders.carbs.span },
+            { type: 'string', filter: 'Category', value: listHeaders.category.value, span: listHeaders.category.span },
+          ]}
+          lang={products}
           onModalOpen={this.handleOpenModal}
           categories={this.state.categories}
           items={this.state.products}
         />
         <Modal isOpen={this.state.isOpen} onClick={this.handleOpenModal}>
           <ListOfItems
-            inputs={this.inputs}
+            inputs={[
+              {
+                type: 'text',
+                id: 'catTitle',
+                placeholder: products.catTitle,
+                onChange: this.handleCatTitleChange.bind(this),
+              }
+            ]}
             inputsValues={{
               catTitle: this.state.catTitle
             }}
@@ -385,7 +404,7 @@ class Products extends Component {
 /*                   Provide authUser prop & Export
 /* ------------------------------------------------------------------- */
 
-export default (withUser(Products))
+export default (withUser(withLang(Products)))
 
 
 //

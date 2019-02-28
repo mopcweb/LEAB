@@ -118,6 +118,9 @@ class Product extends Component {
       .then(res => console.log(`=====> ${id ? 'Updated product' : 'Created product'}`, res))
       .catch(err => console.log('=====> Error', err))
 
+    // Request for this new product -> to receive product id
+    this.getProduct();
+
     // Show success alert
     clearTimeout(this.timer);
     this.timer = this.showAlert(id ? 'Updated' : 'Added new product', 'Message_success');

@@ -296,7 +296,7 @@ class Profile extends Component {
       <Fragment>
         <Wrapper
           addClass='Profile'
-          header={`${username}'s profile`}
+          header={`${profile.header} ${username}`}
         >
           <User
             lang={profile}

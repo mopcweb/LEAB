@@ -21,6 +21,7 @@ export default class List extends Component {
   constructor(props) {
     super(props);
 
+    // =====> State
     this.state = {
       data: [],
       categories: [],
@@ -30,14 +31,13 @@ export default class List extends Component {
       sortTh: 'title',
       clickedTh: 'title',
     };
+  }
 
-    this.handleSortByColumn = this.handleSortByColumn.bind(this);
-    this.handleSortByTitle = this.handleSortByTitle.bind(this);
-    this.handleSortByCategory = this.handleSortByCategory.bind(this);
-  };
+  // ==================>                             <================== //
+  //              Handler for sorting products by category
+  // ==================>                             <================== //
 
-  // Handler for sorting products by category
-  handleSortByCategory(e) {
+  handleSortByCategory = (e) => {
     // Save parent button target for convenience
     const target = e.target.closest('.List-Category');
 
@@ -45,38 +45,44 @@ export default class List extends Component {
     if (!target) return
 
     // Check the value of clicked category. If show all - filter should be empty
-    let filter = target.firstChild.textContent.toLowerCase();
-    if (filter === 'show all') filter = '';
+    const filter = target.getAttribute('filter').toLowerCase() !== 'all'
+      ? target.getAttribute('filter').toLowerCase()
+      : ''
 
     // Update state
-    this.setState({
-      filterCat: filter,
-      clickedCat: filter
-    })
-  };
+    this.setState({ filterCat: filter, clickedCat: filter })
+  }
 
-  // Handler for sorting products by title (input field)
-  handleSortByTitle(e) {
+  // ==================>                             <================== //
+  //         Handler for sorting products by title (input field)
+  // ==================>                             <================== //
+
+  handleSortByTitle = (e) => {
     this.setState({filter: e.target.value.toLowerCase()})
-  };
+  }
 
-  // Handler for sorting products by column (asc/desc)
-  handleSortByColumn(e) {
+  // ==================>                             <================== //
+  //          Handler for sorting products by column (asc/desc)
+  // ==================>                             <================== //
+
+  handleSortByColumn = (e) => {
     // Return if click not on TH
     if (!e.target.closest('th')) return;
 
     // For convenience save state & target th into const
     const target = e.target.closest('th');
-    const data = this.props.items;
+
+    // Get list of products to sort
+    const { items } = this.props;
 
     // Get clicked column text
-    let cell = target.firstChild.data.toLowerCase().trim();
+    let cell = target.getAttribute('filter').toLowerCase().trim();
 
-    // Sorting
+    // =====> Sorting
     if (this.state.sortTh !== cell) {
 
       // from a -> b
-      data.sort((a, b) => {
+      items.sort((a, b) => {
         switch(target.dataset.type) {
           case 'number':
             return a[cell] - b[cell];
@@ -91,14 +97,13 @@ export default class List extends Component {
 
       // Update state
       this.setState({
-        data: data,
         sortTh: cell,
         clickedTh: cell,
       });
     } else {
 
       // from b -> a
-      data.sort((a, b) => {
+      items.sort((a, b) => {
         switch(target.dataset.type) {
           case 'number':
             return b[cell] - a[cell];
@@ -113,31 +118,35 @@ export default class List extends Component {
 
       // Update state
       this.setState({
-        data: data,
         sortTh: '',
         clickedTh: cell,
       });
     };
-  };
+  }
+
+  // ==================>                             <================== //
+  //                               Render
+  // ==================>                             <================== //
 
   render() {
     return (
       <div className='List'>
         <Categories
+          lang={this.props.lang}
           cats={this.props.categories}
           clickedCat={this.state.clickedCat}
           onSortByCategory={this.handleSortByCategory}
           onAdd={this.props.onModalOpen}
         />
         <div className='List-Controls'>
-          <Link to={window.location.pathname + '/new-item'}>Add item</Link>
+          <Link to={window.location.pathname + '/new-item'}>{this.props.lang.addListItemBtn}</Link>
           <Filter value={this.state.filter} onChange={this.handleSortByTitle} />
         </div>
         <Table
           data={this.props.items}
+          headers={this.props.headers}
           filter={this.state.filter}
           filterCat={this.state.filterCat}
-          sortTh={this.state.sortTh}
           clickedTh={this.state.clickedTh}
           handleClick={this.handleSortByColumn}
         />
@@ -155,6 +164,7 @@ class Categories extends Component {
     const cats = this.props.cats.map(item => (
       <Category
         key={item.title}
+        filter={item.title}
         value={item.title}
         img={item.img}
         clicked={this.props.clickedCat}
@@ -164,12 +174,17 @@ class Categories extends Component {
     return (
       <div className='List-Categories'>
         <h2>
-          <span>Choose category</span>
-          <button onClick={this.props.onAdd}>Add</button>
+          <span>{this.props.lang.categoriesFilterHeader}</span>
+          <button onClick={this.props.onAdd}>{this.props.lang.addCategoryBtn}</button>
         </h2>
         <div onClick={this.props.onSortByCategory}>
           {cats}
-          <Category value='Show all' clicked={this.props.clickedCat} />
+          <Category
+            lang={this.props.lang}
+            filter='all'
+            value={this.props.lang.showAllItems}
+            clicked={this.props.clickedCat}
+          />
         </div>
       </div>
     )
@@ -182,16 +197,18 @@ class Categories extends Component {
 
 class Category extends Component {
   render() {
-    const { clicked, value } = this.props;
+    const { clicked, value, filter, lang } = this.props;
 
-    const filter =
-      clicked.toLowerCase() === value.toLowerCase() ||
-      (clicked.toLowerCase() === '' && value === 'Show all')
+    const filteredCat =
+      clicked.toLowerCase() === filter.toLowerCase() ||
+      (clicked.toLowerCase() === '' && lang && value === lang.showAllItems)
 
     return (
       <button
-        className={filter ? 'List-Category List-Category_clicked' : 'List-Category'}
-        style={{'backgroundImage': this.props.img ? `url(${this.props.img})` : ''}}>
+        className={filteredCat ? 'List-Category List-Category_clicked' : 'List-Category'}
+        style={{'backgroundImage': this.props.img ? `url(${this.props.img})` : ''}}
+        filter={filter ? filter : ''}
+      >
         <span>
           {capitalize(this.props.value)}
         </span>
@@ -223,17 +240,18 @@ class Filter extends Component {
 
 class Table extends Component {
   render() {
+    const headers = this.props.headers.map((item, i) => (
+      <Header colS={item.colS ? item.colS : ''} key={item.filter + i}
+        type={item.type} filter={item.filter} value={item.value}
+        span={item.span} clicked={this.props.clickedTh} />
+    ));
+
     return (
       <div className='List-Table'>
         <table onClick={this.props.handleClick} >
           <thead>
             <tr>
-              <Header colS='2' type='string' value='Title' span='Title' clicked={this.props.clickedTh} />
-              <Header type='string' value='Ccal' span='Ccal' clicked={this.props.clickedTh} />
-              <Header type='number' value='Proteins' span='P' clicked={this.props.clickedTh} />
-              <Header type='number' value='Fats' span='F' clicked={this.props.clickedTh} />
-              <Header type='number' value='Carbs' span='C' clicked={this.props.clickedTh} />
-              <Header type='string' value='Category' span='Cat' clicked={this.props.clickedTh} />
+              {headers}
             </tr>
           </thead>
           <tbody>
@@ -255,14 +273,18 @@ class Table extends Component {
 
 class Header extends Component {
   render() {
-    let cliked = false;
-    if (this.props.clicked === this.props.value.toLowerCase()) cliked = true
+    // Get necessary variables from this.props
+    const { clicked, value } = this.props;
+
+    // Define clicked th
+    const clickedTh = clicked === value.toLowerCase() ? true : false;
 
     return (
       <th
         colSpan={this.props.colS ? this.props.colS : ''}
         data-type={this.props.type}
-        className={cliked ? 'clicked' : ''}
+        filter={this.props.filter ? this.props.filter : ''}
+        className={clickedTh ? 'clicked' : ''}
         >
         {this.props.value}
         <span>
@@ -280,13 +302,13 @@ class Header extends Component {
 class Rows extends Component {
   render() {
     // Save data in variable for convenience
-    const { data } = this.props;
+    const { data, filterCat, filter } = this.props;
 
     // Filter data with category
-    const filteredcat = data.filter(item => item.category.toLowerCase().indexOf(this.props.filterCat) !== -1);
+    const filteredCat = data.filter(item => item.category.toLowerCase().indexOf(filterCat) !== -1);
 
     // Filter categorized data by title
-    const filtered = filteredcat.filter(item => item.title.toLowerCase().indexOf(this.props.filter) !== -1);
+    const filtered = filteredCat.filter(item => item.title.toLowerCase().indexOf(filter) !== -1);
 
     return (
       filtered.map(item => (
@@ -317,22 +339,17 @@ class Rows extends Component {
 
 class Cell extends Component {
   render() {
-    // Cell without link
-    const nolink = (
-      <td>
-        {this.props.value}
-      </td>
-    );
-
-    // Cell with link
-    const link = (
-      <td>
-        <Link to={this.props.link ? this.props.link : ''}>{this.props.value}</Link>
-      </td>
-    );
-
     return (
-      this.props.link ? link : nolink
+      <td>
+        {this.props.link
+          ? <Link to={this.props.link ? this.props.link : ''}>{this.props.value}</Link>
+          : this.props.value}
+      </td>
     )
   };
 };
+
+
+
+
+//

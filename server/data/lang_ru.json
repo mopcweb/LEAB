@@ -29,6 +29,7 @@
     "submit": "Создать аккаунт"
   },
   "profile": {
+    "header": "Профиль пользователя",
     "pwdUpdateMsg": "Пароль успешно изменен",
     "profileUpMsg": "Профиль обновлен",
     "form1Title": "Изменить пароль",
@@ -43,5 +44,29 @@
     "currency": "Выберите валюту",
     "lang": "Выберите язык",
     "imgUpload": "Загрузить"
+  },
+  "products": {
+    "addEmptyCatTitleMsg": "Невозможно добавить категорию без названия",
+    "renameEmptyCatTitleMsg": "Невозможно переименовать в пустую строку",
+    "existMsg": "Категория с таким названием уже существует",
+    "notEmptyCategoryMsg": "Невозномно удалить категорию, которая используется продуктами",
+    "addCategoryMsg": "Добавлена новая категория",
+    "deleteCategoryMsg": "Категория удалена",
+    "updateCategoryMsg": "Категория обновлена",
+    "header": "Продукты",
+    "catImgTitle": "Картинка для категории",
+    "catTitle": "Название категории",
+    "categoriesFilterHeader": "Выберите категорию",
+    "addCategoryBtn": "Добавить",
+    "addListItemBtn": "Добавить товар",
+    "showAllItems": "Показать все",
+    "listHeaders": {
+      "title": { "value": "Название", "span": "Название" },
+      "ccal": { "value": "Ккал", "span": "Ккал" },
+      "proteins": { "value": "Белки", "span": "Б" },
+      "fats": { "value": "Жиры", "span": "Ж" },
+      "carbs": { "value": "Углеводы", "span": "У" },
+      "category": { "value": "Категория", "span": "К" }
+    }
   }
 }

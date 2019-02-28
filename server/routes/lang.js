@@ -32,18 +32,21 @@ const {
 router.post('/', async (req, res) => {
   let { title, constants } = req.body;
 
+  // Get url & method for error response
+  const { originalUrl, method } = req;
+
   // LowerCase & trim() email -> to prevent errors and duplicate emails
   // If there is no email -> send error
   if (title) title = title.toLowerCase().trim()
-  else errorRes(res, badReqCode, noEmailMsg);
+  else errorRes(res, badReqCode, noEmailMsg, originalUrl, method);
 
   // Check for this username. If it is -> exist = true
   const exist = await LangModel
     .findOne({ title })
     .then(lang => lang)
-    .catch(err => errorRes(res, badReqCode, err));
+    .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
 
-  if (exist) return errorRes(res, existCode, `${ existMsg } ${ title }`);
+  if (exist) return errorRes(res, existCode, `${ existMsg } ${ title }`, originalUrl, method);
 
   // New User
   const lang = new LangModel({
@@ -55,7 +58,7 @@ router.post('/', async (req, res) => {
   lang
     .save()
     .then(lang => res.send(lang))
-    .catch(err => errorRes(res, badReqCode, err));
+    .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
 });
 
 /* ------------------------------------------------------------------- */
@@ -69,18 +72,21 @@ router.get('/:title?', (req, res) => {
   // LowerCase & trim() email -> to prevent errors and duplicate emails
   if (title) title = title.toLowerCase().trim();
 
+  // Get url & method for error response
+  const { originalUrl, method } = req;
+
   // Get by email
   if (title) {
     LangModel
       .findOne({ title })
       .then(user => res.send(user))
-      .catch(err => errorRes(res, badReqCode, err));
+      .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
   } else {
     // Else get all
     LangModel
       .find()
       .then(users => res.send(users))
-      .catch(err => errorRes(res, badReqCode, err));
+      .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
   };
 });
 
@@ -98,7 +104,10 @@ router.put('/:title', (req, res) => {
   // Get variables
   const { parent, child, prop } = req.query;
 
-  /*
+  // Get url & method for error response
+  const { originalUrl, method } = req;
+
+  /**
   * @param 'parent' is selector of needed property, where we will search a child for update
   * @param 'child' is a property for update. It's value will be updated with req.body
   * @param 'prop' will be used instead of req.body if specified. Use it for updating
@@ -119,9 +128,9 @@ router.put('/:title', (req, res) => {
       LangModel
         .updateOne({ title }, { $set: { [parent]: property } })
         .then(lang => lang
-          ? successRes(res, successCode, updateSuccessMsg)
-          : errorRes(res, badReqCode, updateErrorMsg))
-        .catch(err => errorRes(res, badReqCode, err));
+          ? successRes(res, successCode, updateSuccessMsg, originalUrl, method)
+          : errorRes(res, badReqCode, updateErrorMsg, originalUrl, method))
+        .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
     });
 });
 
@@ -133,6 +142,9 @@ router.delete('/:id', (req, res) => {
   // Receive param
   const { id } = req.params;
 
+  // Get url & method for error response
+  const { originalUrl, method } = req;
+
   // Delete user(s)
   LangModel
     .deleteMany(
@@ -141,9 +153,9 @@ router.delete('/:id', (req, res) => {
       : {_id: id}
     )
     .then(lang => lang.deletedCount !== 0
-      ? successRes(res, successCode, deleteSuccessMsg)
-      : errorRes(res, badReqCode, deleteErrorMsg))
-    .catch(err => errorRes(res, badReqCode, err));
+      ? successRes(res, successCode, deleteSuccessMsg, originalUrl, method)
+      : errorRes(res, badReqCode, deleteErrorMsg, originalUrl, method))
+    .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
 });
 
 /* ------------------------------------------------------------------- */

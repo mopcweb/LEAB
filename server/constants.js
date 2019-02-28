@@ -177,12 +177,16 @@ const categories = {
 /*                             Functions
 /* ------------------------------------------------------------------- */
 
-const successRes = (res, status, result) => {
-  return res.status(status).send({status, statusText: 'Success', result})
+// =====> Success response
+const successRes = (res, status, result, url, method) => {
+  console.log({ status, statusText: 'Success', url, method, result });
+  return res.status(status).send({ status, statusText: 'Success', url, method, result });
 };
 
-const errorRes = (res, status, result) => {
-  return res.status(status).send({status, statusText: 'Error', result})
+// =====> Error response
+const errorRes = (res, status, result, url, method) => {
+  console.error({ status, statusText: 'Error', url, method, result });
+  return res.status(status).send({ status, statusText: 'Error', url, method, result });
 };
 
 /* ------------------------------------------------------------------- */

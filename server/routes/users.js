@@ -29,18 +29,21 @@ const {
 router.post('/', async (req, res) => {
   let { username, email, img, currency, standart, big, lang } = req.body;
 
+  // Get url & method for error response
+  const { originalUrl, method } = req;
+
   // LowerCase & trim() email -> to prevent errors and duplicate emails
   // If there is no email -> send error
   if (email) email = email.toLowerCase().trim()
-  else errorRes(res, badReqCode, noEmailMsg);
+  else errorRes(res, badReqCode, noEmailMsg, originalUrl, method);
 
   // Check for this username. If it is -> exist = true
   const exist = await UserModel
     .findOne({ email })
     .then(user => user)
-    .catch(err => errorRes(res, badReqCode, err));
+    .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
 
-  if (exist) return errorRes(res, existCode, `${ existMsg } ${ email }`);
+  if (exist) return errorRes(res, existCode, `${ existMsg } ${ email }`, originalUrl, method);
 
   // New User
   const user = new UserModel({
@@ -57,7 +60,7 @@ router.post('/', async (req, res) => {
   user
     .save()
     .then(user => res.send(user))
-    .catch(err => errorRes(res, badReqCode, err));
+    .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
 });
 
 /* ------------------------------------------------------------------- */
@@ -71,18 +74,21 @@ router.get('/:email?', (req, res) => {
   // LowerCase & trim() email -> to prevent errors and duplicate emails
   if (email) email = email.toLowerCase().trim();
 
+  // Get url & method for error response
+  const { originalUrl, method } = req;
+
   // Get by email
   if (email) {
     UserModel
       .findOne({ email })
       .then(user => res.send(user))
-      .catch(err => errorRes(res, badReqCode, err));
+      .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
   } else {
     // Else get all
     UserModel
       .find()
       .then(users => res.send(users))
-      .catch(err => errorRes(res, badReqCode, err));
+      .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
   };
 });
 
@@ -94,10 +100,13 @@ router.put('/:id', (req, res) => {
   // Receive data
   const { email, username, img, currency, standart, big, lang } = req.body;
 
+  // Get url & method for error response
+  const { originalUrl, method } = req;
+
   // If there is email specified under PUT request -> send Error
   if (email) return res
     .status(forbiddenCode)
-    .send(errorRes(emailNoChangeMsg, forbiddenCode));
+    .send(errorRes(emailNoChangeMsg, forbiddenCode, originalUrl, method));
 
   // Empty obj
   const data = {};
@@ -114,9 +123,9 @@ router.put('/:id', (req, res) => {
   UserModel
     .findOneAndUpdate({_id: req.params.id}, {$set: data})
     .then(user => user
-      ? successRes(res, successCode, updateSuccessMsg)
-      : errorRes(res, badReqCode, updateErrorMsg))
-    .catch(err => errorRes(res, badReqCode, err));
+      ? successRes(res, successCode, updateSuccessMsg, originalUrl, method)
+      : errorRes(res, badReqCode, updateErrorMsg, originalUrl, method))
+    .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
 });
 
 /* ------------------------------------------------------------------- */
@@ -127,6 +136,9 @@ router.delete('/:id', (req, res) => {
   // Receive param
   const { id } = req.params;
 
+  // Get url & method for error response
+  const { originalUrl, method } = req;
+
   // Delete user(s)
   UserModel
     .deleteMany(
@@ -135,9 +147,9 @@ router.delete('/:id', (req, res) => {
       : {_id: id}
     )
     .then(user => user.deletedCount !== 0
-      ? successRes(res, successCode, deleteSuccessMsg)
-      : errorRes(res, badReqCode, deleteErrorMsg))
-    .catch(err => errorRes(res, badReqCode, err));
+      ? successRes(res, successCode, deleteSuccessMsg, originalUrl, method)
+      : errorRes(res, badReqCode, deleteErrorMsg, originalUrl, method))
+    .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
 });
 
 /* ------------------------------------------------------------------- */

@@ -83,56 +83,12 @@ export const register = {
 };
 
 /* ------------------------------------------------------------------- */
-/*                             Products
-/* ------------------------------------------------------------------- */
-
-export const products = {
-  // =====> File max size
-  fileSize,
-
-  // =====> Error: Only images allowed error Msg
-  onlyImgsMsg: globalC.onlyImgsMsg,
-
-  // =====> Error: File too big error msg
-  fileTooBigMsg: globalC.fileTooBigMsg,
-
-  // =====> Error: Empty cat title
-  addEmptyCatTitleMsg: 'Can\'t add category without title',
-  renameEmptyCatTitleMsg: 'Can\'t rename into empty string',
-
-  // =====> Error: Already exists
-  existMsg: 'There is already exists category with this title',
-
-  // =====> Error: Unable delete category with products
-  notEmptyCategoryMsg: 'Can\'t delete category with products in it',
-
-  // =====> Success: Add new category
-  addCategoryMsg: 'Added new category',
-
-  // =====> Success: Delete category
-  deleteCategoryMsg: 'Category deleted',
-
-  // =====> Success: Update category
-  updateCategoryMsg: 'Category updated',
-
-  // =====> Header
-  header: 'Products',
-
-  // =====> File input label value (placeholder)
-  catImgTitle: 'Image for category',
-
-  // =====> File input placeholder
-  catTitle: 'Category title',
-};
-
-/* ------------------------------------------------------------------- */
 /*                             Constants
 /* ------------------------------------------------------------------- */
 
 export const constants = {
   globalC,
-  register,
-  products
+  register
 };
 
 /* ------------------------------------------------------------------- */

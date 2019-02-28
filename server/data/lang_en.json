@@ -29,6 +29,7 @@
     "submit": "Create account"
   },
   "profile": {
+    "header": "Profile of user",
     "pwdUpdateMsg": "Password update success",
     "profileUpMsg": "Updated profile",
     "form1Title": "Change password",
@@ -43,5 +44,29 @@
     "currency": "Choose currency",
     "lang": "Choose language",
     "imgUpload": "Upload"
+  },
+  "products": {
+    "addEmptyCatTitleMsg": "Can't add category without title",
+    "renameEmptyCatTitleMsg": "Can't rename into empty string",
+    "existMsg": "There is already exists category with this title",
+    "notEmptyCategoryMsg": "Can't delete category with products in it",
+    "addCategoryMsg": "Added new category",
+    "deleteCategoryMsg": "Category deleted",
+    "updateCategoryMsg": "Category updated",
+    "header": "Products",
+    "catImgTitle": "Image for category",
+    "catTitle": "Category title",
+    "categoriesFilterHeader": "Choose category",
+    "addCategoryBtn": "Add",
+    "addListItemBtn": "Add item",
+    "showAllItems": "Show all",
+    "listHeaders": {
+      "title": { "value": "Title", "span": "Title" },
+      "ccal": { "value": "Ccal", "span": "Ccal" },
+      "proteins": { "value": "Proteins", "span": "P" },
+      "fats": { "value": "Fats", "span": "F" },
+      "carbs": { "value": "Carbs", "span": "C" },
+      "category": { "value": "Category", "span": "Cat" }
+    }
   }
 }
