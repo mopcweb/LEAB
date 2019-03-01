@@ -206,10 +206,10 @@ class Category extends Component {
     return (
       <button
         className={filteredCat ? 'List-Category List-Category_clicked' : 'List-Category'}
-        style={{'backgroundImage': this.props.img ? `url(${this.props.img})` : ''}}
+        style={{ 'backgroundImage': this.props.img ? `url(${this.props.img})` : '' }}
         filter={filter ? filter : ''}
       >
-        <span>
+        <span style={{ 'WebkitBoxOrient': 'vertical' }}>
           {capitalize(this.props.value)}
         </span>
       </button>

@@ -231,7 +231,7 @@ class Product extends Component {
 
         // Update State
         this.setState({
-          categories, category: categories.length ? categories[0].title : ''
+          categories, category: categories.length ? categories[0].title : 'No categories'
         });
       })
       .catch(err => console.log('=====> Error', err));

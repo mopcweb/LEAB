@@ -50,20 +50,19 @@
   &-Category
     position: relative
     margin: 10px
-    padding: 0 55px
     width: 200px
     flex-grow: 1
     min-height: 50px
     border: $width solid $main
     border-radius: $radius
     text-align: center
-    line-height: 50px - $width * 2
     color: $light
     background-color: $dark
     background-image: url('./default.jpeg')
     background-position: center
     background-size: cover
     background-repeat: no-repeat
+    overflow: hidden
     cursor: pointer
     transition: all $time / 2
 
@@ -73,10 +72,13 @@
 
     span
       position: relative
-      // display: -webkit-box
-      // -webkit-line-clamp: 1
-      // -webkit-box-orient: vertical
+      -webkit-box-orient: vertical
+      display: -webkit-box
+      -webkit-line-clamp: 1
+      overflow: hidden
       font-size: $font / 2.5
+      transform: translateX(0px)
+      transition: all $time / 2
       z-index: 12
 
     &:after
@@ -96,8 +98,8 @@
       position: absolute
       top: 0
       bottom: 0
-      left: 0
-      width: 0
+      left: -50px
+      width: 50px
       display: block
       content: ""
       background-color: $main
@@ -106,9 +108,10 @@
 
     &:hover, &_clicked
       background-position: 50px 50%
+      padding-left: 55px
 
       &:before
-        width: 50px
+        left: 0
 
   &-Controls
     display: flex

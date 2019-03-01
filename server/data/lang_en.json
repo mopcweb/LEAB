@@ -68,5 +68,26 @@
       "carbs": { "value": "Carbs", "span": "C" },
       "category": { "value": "Category", "span": "Cat" }
     }
+  },
+  "product": {
+    "header": "",
+    "imgUpload": "Upload",
+    "titleLabel": "Enter title",
+    "titlePholder": "Enter title",
+    "priceLabel": "Enter price",
+    "pricePholder": "Enter price",
+    "proteinsLabel": "Enter proteins",
+    "proteinsPholder": "Enter proteins",
+    "fatsLabel": "Enter fats",
+    "fatsPholder": "Enter fats",
+    "carbsLabel": "Enter carbohydrates",
+    "carbsPholder": "Enter carbohydrates",
+    "unitLabel": "Choose unit of measure",
+    "units": [
+      { "title": "1 peace", "id": "1" },
+      { "title": "100 gr (ml)", "id": "2" }
+    ],
+    "unit": "100 gr (ml)",
+    "categoryLabel": "Choose category",
   }
 }

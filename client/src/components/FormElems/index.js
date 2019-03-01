@@ -113,12 +113,17 @@ class Select extends Component {
   render() {
     const { options, value, config, onChange } = this.props;
 
+    // If there is no categories yet -> display default value
     const opts = (
-      options.map((item) => (
-        <option value={item.title} key={item.id}>
-          {item.title}
-        </option>
-      ))
+      options.length
+        ? options.map((item) => (
+            <option value={item.title} key={item.id}>
+              {item.title}
+            </option>
+          ))
+        : <option value={value}>
+            {value}
+          </option>
     );
 
     return (

@@ -23,14 +23,22 @@ import * as api from '../../config/api';
 import { register } from '../../config/constants';
 
 /* ------------------------------------------------------------------- */
+/*                                HOCs
+/* ------------------------------------------------------------------- */
+
+// =====> Provide Firebase
+import { withFirebase } from '../../config/store';
+
+// =====> Provide changeLang
+import { changeLang } from '../../config/lang';
+
+/* ------------------------------------------------------------------- */
 /*                              My components
 /* ------------------------------------------------------------------- */
 
 import { Wrapper } from '../../components/Main';
 import Alert, { showAlert } from '../../components/Alert';
 import { capitalize } from '../../components/UsefulF';
-
-import { withFirebase } from '../../config/store';
 
 /* ------------------------------------------------------------------- */
 /*                               Register
@@ -192,9 +200,13 @@ class Form extends Component {
         username, email,
         img: register.defaultImg,
         standart: register.defaultStandart,
-        big: register.defaultBig
+        big: register.defaultBig,
+        lang: register.lang
       })
       .catch(err => console.log('=====> Error', err));
+
+    // Request default lang for this user
+    this.props.changeLang();
 
     // Redirect to dashboard
     this.props.history.push(routes.DASHBOARD);
@@ -268,8 +280,8 @@ class Form extends Component {
   };
 };
 
-// =====> Call Form with FbContext & Router
-const SignUp = withRouter(withFirebase(Form));
+// =====> Call Form with FbContext & Router & changeLang func
+const SignUp = withRouter(withFirebase(changeLang(Form)));
 
 /* ------------------------------------------------------------------- */
 /*                               Input

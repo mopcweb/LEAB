@@ -78,6 +78,9 @@ export const register = {
   defaultStandart: 500,
   defaultBig: 250,
 
+  // =====> Default lang
+  lang: 'en',
+
   // =====> Register btn
   submit: 'Create account',
 };
