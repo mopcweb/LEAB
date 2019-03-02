@@ -28,7 +28,7 @@ const {
 router.post('/', async (req, res) => {
   const {
     title, link, img, amount, price, proteins,
-    fats, carbs, ccal, unit, category
+    fats, carbs, ccal, ccalUnified, unit, category
   } = req.body;
 
   // Get url & method for error response
@@ -58,6 +58,7 @@ router.post('/', async (req, res) => {
     fats,
     carbs,
     ccal,
+    ccalUnified,
     unit,
     category,
   });
@@ -135,7 +136,7 @@ router.get('/:link?', (req, res) => {
 
 router.put('/:id', async (req, res) => {
   const {
-    title, link, img, amount, price,
+    title, link, img, amount, price, ccalUnified,
     proteins, fats, carbs, ccal, unit, category
   } = req.body;
 
@@ -172,6 +173,7 @@ router.put('/:id', async (req, res) => {
   if (fats) data.fats = fats;
   if (carbs) data.carbs = carbs;
   if (ccal) data.ccal = ccal;
+  if (ccalUnified) data.ccalUnified = ccalUnified;
   if (unit) data.unit = unit;
   if (category) data.category = category;
 

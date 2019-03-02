@@ -17,6 +17,8 @@ import * as api from '../../config/api';
 
 // =====> Store
 import { withUser } from '../../config/store';
+
+// =====> Lang
 import { withLang } from '../../config/lang';
 
 /* ------------------------------------------------------------------- */
@@ -360,12 +362,12 @@ class Products extends Component {
       <Wrapper addClass='Products' header={products.header}>
         <List
           headers={[
-            { colS: 2, type: 'string', filter: 'Title', value: listHeaders.title.value, span: listHeaders.title.span },
-            { type: 'string', filter: 'Ccal', value: listHeaders.ccal.value, span: listHeaders.ccal.span },
-            { type: 'number', filter: 'Proteins', value: listHeaders.proteins.value, span: listHeaders.proteins.span },
-            { type: 'number', filter: 'Fats', value: listHeaders.fats.value, span: listHeaders.fats.span },
-            { type: 'number', filter: 'Carbs', value: listHeaders.carbs.value, span: listHeaders.carbs.span },
-            { type: 'string', filter: 'Category', value: listHeaders.category.value, span: listHeaders.category.span },
+            { colS: 2, type: 'string', filter: 'title', value: listHeaders.title.value, span: listHeaders.title.span },
+            { type: 'number', filter: 'ccalUnified', value: listHeaders.ccal.value, span: listHeaders.ccal.span },
+            { type: 'number', filter: 'proteins', value: listHeaders.proteins.value, span: listHeaders.proteins.span },
+            { type: 'number', filter: 'fats', value: listHeaders.fats.value, span: listHeaders.fats.span },
+            { type: 'number', filter: 'carbs', value: listHeaders.carbs.value, span: listHeaders.carbs.span },
+            { type: 'string', filter: 'category', value: listHeaders.category.value, span: listHeaders.category.span },
           ]}
           lang={products}
           onModalOpen={this.handleOpenModal}

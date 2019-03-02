@@ -14,6 +14,12 @@ import './index.sass';
 // =====> Routes
 import * as routes from '../../../config/routes';
 
+// =====> withUser
+import { withUser } from '../../../config/store';
+
+// =====> withLang
+import { withLang } from '../../../config/lang';
+
 /* ------------------------------------------------------------------- */
 /*                              Firebase
 /* ------------------------------------------------------------------- */
@@ -46,7 +52,7 @@ const values = {
 /*                                 Nav
 /* ------------------------------------------------------------------- */
 
-export default class Nav extends Component {
+class Nav extends Component {
   constructor(props) {
     super(props);
 
@@ -82,6 +88,7 @@ export default class Nav extends Component {
 
   // =====> Render
   render() {
+    console.log(this.props.authUser)
     return (
       <nav className={this.state.shown ? 'Nav Nav_shown' : 'Nav'}>
         <NavOpener onClick={this.onOpenerClickHandler}/>
@@ -227,3 +234,11 @@ class Copy extends Component {
     )
   };
 };
+
+/* ------------------------------------------------------------------- */
+/*                               Export
+/* ------------------------------------------------------------------- */
+
+export default withUser(withLang(Nav));
+
+//

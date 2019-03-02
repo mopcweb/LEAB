@@ -76,7 +76,7 @@ export default class List extends Component {
     const { items } = this.props;
 
     // Get clicked column text
-    let cell = target.getAttribute('filter').toLowerCase().trim();
+    let cell = target.getAttribute('filter');
 
     // =====> Sorting
     if (this.state.sortTh !== cell) {
@@ -140,13 +140,21 @@ export default class List extends Component {
         />
         <div className='List-Controls'>
           <Link to={window.location.pathname + '/new-item'}>{this.props.lang.addListItemBtn}</Link>
-          <Filter value={this.state.filter} onChange={this.handleSortByTitle} />
+          <Filter
+            lang={this.props.lang}
+            value={this.state.filter}
+            onChange={this.handleSortByTitle}
+           />
         </div>
         <Table
-          data={this.props.items}
+          rows={
+            <Rows
+              data={this.props.items}
+              filter={this.state.filter}
+              filterCat={this.state.filterCat}
+            />
+          }
           headers={this.props.headers}
-          filter={this.state.filter}
-          filterCat={this.state.filterCat}
           clickedTh={this.state.clickedTh}
           handleClick={this.handleSortByColumn}
         />
@@ -227,7 +235,7 @@ class Filter extends Component {
       <input
         type='text'
         value={this.props.value}
-        placeholder='Type in to find what you want'
+        placeholder={this.props.lang.filterByTitlePholder}
         onChange={this.props.onChange}
       />
     )
@@ -255,11 +263,7 @@ class Table extends Component {
             </tr>
           </thead>
           <tbody>
-            <Rows
-              data={this.props.data}
-              filter={this.props.filter}
-              filterCat={this.props.filterCat}
-            />
+            {this.props.rows}
           </tbody>
         </table>
       </div>
@@ -274,22 +278,20 @@ class Table extends Component {
 class Header extends Component {
   render() {
     // Get necessary variables from this.props
-    const { clicked, value } = this.props;
+    const { clicked, value, span, filter, type, colS } = this.props;
 
     // Define clicked th
-    const clickedTh = clicked === value.toLowerCase() ? true : false;
+    const clickedTh = clicked === filter ? true : false;
 
     return (
       <th
-        colSpan={this.props.colS ? this.props.colS : ''}
-        data-type={this.props.type}
-        filter={this.props.filter ? this.props.filter : ''}
+        colSpan={colS ? colS : ''}
+        data-type={type}
+        filter={filter ? filter : ''}
         className={clickedTh ? 'clicked' : ''}
         >
-        {this.props.value}
-        <span>
-          {this.props.span}
-        </span>
+        {value}
+        <span>{span}</span>
       </th>
     )
   };

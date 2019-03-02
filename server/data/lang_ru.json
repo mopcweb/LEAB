@@ -45,6 +45,9 @@
     "lang": "Выберите язык",
     "imgUpload": "Загрузить"
   },
+  "sidebar": {
+    "widget1Title": "Какой то крутой виджет :)"
+  },
   "products": {
     "addEmptyCatTitleMsg": "Невозможно добавить категорию без названия",
     "renameEmptyCatTitleMsg": "Невозможно переименовать в пустую строку",
@@ -60,6 +63,7 @@
     "addCategoryBtn": "Добавить",
     "addListItemBtn": "Добавить товар",
     "showAllItems": "Показать все",
+    "filterByTitlePholder": "Начните вводить название продукта ...",
     "listHeaders": {
       "title": { "value": "Название", "span": "Название" },
       "ccal": { "value": "Ккал", "span": "Ккал" },
@@ -68,5 +72,39 @@
       "carbs": { "value": "Углеводы", "span": "У" },
       "category": { "value": "Категория", "span": "К" }
     }
+  },
+  "product": {
+    "header": "Замечательный новый продукт",
+    "imgUpload": "Загрузить",
+    "titleLabel": "Введите название",
+    "titlePholder": "Введите название",
+    "priceLabel": "Введите цену",
+    "pricePholder": "Введите цену",
+    "proteinsLabel": "Кол-во протеинов",
+    "proteinsPholder": "Кол-во протеинов",
+    "fatsLabel": "Кол-во жиров",
+    "fatsPholder": "Кол-во жиров",
+    "carbsLabel": "Кол-во углеводов",
+    "carbsPholder": "Кол-во углеводов",
+    "unitLabel": "Выберите единицу измерения",
+    "units": [
+      { "title": "1 штука", "id": "1" },
+      { "title": "100 гр", "id": "2" }
+    ],
+    "defaultUnit": { "title": "100 гр", "id": "2" },
+    "altAmountLabel": "Укажите кол-во: гр или мл",
+    "defaultAltAmount": "100",
+    "categoryLabel": "Выберите категорию",
+    "defaultCategory": "Категорий нет",
+    "caloriesLabel": "Калории",
+    "defaultCalories": "0 /  100 гр",
+    "deleteBtn": "Удалить",
+    "saveBtn": "Сохранить",
+    "similarDishesHeader": "Этот продукт используется в этих блюдах",
+    "requiredFiledsMsg": "Название, цена и категория обязательные поля",
+    "addProductMsg": "Добавлен новый продукт",
+    "updateProductMsg": "Продукт обновлен",
+    "noSavedDataMsg": "Нечего удалять",
+    "confirmMsg": "Вы уверенны?"
   }
 }

@@ -117,7 +117,7 @@ class Select extends Component {
     const opts = (
       options.length
         ? options.map((item) => (
-            <option value={item.title} key={item.id}>
+            <option value={item.title} key={item.id} id={item.id}>
               {item.title}
             </option>
           ))

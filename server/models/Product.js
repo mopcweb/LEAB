@@ -29,7 +29,8 @@ const ProductSchema = new mongoose.Schema(
     fats: Number,
     carbs: Number,
     ccal: String,
-    unit: String,
+    ccalUnified: Number,
+    unit: Object,
     category: String
   },
   {

@@ -21,6 +21,9 @@ import * as api from '../../config/api';
 // =====> Routes
 import * as routes from '../../config/routes';
 
+// =====> Provide Lang
+import { withLang } from '../../config/lang';
+
 /* ------------------------------------------------------------------- */
 /*                            My Components
 /* ------------------------------------------------------------------- */
@@ -47,12 +50,13 @@ class Product extends Component {
       price: '',
       categories: [],
       category: '',
-      unit: '100 gr (ml)',
+      unit: this.props.lang.constants.product.defaultUnit,
       amount: '',
       proteins: '',
       fats: '',
       carbs: '',
-      ccal: `0 /  100 gr (ml)`,
+      ccal: this.props.lang.constants.product.defaultCalories,
+      ccalUnified: '',
       alert: {
         show: false,
         value: '',
@@ -69,17 +73,42 @@ class Product extends Component {
   // ==================>                             <================== //
 
   handleChangeCcal = (e) => {
-    const state = e.target.id;
+    const prop = e.target.id;
+
+    const { units, defaultUnit } = this.props.lang.constants.product;
 
     // Update target input state
-    this.setState({[state]: capitalize(e.target.value)});
+    this.setState({[prop]: capitalize(e.target.value)});
 
-    if (state === 'title') this.setState({link: makeURL(e.target.value)})
+    // If focused input - title -> make link
+    if (prop === 'title') this.setState({ link: makeURL(e.target.value) })
 
-    // Update ccal state
-    this.setState(state => (
-      {ccal: (((+state.proteins + +state.carbs) * 4 + +state.fats * 9) + ' / ' + state.unit)}
-    ));
+    // If focused input - unit
+    if (prop === 'unit') this.setState({ unit: units.find(item => item.title === e.target.value) });
+
+    // Update ccal & ccalUnified state
+    this.setState(state => {
+      // Define whether to use 100gr or manual amount
+      const amount = +state.unit.id === 1 ? +state.amount : 100;
+
+      // Calculate ccal on manual amount/unit
+      // const ccal = ((+state.proteins + +state.carbs) * 4 + +state.fats * 9) + ' / ' + state.unit.title;
+
+      // Calculate ccal per 100gr
+      const ccalUnified = ((+state.proteins + +state.carbs) * 4 + +state.fats * 9) / amount * 100;
+
+      // Update state
+      return {
+        // Prop, for filtering by ccal per 100gr
+        ccalUnified,
+
+        // Display ccal per manual amount/unit
+        // ccal,
+
+        // Display ccal per 100 gr
+        ccal: (ccalUnified + ' / ' + defaultUnit.title)
+      };
+    });
   };
 
   // ==================>                             <================== //
@@ -88,13 +117,18 @@ class Product extends Component {
 
   handleSave = async (e) => {
     // Get state variables
-    const { title, link, img, price, proteins,
+    const { title, link, img, price, proteins, ccalUnified,
       fats, carbs, ccal, unit, amount, category, id } = this.state;
+
+    // Get necessary for alert props form lang
+    const {
+      requiredFiledsMsg, updateProductMsg, addProductMsg
+    } = this.props.lang.constants.product;
 
     // Create obj with data
     const data = {
-      title, link, img, price, ccal, unit, category,
-      amount: amount ? amount : 100,
+      title, link, img, price, ccal, unit, category, ccalUnified,
+      amount: amount ? amount : this.props.lang.constants.product.defaultAltAmount,
       proteins: proteins ? proteins : 0,
       fats: fats ? fats : 0,
       carbs: carbs ? carbs : 0,
@@ -107,7 +141,7 @@ class Product extends Component {
 
       // Show error alert
       clearTimeout(this.timer);
-      return this.timer = this.showAlert('Title, price & category are required fileds', 'Message_error');
+      return this.timer = this.showAlert(requiredFiledsMsg, 'Message_error');
     };
 
     await axios({
@@ -123,7 +157,7 @@ class Product extends Component {
 
     // Show success alert
     clearTimeout(this.timer);
-    this.timer = this.showAlert(id ? 'Updated' : 'Added new product', 'Message_success');
+    this.timer = this.showAlert(id ? updateProductMsg : addProductMsg, 'Message_success');
   }
 
   // ==================>                             <================== //
@@ -131,6 +165,9 @@ class Product extends Component {
   // ==================>                             <================== //
 
   handleDelete = async (e) => {
+    // Get necessary for alert props form lang
+    const { noSavedDataMsg, confirmMsg } = this.props.lang.constants.product;
+
     // Stop running if there is no saved data
     if (!this.state.id) {
       // Prevent default page reload
@@ -138,11 +175,11 @@ class Product extends Component {
 
       // Show eror alert
       clearTimeout(this.timer);
-      return this.timer = this.showAlert('Nothing to delete', 'Message_error');
+      return this.timer = this.showAlert(noSavedDataMsg, 'Message_error');
     };
 
     // Ask if sure
-    if (!window.confirm('Are you sure?')) return
+    if (!window.confirm(confirmMsg)) return
 
     // Request
     await axios
@@ -159,16 +196,19 @@ class Product extends Component {
     // Define file
     const file = e.target.files[0];
 
+    // Get global prop from lang
+    const { global } = this.props.lang.constants;
+
     // Show error alert if file type is not image
     if (file && file.type.indexOf('image') === -1) {
       clearTimeout(this.timer);
-      return this.timer = this.showAlert('Only images allowed', 'Message_error');
+      return this.timer = this.showAlert(global.onlyImgsMsg, 'Message_error');
     };
 
-    // Show error alert if jile size more than 1000kb (1000000bytes)
-    if (file && file.size > 1000000) {
+    // Show error alert if jile size more than global.fileSize
+    if (file && file.size > global.fileSize) {
       clearTimeout(this.timer);
-      return this.timer = this.showAlert('File too big. Max size is 100 kb', 'Message_error');
+      return this.timer = this.showAlert(global.fileTooBigMsg, 'Message_error');
     };
 
     // New reader
@@ -231,7 +271,10 @@ class Product extends Component {
 
         // Update State
         this.setState({
-          categories, category: categories.length ? categories[0].title : 'No categories'
+          categories,
+          category: categories.length
+            ? categories[0].title
+            : this.props.lang.constants.product.defaultCategory
         });
       })
       .catch(err => console.log('=====> Error', err));
@@ -270,13 +313,13 @@ class Product extends Component {
     // Get product variables
     const {
       title, link, _id, img, amount, price, proteins,
-      fats, carbs, ccal, unit, category
+      fats, carbs, ccal, ccalUnified, unit, category
      } = product;
 
     // Update state
     this.setState({
-      title, link, id: _id, amount, price, proteins, fats, carbs, ccal, unit, category,
-      img: new Buffer(img.data).toString()
+      title, link, id: _id, amount, price, proteins, fats, carbs, ccal, unit,
+      category, ccalUnified, img: new Buffer(img.data).toString()
     });
   }
 
@@ -287,14 +330,24 @@ class Product extends Component {
   render() {
     return (
       <Wrapper addClass='Product'
-        header={this.state.title ? this.state.title + '\'s page' : 'Awesome new product\'s page'}>
+        header={this.state.title
+          ? this.state.title
+          : this.props.lang.constants.product.header}
+        >
 
         <div className='Product-Info'>
-          <h2>{this.state.title ? this.state.title : 'Awesome new product'}</h2>
+          <h2>
+            {this.state.title ? this.state.title : this.props.lang.constants.product.header}
+          </h2>
 
           <form className='Form'>
-            <Img src={this.state.img} alt={this.state.title} onPreviewImg={this.handlePreviewImg} />
+            <Img
+              lang={this.props.lang.constants.product}
+              src={this.state.img}
+              alt={this.state.title}
+              onPreviewImg={this.handlePreviewImg} />
             <Data
+              lang={this.props.lang.constants.product}
               title={this.state.title}
               link={this.state.link}
               ccal={this.state.ccal}
@@ -316,7 +369,7 @@ class Product extends Component {
           </form>
         </div>
 
-        <UsedIn />
+        <UsedIn lang={this.props.lang.constants.product} />
         <Alert value={this.state.alert.value} addClass={this.state.alert.class}
         isShow={this.state.alert.show} onClick={this.handleAlertClose} />
       </Wrapper>
@@ -333,7 +386,7 @@ class Img extends Component {
     return (
       <div className='Product-Img'>
         <img src={this.props.src} alt={this.props.alt} />
-        <label htmlFor='uploadImg'>Upload</label>
+        <label htmlFor='uploadImg'>{this.props.lang.imgUpload}</label>
         <input type='file' id='uploadImg' onChange={this.props.onPreviewImg} />
       </div>
     )
@@ -350,52 +403,47 @@ class Data extends Component {
 
     // =====> Config for categories select
     this.categoriesSelect =  {
-      label: 'Choose category',
+      label: this.props.lang.categoryLabel,
       id: 'category'
     }
 
     // =====> Config for units select
     this.unitsSelect = {
-      label: 'Choose unit of measure',
+      label: this.props.lang.unitLabel,
       id: 'unit'
     }
-
-    // =====> Config for units options
-    this.units = [
-      { title: '1 peace', id: '1' }, { title: '100 gr (ml)', id: '2' }
-    ];
 
     // =====> Config for inputs
     this.inputs = [
       {
         type: 'text',
         id: 'title',
-        label: 'Enter title',
-        placeholder: 'Enter title',
+        label: this.props.lang.titleLabel,
+        placeholder: this.props.lang.titlePholder,
       },
       {
         type: 'number',
         id: 'price',
-        label: 'Enter price',
-        placeholder: 'Enter price',
+        label: this.props.lang.priceLabel,
+        placeholder: this.props.lang.pricePholder,
       },
       {
         type: 'number',
         id: 'proteins',
-        label: 'Enter proteins',
-        placeholder: 'Enter proteins',
+        label: this.props.lang.proteinsLabel,
+        placeholder: this.props.lang.proteinsPholder,
       },
       {
         type: 'number',
         id: 'fats',
-        label: 'Enter fats',
-        placeholder: 'Enter fats',
+        label: this.props.lang.fatsLabel,
+        placeholder: this.props.lang.fatsPholder,
       },
       {
         type: 'number',
         id: 'carbs',
-        label: 'Enter carbohydrates',
-        placeholder: 'Enter carbohydrates',
+        label: this.props.lang.carbsLabel,
+        placeholder: this.props.lang.carbsPholder,
       }
     ];
   }
@@ -410,23 +458,25 @@ class Data extends Component {
         <Inputs data={this.inputs} values={inputsValues}
         onChange={onChange} />
 
-        <Select config={this.unitsSelect} value={unit}
-        options={this.units} onChange={onChange} />
+        <Select config={this.unitsSelect} value={unit.title}
+        options={this.props.lang.units} onChange={onChange} />
 
-        {unit === '1 peace'
-          ? <Input type='number' id='amount' label='Enter amount (grams or mlitres)' value={amount}
-            onChange={onChange} />
+        {+unit.id === 1
+          ? <Input type='number' id='amount' label={this.props.lang.altAmountLabel}
+            value={amount} onChange={onChange} />
           : null
         }
 
         <Select config={this.categoriesSelect} value={category}
         options={categoriesOptions} onChange={onChange} />
 
-        <Input type='text' id='ccal' label='Calories' value={ccal} disabled />
+        <Input type='text' id='ccal' label={this.props.lang.caloriesLabel} value={ccal} disabled />
 
         <div className='Form-Rows'>
-          <SubmitLink link={routes.PRODUCTS} value='Delete' onClick={onDelete} />
-          <SubmitLink link={`${routes.PRODUCTS}/${link}`} value='Save' onClick={onSave} />
+          <SubmitLink link={routes.PRODUCTS}
+            value={this.props.lang.deleteBtn} onClick={onDelete} />
+          <SubmitLink link={`${routes.PRODUCTS}/${link}`}
+            value={this.props.lang.saveBtn} onClick={onSave} />
         </div>
       </div>
     )
@@ -441,7 +491,7 @@ class UsedIn extends Component {
   render() {
     return (
       <div className='Product-UsedIn'>
-        <h2> This product is used in such dishes </h2>
+        <h2> {this.props.lang.similarDishesHeader} </h2>
         <div className='Product-UsedInHolder'>
           <UsedItem />
           <UsedItem />
@@ -483,7 +533,7 @@ class UsedItem extends Component {
 /*                   Provide router props & Export
 /* ------------------------------------------------------------------- */
 
-export default withRouter(Product)
+export default withRouter(withLang(Product))
 
 
 //

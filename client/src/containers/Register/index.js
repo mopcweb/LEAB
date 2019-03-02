@@ -161,7 +161,7 @@ class Form extends Component {
     const exist = await axios
       .get(api.USERS + '/' + email)
       .then(user => user.data)
-      .catch(err => console.log(err));
+      .catch(err => console.log('=====> Error', err));
 
     // If exists -> stop running function
     if (exist) {
