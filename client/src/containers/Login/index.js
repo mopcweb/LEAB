@@ -1,8 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { Link, withRouter } from 'react-router-dom';
 
-import axios from 'axios';
-
 /* ------------------------------------------------------------------- */
 /*                              Styles
 /* ------------------------------------------------------------------- */
@@ -15,9 +13,6 @@ import './index.sass';
 
 // =====> Routes
 import * as routes from '../../config/routes';
-
-// =====> Api
-import * as api from '../../config/api';
 
 // =====> Firebase
 import { withFirebase } from '../../config/store';
@@ -155,11 +150,6 @@ class Form extends Component {
           email: '',
           password: ''
         });
-
-        // Receive current user into localStorage
-        axios(api.USERS + '/' + email)
-          .then(res => window.localStorage.setItem('user', JSON.stringify(res)))
-          .catch(err => console.log(err));
 
         // Redirect to dashboard
         this.props.history.push(routes.DASHBOARD);

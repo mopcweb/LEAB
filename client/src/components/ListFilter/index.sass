@@ -43,16 +43,14 @@
         transition: all $time / 2
 
         &:hover
-          // color: $main
           border-bottom: 1px solid $light
-          // background-color: $light
 
   &-Category
     position: relative
     margin: 10px
     width: 200px
     flex-grow: 1
-    min-height: 50px
+    height: 50px
     border: $width solid $main
     border-radius: $radius
     text-align: center
@@ -68,7 +66,7 @@
 
     @media screen and (max-width: 768px)
       width: 100px
-      padding: 0
+      height: 35px
 
     span
       position: relative
@@ -80,6 +78,9 @@
       transform: translateX(0px)
       transition: all $time / 2
       z-index: 12
+
+      @media screen and (max-width: 768px)
+        font-size: $font / 3
 
     &:after
       position: absolute
@@ -106,9 +107,17 @@
       transition: all $time / 2
       z-index: 11
 
+      @media screen and (max-width: 768px)
+        left: -30px
+        width: 30px
+
     &:hover, &_clicked
       background-position: 50px 50%
       padding-left: 55px
+
+      @media screen and (max-width: 768px)
+        background-position: 30px 50%
+        padding-left: 30px
 
       &:before
         left: 0
@@ -131,6 +140,9 @@
       border-radius: $radius
       text-align: center
       transition: all $time / 2
+
+      @media screen and (max-width: 768px)
+        flex-grow: 1
 
     input:hover, input:focus
       background-color: $additional

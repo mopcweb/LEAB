@@ -48,7 +48,10 @@ input, button, select
   font-family: 'Gabriela', serif
 
 h2
-  font-size: $font / 2.5
+  font-size: $h2Font
+
+  @media screen and (max-width: 768px)
+    font-size: $h2FontTablet
 
 ul
   list-style: none
