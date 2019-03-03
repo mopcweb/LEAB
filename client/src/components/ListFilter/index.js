@@ -45,21 +45,17 @@ export default class List extends Component {
     if (!target) return
 
     // Check the value of clicked category. If show all - filter should be empty
-    const filter = target.getAttribute('filter').toLowerCase() !== 'all'
-      ? target.getAttribute('filter').toLowerCase()
-      : ''
+    const filter = target.getAttribute('filter').toLowerCase();
 
     // Update state
-    this.setState({ filterCat: filter, clickedCat: filter })
+    this.setState({ filterCat: filter, clickedCat: filter });
   }
 
   // ==================>                             <================== //
   //         Handler for sorting products by title (input field)
   // ==================>                             <================== //
 
-  handleSortByTitle = (e) => {
-    this.setState({filter: e.target.value.toLowerCase()})
-  }
+  handleSortByTitle = (e) => this.setState({filter: e.target.value.toLowerCase()})
 
   // ==================>                             <================== //
   //          Handler for sorting products by column (asc/desc)
@@ -189,7 +185,7 @@ class Categories extends Component {
           {cats}
           <Category
             lang={this.props.lang}
-            filter='all'
+            filter=''
             value={this.props.lang.showAllItems}
             clicked={this.props.clickedCat}
           />
@@ -207,9 +203,7 @@ class Category extends Component {
   render() {
     const { clicked, value, filter, lang } = this.props;
 
-    const filteredCat =
-      clicked.toLowerCase() === filter.toLowerCase() ||
-      (clicked.toLowerCase() === '' && lang && value === lang.showAllItems)
+    const filteredCat = clicked.toLowerCase() === filter.toLowerCase();
 
     return (
       <button
@@ -218,7 +212,7 @@ class Category extends Component {
         filter={filter ? filter : ''}
       >
         <span style={{ 'WebkitBoxOrient': 'vertical' }}>
-          {capitalize(this.props.value)}
+          {capitalize(value)}
         </span>
       </button>
     )
