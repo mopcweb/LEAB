@@ -51,7 +51,7 @@ class Products extends Component {
       alert: {
         show: false,
         value: '',
-        class: '',
+        status: '',
       }
     };
 
@@ -86,7 +86,7 @@ class Products extends Component {
     // Stop running & show error message if there is no text
     if (this.state.catTitle === '') {
       clearTimeout(this.timer);
-      return this.timer = this.showAlert(products.addEmptyCatTitleMsg, 'Message_error');
+      return this.timer = this.showAlert(products.addEmptyCatTitleMsg, 'error');
     };
 
     // Save & send new category
@@ -95,7 +95,7 @@ class Products extends Component {
       .then(res => {
         // Show success message
         clearTimeout(this.timer);
-        this.timer = this.showAlert(products.addCategoryMsg, 'Message_success');
+        this.timer = this.showAlert(products.addCategoryMsg, 'success');
 
         // Console.log result of request
         console.log('=====> New category', res.data)
@@ -103,7 +103,7 @@ class Products extends Component {
       .catch(err => {
         // Show error message
         clearTimeout(this.timer);
-        this.timer = this.showAlert(`${products.existMsg}`, 'Message_error');
+        this.timer = this.showAlert(products.existMsg, 'error');
 
         // Console.log result of request
         console.log('=====> Error ', err)
@@ -130,13 +130,13 @@ class Products extends Component {
     // =====> Error: file type is not image
     if (file && file.type.indexOf('image') === -1) {
       clearTimeout(this.timer);
-      return this.timer = this.showAlert(global.onlyImgsMsg, 'Message_error');
+      return this.timer = this.showAlert(global.onlyImgsMsg, 'error');
     };
 
     // =====> Error: jile size is more than global.fileSize
     if (file && file.size > global.fileSize) {
       clearTimeout(this.timer);
-      return this.timer = this.showAlert(global.fileTooBigMsg, 'Message_error');
+      return this.timer = this.showAlert(global.fileTooBigMsg, 'error');
     };
 
     // Change label value of file input
@@ -166,11 +166,11 @@ class Products extends Component {
     const { categories } = this.state;
     this.title = capitalize(categories.find(item => item.id === this.id).title);
 
-    // =====> Ask if sure & stop running if not sure
-    if (!window.confirm('Are you sure?')) return
-
     // Get products prop from lang
     const { products } = this.props.lang.constants;
+
+    // =====> Ask if sure & stop running if not sure
+    if (!window.confirm(products.confirmMsg)) return
 
     // Check if there any products using this category
     // If they are -> save into array
@@ -182,7 +182,7 @@ class Products extends Component {
     // =====> Error: Can't rename into empty string
     if (this.rename.toLowerCase() === 'rename' && this.inputValue === '') {
       clearTimeout(this.timer);
-      return this.timer = this.showAlert(products.renameEmptyCatTitleMsg, 'Message_error');
+      return this.timer = this.showAlert(products.renameEmptyCatTitleMsg, 'error');
     };
 
     // If btn value is 'rename' & input Value !== initial title
@@ -194,7 +194,7 @@ class Products extends Component {
     // If there are products in category -> decline DELETE
     if (this.existProducts.length > 0) {
       clearTimeout(this.timer);
-      return this.timer = this.showAlert(products.notEmptyCategoryMsg, 'Message_error');
+      return this.timer = this.showAlert(products.notEmptyCategoryMsg, 'error');
     };
 
     await axios
@@ -202,7 +202,7 @@ class Products extends Component {
       .then(res => {
         // Show success message
         clearTimeout(this.timer);
-        this.timer = this.showAlert(products.deleteCategoryMsg, 'Message_success');
+        this.timer = this.showAlert(products.deleteCategoryMsg, 'success');
 
         console.log('=====> Category deleted', res.data)
       })
@@ -226,7 +226,7 @@ class Products extends Component {
         .then(async res => {
           // Show success message
           clearTimeout(this.timer);
-          this.timer = this.showAlert(products.updateCategoryMsg, 'Message_success');
+          this.timer = this.showAlert(products.updateCategoryMsg, 'success');
 
           // If there are any matching products
           // Then -> PUT new category title into matching products
@@ -251,7 +251,7 @@ class Products extends Component {
         .catch(err => {
           // Show error message
           clearTimeout(this.timer);
-          this.timer = this.showAlert(products.existMsg, 'Message_error');
+          this.timer = this.showAlert(products.existMsg, 'error');
 
           // Console.log result of request
           console.log('=====> Error', err)
@@ -269,9 +269,7 @@ class Products extends Component {
   //                 Handle catTitle input value changes
   // ==================>                             <================== //
 
-  handleCatTitleChange = (e) => {
-    this.setState({catTitle: capitalize(e.target.value)});
-  }
+  handleCatTitleChange = (e) => this.setState({ catTitle: capitalize(e.target.value) })
 
   // ==================>                             <================== //
   //            Handle closing alert by clicking on its cross
@@ -280,10 +278,10 @@ class Products extends Component {
   handleAlertClose = (e) => {
     clearTimeout(this.timer);
 
-    this.setState({alert: {
+    this.setState({ alert: {
       show: false,
       value: '',
-      class: ''
+      status: ''
     }});
   }
 
@@ -395,7 +393,7 @@ class Products extends Component {
             onChange={this.handleCatTitleChange}
             onPreviewImg={this.handlePreviewImg}
           />
-          <Alert value={this.state.alert.value} addClass={this.state.alert.class} isShow={this.state.alert.show} onClick={this.handleAlertClose} />
+          <Alert value={this.state.alert.value} status={this.state.alert.status} show={this.state.alert.show} onClick={this.handleAlertClose} />
         </Modal>
       </Wrapper>
     )

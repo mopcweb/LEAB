@@ -32,6 +32,7 @@
     "header": "Профиль пользователя",
     "pwdUpdateMsg": "Пароль успешно изменен",
     "profileUpMsg": "Профиль обновлен",
+    "emptyUsernameMsg": "Поле с именем юзера не может быть пустым",
     "form1Title": "Изменить пароль",
     "form1Submit": "Обновить",
     "pwd": "Новый пароль",
@@ -48,6 +49,17 @@
   "sidebar": {
     "widget1Title": "Какой то крутой виджет :)"
   },
+  "nav": {
+    "profileBtn": "Профиль",
+    "signOutBtn": "Выйти",
+    "navLinks": {
+      "dashboard": "СТАТИСТИКА",
+      "menu": "МЕНЮ",
+      "dishes": "БЛЮДА",
+      "products": "ПРОДУКТЫ"
+    },
+    "copyright": "2018 - 2019 Morsweb"
+  },
   "products": {
     "addEmptyCatTitleMsg": "Невозможно добавить категорию без названия",
     "renameEmptyCatTitleMsg": "Невозможно переименовать в пустую строку",
@@ -56,6 +68,7 @@
     "addCategoryMsg": "Добавлена новая категория",
     "deleteCategoryMsg": "Категория удалена",
     "updateCategoryMsg": "Категория обновлена",
+    "confirmMsg": "Вы уверенны?",
     "header": "Продукты",
     "catImgTitle": "Картинка для категории",
     "catTitle": "Название категории",

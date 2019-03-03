@@ -60,7 +60,7 @@ class Product extends Component {
       alert: {
         show: false,
         value: '',
-        class: '',
+        status: '',
       }
     };
 
@@ -120,7 +120,7 @@ class Product extends Component {
     const { title, link, img, price, proteins, ccalUnified,
       fats, carbs, ccal, unit, amount, category, id } = this.state;
 
-    // Get necessary for alert props form lang
+    // Get necessary props form lang
     const {
       requiredFiledsMsg, updateProductMsg, addProductMsg
     } = this.props.lang.constants.product;
@@ -141,7 +141,7 @@ class Product extends Component {
 
       // Show error alert
       clearTimeout(this.timer);
-      return this.timer = this.showAlert(requiredFiledsMsg, 'Message_error');
+      return this.timer = this.showAlert(requiredFiledsMsg, 'error');
     };
 
     await axios({
@@ -157,7 +157,7 @@ class Product extends Component {
 
     // Show success alert
     clearTimeout(this.timer);
-    this.timer = this.showAlert(id ? updateProductMsg : addProductMsg, 'Message_success');
+    this.timer = this.showAlert(id ? updateProductMsg : addProductMsg, 'success');
   }
 
   // ==================>                             <================== //
@@ -175,11 +175,11 @@ class Product extends Component {
 
       // Show eror alert
       clearTimeout(this.timer);
-      return this.timer = this.showAlert(noSavedDataMsg, 'Message_error');
+      return this.timer = this.showAlert(noSavedDataMsg, 'error');
     };
 
     // Ask if sure
-    if (!window.confirm(confirmMsg)) return
+    if (!window.confirm(confirmMsg)) return e.preventDefault()
 
     // Request
     await axios
@@ -202,13 +202,13 @@ class Product extends Component {
     // Show error alert if file type is not image
     if (file && file.type.indexOf('image') === -1) {
       clearTimeout(this.timer);
-      return this.timer = this.showAlert(global.onlyImgsMsg, 'Message_error');
+      return this.timer = this.showAlert(global.onlyImgsMsg, 'error');
     };
 
     // Show error alert if jile size more than global.fileSize
     if (file && file.size > global.fileSize) {
       clearTimeout(this.timer);
-      return this.timer = this.showAlert(global.fileTooBigMsg, 'Message_error');
+      return this.timer = this.showAlert(global.fileTooBigMsg, 'error');
     };
 
     // New reader
@@ -228,10 +228,10 @@ class Product extends Component {
   handleAlertClose = (e) => {
     clearTimeout(this.timer);
 
-    this.setState({alert: {
+    this.setState({ alert: {
       show: false,
       value: '',
-      class: ''
+      status: ''
     }});
   }
 
@@ -370,8 +370,8 @@ class Product extends Component {
         </div>
 
         <UsedIn lang={this.props.lang.constants.product} />
-        <Alert value={this.state.alert.value} addClass={this.state.alert.class}
-        isShow={this.state.alert.show} onClick={this.handleAlertClose} />
+        <Alert value={this.state.alert.value} status={this.state.alert.status}
+        show={this.state.alert.show} onClick={this.handleAlertClose} />
       </Wrapper>
     )
   };

@@ -13,8 +13,8 @@ import './index.sass';
 export default class Alert extends Component {
   render() {
     return (
-      this.props.isShow
-        ? <div className={`Message ${this.props.addClass ? this.props.addClass : ''}`}>
+      this.props.show
+        ? <div className={`Message Message_${this.props.status}`}>
             <span className='Message-Close' onClick={this.props.onClick}></span>
             {this.props.value}
           </div>
@@ -24,11 +24,11 @@ export default class Alert extends Component {
 };
 
 // Show alert with props. Declared as es5 function to prevent lose of context. YOU should bind(this) in components constructor before usage
-export function showAlert(value, addClass, time?) {
+export function showAlert(value, status, time?) {
   this.setState({alert: {
     show: true,
-    value: value,
-    class: addClass
+    value,
+    status
   }});
 
   // Hide error alert in 5 seconds
@@ -36,7 +36,7 @@ export function showAlert(value, addClass, time?) {
     this.setState({alert: {
       show: false,
       value: '',
-      class: ''
+      status: ''
     }})
   }, time ? time : 5000);
 };

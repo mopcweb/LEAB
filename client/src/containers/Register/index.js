@@ -115,7 +115,7 @@ class Form extends Component {
       alert: {
         show: false,
         value: '',
-        class: '',
+        status: '',
       }
     };
 
@@ -130,10 +130,10 @@ class Form extends Component {
   handleAlertClose = (e) => {
     clearTimeout(this.timer);
 
-    this.setState({alert: {
+    this.setState({ alert: {
       show: false,
       value: '',
-      class: ''
+      status: ''
     }});
   }
 
@@ -166,12 +166,12 @@ class Form extends Component {
     // If exists -> stop running function
     if (exist) {
       clearTimeout(this.timer);
-      return this.timer = this.showAlert(register.existMsg, 'Message_error');
+      return this.timer = this.showAlert(register.existMsg, 'error');
     };
 
     if (password.length < 6) {
       clearTimeout(this.timer);
-      return this.timer = this.showAlert(register.weakPwdMsg, 'Message_error');
+      return this.timer = this.showAlert(register.weakPwdMsg, 'error');
     };
 
     // I have to do it before calling Firebase API
@@ -188,7 +188,7 @@ class Form extends Component {
       .then(res => res)
       .catch(err => {
         clearTimeout(this.timer);
-        this.timer = this.showAlert(err.message, 'Message_error');
+        this.timer = this.showAlert(err.message, 'error');
       });
 
     // If there is error -> don't save user data into db
@@ -271,8 +271,8 @@ class Form extends Component {
 
         <Alert
           value={this.state.alert.value}
-          addClass={this.state.alert.class}
-          isShow={this.state.alert.show}
+          status={this.state.alert.status}
+          show={this.state.alert.show}
           onClick={this.handleAlertClose}
         />
       </Fragment>
@@ -301,9 +301,7 @@ class Input extends Component {
   //                            Handle focus
   // ==================>                             <================== //
 
-  handleFocus = (e) => {
-    this.setState(state => ({isFocused: !state.isFocused}))
-  }
+  handleFocus = (e) => this.setState(state => ({isFocused: !state.isFocused}))
 
   // ==================>                             <================== //
   //                               Render

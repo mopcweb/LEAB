@@ -19,14 +19,15 @@ import * as routes from '../../config/routes';
 // =====> Api
 import * as api from '../../config/api';
 
+// =====> Firebase
+import { withFirebase } from '../../config/store';
+
 /* ------------------------------------------------------------------- */
 /*                              My components
 /* ------------------------------------------------------------------- */
 
 import { Wrapper } from '../../components/Main';
 import Alert, { showAlert } from '../../components/Alert';
-
-import { withFirebase } from '../../config/store';
 
 /* ------------------------------------------------------------------- */
 /*                               Login
@@ -108,7 +109,7 @@ class Form extends Component {
       alert: {
         show: false,
         value: '',
-        class: '',
+        status: '',
       }
     };
 
@@ -116,23 +117,30 @@ class Form extends Component {
     this.showAlert = showAlert.bind(this);
   }
 
+  // ==================>                             <================== //
+  //                     Handle click on add button
+  // ==================>                             <================== //
   // =====> Handle close alert by clicking on its cross
   handleAlertClose = (e) => {
     clearTimeout(this.timer);
 
-    this.setState({alert: {
+    this.setState({ alert: {
       show: false,
       value: '',
-      class: ''
+      status: ''
     }});
   }
 
-  // =====> Handle input value change
-  handleChange = (e) => {
-    this.setState({[e.target.name]: e.target.value});
-  }
+  // ==================>                             <================== //
+  //                     Handle input value change
+  // ==================>                             <================== //
 
-  // ======> Handle submit btn
+  handleChange = (e) => this.setState({[e.target.name]: e.target.value})
+
+  // ==================>                             <================== //
+  //                    Handle click on submit button
+  // ==================>                             <================== //
+
   handleSubmit = (e) => {
     // Prevent default page reload
     e.preventDefault();
@@ -158,16 +166,22 @@ class Form extends Component {
       })
       .catch(err => {
         clearTimeout(this.timer);
-        this.timer = this.showAlert(err.message, 'Message_error');
+        this.timer = this.showAlert(err.message, 'error');
       });
   }
 
-  // =====> Clear Alert timeout before destroy component
+  // ==================>                             <================== //
+  //                Lifecycle hook (just before destroy)
+  // ==================>                             <================== //
+
   componentWillUnmount() {
     clearTimeout(this.timer);
   }
 
-  // =====> Render
+  // ==================>                             <================== //
+  //                               Render
+  // ==================>                             <================== //
+
   render() {
     // Check validation
     const isInvalid = this.state.password === '' || this.state.email === '';
@@ -197,8 +211,8 @@ class Form extends Component {
 
         <Alert
           value={this.state.alert.value}
-          addClass={this.state.alert.class}
-          isShow={this.state.alert.show}
+          status={this.state.alert.status}
+          show={this.state.alert.show}
           onClick={this.handleAlertClose}
         />
       </Fragment>
@@ -223,12 +237,16 @@ class Input extends Component {
     };
   }
 
-  // =====> Handle focus
-  handleFocus = (e) => {
-    this.setState(state => ({isFocused: !state.isFocused}))
-  }
+  // ==================>                             <================== //
+  //                         Handle focus / blur
+  // ==================>                             <================== //
 
-  // =====> Render
+  handleFocus = (e) => this.setState(state => ({isFocused: !state.isFocused}))
+
+  // ==================>                             <================== //
+  //                                Render
+  // ==================>                             <================== //
+
   render() {
     return (
       <div onFocus={this.handleFocus} onBlur={this.handleFocus}>

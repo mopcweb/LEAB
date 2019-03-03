@@ -32,6 +32,7 @@
     "header": "Profile of user",
     "pwdUpdateMsg": "Password update success",
     "profileUpMsg": "Updated profile",
+    "emptyUsernameMsg": "Username field cannot be empty",
     "form1Title": "Change password",
     "form1Submit": "Update",
     "pwd": "New password",
@@ -49,7 +50,15 @@
     "widget1Title": "Some awesome widget :)"
   },
   "nav": {
-
+    "profileBtn": "Edit profile",
+    "signOutBtn": "Sign Out",
+    "navLinks": {
+      "dashboard": "DASHBOARD",
+      "menu": "MENU",
+      "dishes": "DISHES",
+      "products": "PRODUCTS"
+    },
+    "copyright": "2018 - 2019 Morsweb"
   },
   "products": {
     "addEmptyCatTitleMsg": "Can't add category without title",
@@ -59,6 +68,7 @@
     "addCategoryMsg": "Added new category",
     "deleteCategoryMsg": "Category deleted",
     "updateCategoryMsg": "Category updated",
+    "confirmMsg": "Are you sure?",
     "header": "Products",
     "catImgTitle": "Image for category",
     "catTitle": "Category title",

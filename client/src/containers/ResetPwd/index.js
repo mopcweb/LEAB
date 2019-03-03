@@ -8,10 +8,14 @@ import { Link, withRouter } from 'react-router-dom';
 import './index.sass';
 
 /* ------------------------------------------------------------------- */
-/*                              Routes
+/*                              Config
 /* ------------------------------------------------------------------- */
 
+// =====> Routes
 import * as routes from '../../config/routes';
+
+// =====> Firebase
+import { withFirebase } from '../../config/store';
 
 /* ------------------------------------------------------------------- */
 /*                            My components
@@ -19,8 +23,6 @@ import * as routes from '../../config/routes';
 
 import { Wrapper } from '../../components/Main';
 import Alert, { showAlert } from '../../components/Alert';
-
-import { withFirebase } from '../../config/store';
 
 /* ------------------------------------------------------------------- */
 /*                          ResetPwd component
@@ -57,6 +59,10 @@ export default class ResetPwd extends Component {
   };
 };
 
+/* ------------------------------------------------------------------- */
+/*                                Header
+/* ------------------------------------------------------------------- */
+
 class Header extends Component {
   render() {
     return (
@@ -78,6 +84,10 @@ class Header extends Component {
   };
 };
 
+/* ------------------------------------------------------------------- */
+/*                                 Form
+/* ------------------------------------------------------------------- */
+
 class Form extends Component {
   constructor(props) {
     super(props);
@@ -87,32 +97,38 @@ class Form extends Component {
       alert: {
         show: false,
         value: '',
-        class: '',
+        status: '',
       }
     };
 
-    this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleAlertClose = this.handleAlertClose.bind(this);
     this.showAlert = showAlert.bind(this);
   }
 
-  // Handler for closing alert by clicking on its cross
-  handleAlertClose(e) {
+  // ==================>                             <================== //
+  //         Handler for closing alert by clicking on its cross
+  // ==================>                             <================== //
+
+  handleAlertClose = (e) => {
     clearTimeout(this.timer);
 
-    this.setState({alert: {
+    this.setState({ alert: {
       show: false,
       value: '',
-      class: ''
+      status: ''
     }});
   }
 
-  handleChange(e) {
-    this.setState({[e.target.name]: e.target.value});
-  }
+  // ==================>                             <================== //
+  //                     Handle input value change
+  // ==================>                             <================== //
 
-  async handleSubmit(e) {
+  handleChange = (e) => this.setState({[e.target.name]: e.target.value})
+
+  // ==================>                             <================== //
+  //                    Handle click on submit button
+  // ==================>                             <================== //
+
+  handleSubmit = async (e) => {
     // Prevent default page reload
     e.preventDefault();
 
@@ -126,15 +142,24 @@ class Form extends Component {
       })
       .catch(err => {
         clearTimeout(this.timer);
-        this.timer = this.showAlert(err.message, 'Message_error');
+        this.timer = this.showAlert(err.message, 'error');
 
         return console.log('=====> Error:', {status: 'Error', error: err.message})
       });
   }
 
+  // ==================>                             <================== //
+  //                Lifecycle hook (just before destroy)
+  // ==================>                             <================== //
+
   componentWillUnmount() {
+    // Clear alert timeout
     clearTimeout(this.timer);
   }
+
+  // ==================>                             <================== //
+  //                              Render
+  // ==================>                             <================== //
 
   render() {
     // Check validation
@@ -156,29 +181,38 @@ class Form extends Component {
           </button>
         </form>
 
-        <Alert value={this.state.alert.value} addClass={this.state.alert.class} isShow={this.state.alert.show} onClick={this.handleAlertClose} />
+        <Alert value={this.state.alert.value} status={this.state.alert.status} show={this.state.alert.show} onClick={this.handleAlertClose} />
       </Fragment>
     )
   };
 };
 
-// Call Form with FbContext & Router
+// =====> Call Form with FbContext & Router
 const SignIn = withRouter(withFirebase(Form));
+
+/* ------------------------------------------------------------------- */
+/*                                Input
+/* ------------------------------------------------------------------- */
 
 class Input extends Component {
   constructor(props) {
     super(props);
 
+    // =====> State
     this.state = {
       isFocused: false
     };
-
-    this.handleFocus = this.handleFocus.bind(this);
   }
 
-  handleFocus(e) {
-    this.setState(state => ({isFocused: !state.isFocused}))
-  }
+  // ==================>                             <================== //
+  //                     Handle focus / blur on input
+  // ==================>                             <================== //
+
+  handleFocus = (e) => this.setState(state => ({isFocused: !state.isFocused}))
+
+  // ==================>                             <================== //
+  //                                Render
+  // ==================>                             <================== //
 
   render() {
     return (

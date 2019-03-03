@@ -14,7 +14,7 @@ import { Inputs, Submit } from '../FormElems';
 import { capitalize } from '../UsefulF';
 
 /* ------------------------------------------------------------------- */
-/*                              ListOfItems component
+/*                        ListOfItems component
 /* ------------------------------------------------------------------- */
 
 export default class ListOfItems extends Component {
@@ -36,6 +36,10 @@ export default class ListOfItems extends Component {
   };
 };
 
+/* ------------------------------------------------------------------- */
+/*                               Form
+/* ------------------------------------------------------------------- */
+
 class Form extends Component {
   render() {
     return (
@@ -54,6 +58,10 @@ class Form extends Component {
   };
 };
 
+/* ------------------------------------------------------------------- */
+/*                              Items
+/* ------------------------------------------------------------------- */
+
 class Items extends Component {
   render() {
     return (
@@ -71,6 +79,10 @@ class Items extends Component {
     )
   };
 };
+
+/* ------------------------------------------------------------------- */
+/*                                 Rows
+/* ------------------------------------------------------------------- */
 
 class Rows extends Component {
   render() {
@@ -91,45 +103,57 @@ class Rows extends Component {
   };
 };
 
+/* ------------------------------------------------------------------- */
+/*                                Row
+/* ------------------------------------------------------------------- */
+
 class Row extends Component {
   constructor(props) {
     super(props);
 
+    // =====> State
     this.state = {
       isChanged: false,
       value: undefined,
       alert: {
         show: false,
         value: '',
-        class: ''
+        status: ''
       }
     };
-
-    this.handleMouseEnter = this.handleMouseEnter.bind(this);
-    this.handleMouseLeave = this.handleMouseLeave.bind(this);
-    this.handleRename = this.handleRename.bind(this);
   }
 
+  // ==================>                             <================== //
   // onMouseEnter into input -> change label value from 'delete' to 'rename'
-  handleMouseEnter(e) {
-    this.setState({isChanged: true});
-  }
+  // ==================>                             <================== //
 
+  handleMouseEnter = (e) => this.setState({isChanged: true})
+
+  // ==================>                             <================== //
   // Remove onMouseLeave this effect, but only if input value is the same
-  handleMouseLeave(e) {
+  // ==================>                             <================== //
+
+  handleMouseLeave = (e) => {
     if (this.props.title !== this.state.value && this.state.value !== undefined) return;
 
     this.setState({isChanged: false});
   }
 
-  // Change label value from 'delete' to 'rename' on input value change
-  handleRename(e) {
+  // ==================>                             <================== //
+  //  Change label value from 'delete' to 'rename' on input value change
+  // ==================>                             <================== //
+
+  handleRename = (e) => {
     this.setState({value: e.target.value});
 
     // If value is same as origin was after data received - label value -> delete, else -> rename
     if (capitalize(this.props.title) !== e.target.value) this.setState({isChanged: true})
     else this.setState({isChanged: false})
   }
+
+  // ==================>                             <================== //
+  //            Lifecycle hook (watches for state / props updates)
+  // ==================>                             <================== //
 
   componentDidUpdate(prevProps, prevState) {
     if (capitalize(this.props.title) === prevState.value && prevState.isChanged === true) this.setState({isChanged: false, value: undefined})

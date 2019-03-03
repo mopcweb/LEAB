@@ -27,6 +27,9 @@ import { withUser } from './store.js';
 const LangContext = createContext(null);
 const ChangeLangContext = createContext(null);
 
+// =====> Context For User Profile
+const UserContext = createContext(null);
+
 /* ------------------------------------------------------------------- */
 /*                       Provide Language Context
 /* ------------------------------------------------------------------- */
@@ -37,6 +40,7 @@ export const provideLang = Component => {
       super(props);
 
       this.state = {
+        user: '',
         lang: ''
       };
     }
@@ -55,7 +59,10 @@ export const provideLang = Component => {
       // Get current user lang
       await axios
         .get(api.USERS + '/' + email)
-        .then(res => this.lang = res.data.lang)
+        .then(res => {
+          this.setState({ user: res.data });
+          this.lang = res.data.lang;
+        })
         .catch(err => console.log(err.response));
 
       // Get data for this lang
@@ -91,12 +98,14 @@ export const provideLang = Component => {
       return (
         <LangContext.Provider value={this.state.lang}>
           <ChangeLangContext.Provider value={this.changeLang}>
-            {this.state.lang
-              ? <Component {...this.props} />
-              : this.props.authUser
-                ? <Loader />
-                : <Component {...this.props} />
-            }
+            <UserContext.Provider value={this.state.user}>
+              {this.state.lang
+                ? <Component {...this.props} />
+                : this.props.authUser
+                  ? <Loader />
+                  : <Component {...this.props} />
+              }
+            </UserContext.Provider>
           </ChangeLangContext.Provider>
         </LangContext.Provider>
       )
@@ -130,7 +139,15 @@ export const changeLang = Component => props => (
   </ChangeLangContext.Consumer>
 );
 
+/* ------------------------------------------------------------------- */
+/*                    Provide User Profile to Component
+/* ------------------------------------------------------------------- */
 
+export const withUserProfile = Component => props => (
+  <UserContext.Consumer>
+    {profile => <Component {...props} userProfile={profile} />}
+  </UserContext.Consumer>
+);
 
 
 

@@ -20,6 +20,8 @@ import { globalC } from '../../config/constants';
 
 // =====> Store
 import { withFirebase, withUser } from '../../config/store';
+
+// =====> Lang
 import { withLang, changeLang } from '../../config/lang';
 
 /* ------------------------------------------------------------------- */
@@ -55,7 +57,6 @@ class Profile extends Component {
         { title: 'USD', id: 1 }, { title: 'EUR', id: 2 }, { title: 'UAH', id: 3 }
       ],
       currency: 'USD',
-      // langs: [{ title: 'en', id: 1 }, { title: 'ru', id: 2 }],
       langs: this.props.lang ? this.props.lang.constants.global.langs : '',
       lang: 'en',
       standart: '',
@@ -63,7 +64,7 @@ class Profile extends Component {
       alert: {
         show: false,
         value: '',
-        class: '',
+        status: '',
       }
     };
 
@@ -123,10 +124,10 @@ class Profile extends Component {
   handleAlertClose = (e) => {
     clearTimeout(this.timer);
 
-    this.setState({alert: {
+    this.setState({ alert: {
       show: false,
       value: '',
-      class: ''
+      status: ''
     }});
   }
 
@@ -153,12 +154,12 @@ class Profile extends Component {
 
         // And show success msg
         clearTimeout(this.timer);
-        this.timer = this.showAlert(profile.pwdUpdateMsg, 'Message_success');
+        this.timer = this.showAlert(profile.pwdUpdateMsg, 'success');
       })
       .catch(err => {
         // Show error msg
         clearTimeout(this.timer);
-        this.timer = this.showAlert(err.message, 'Message_error');
+        this.timer = this.showAlert(err.message, 'error');
       });
   }
 
@@ -176,24 +177,23 @@ class Profile extends Component {
     // Show error alert if file type is not image
     if (file && file.type.indexOf('image') === -1) {
       clearTimeout(this.timer);
-      return this.timer = this.showAlert(globalL.onlyImgsMsg, 'Message_error');
+      return this.timer = this.showAlert(globalL.onlyImgsMsg, 'error');
     };
 
     // Show error alert if jile size more than global.fileSize
     if (file && file.size > globalL.fileSize) {
       clearTimeout(this.timer);
-      return this.timer = this.showAlert(globalL.fileTooBigMsg, 'Message_error');
+      return this.timer = this.showAlert(globalL.fileTooBigMsg, 'error');
     };
 
     // New reader
     const reader = new FileReader();
 
     // Handle load end event
-    reader.onloadend = () => this.setState({img: reader.result})
+    reader.onloadend = () => this.setState({img: reader.result});
 
     // Put reader.result into file
-    if (file) reader.readAsDataURL(file)
-    else this.setState({img: globalC.defaultImg})
+    file ? reader.readAsDataURL(file) : this.setState({img: globalC.defaultImg});
   }
 
   // ==================>                             <================== //
@@ -208,7 +208,13 @@ class Profile extends Component {
     const { username, currency, img, standart, big, lang } = this.state;
 
     // Get language profile config
-    const profile = this.props.lang ? this.props.lang.constants.profile : '';
+    const { profile } = this.props.lang.constants;
+
+    // Stop running & show error message if there is no text
+    if (!username) {
+      clearTimeout(this.timer);
+      return this.timer = this.showAlert(profile.emptyUsernameMsg, 'error');
+    };
 
     // Send data into db
     axios
@@ -218,11 +224,11 @@ class Profile extends Component {
       .then(res => {
         // Show success message
         clearTimeout(this.timer);
-        this.timer = this.showAlert(profile.profileUpMsg, 'Message_success');
+        this.timer = this.showAlert(profile.profileUpMsg, 'success');
 
         this.props.changeLang();
       })
-      .catch(err => console.log(err));
+      .catch(err => console.log('=====> Error', err));
   }
 
   // ==================>                             <================== //
@@ -244,7 +250,7 @@ class Profile extends Component {
     axios
       .get(api.USERS + '/' + email)
       .then(res => this.updateUser(res.data))
-      .catch(err => console.log(err));
+      .catch(err => console.log('=====> Error', err));
   }
 
   // ==================>                             <================== //
@@ -281,7 +287,7 @@ class Profile extends Component {
     } = this.state;
 
     // Get language into variable
-    const profile = this.props.lang ? this.props.lang.constants.profile : '';
+    const { profile } = this.props.lang.constants;
 
     // Check validation
     const isInvalid = password !== confirmPassword || password === '';
@@ -360,7 +366,7 @@ class Profile extends Component {
           </Form>
         </Wrapper>
 
-        <Alert value={alert.value} addClass={alert.class} isShow={alert.show}
+        <Alert value={alert.value} status={alert.status} show={alert.show}
           onClick={this.handleAlertClose}
         />
       </Fragment>
