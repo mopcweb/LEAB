@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import { Route, BrowserRouter as Router, Switch } from 'react-router-dom';
+import { Route, BrowserRouter as Router, Switch, Redirect } from 'react-router-dom';
 
 import * as serviceWorker from './serviceWorker';
 import './index.sass';
@@ -11,9 +11,6 @@ import './index.sass';
 
 // =====> Routes
 import * as routes from './config/routes';
-
-// =====> Axios
-import axios from 'axios';
 
 /* ------------------------------------------------------------------- */
 /*                              Import My Components
@@ -48,15 +45,14 @@ import Product from './containers/Product';
 /*                        Import Context & Firebase
 /* ------------------------------------------------------------------- */
 
-import { FbContext, withAuth } from './config/store';
+import { FbContext, provideAuth } from './config/store';
 import { provideLang } from './config/lang';
 import Firebase from './config/firebase';
 
 /* ------------------------------------------------------------------- */
-/*                              ReactDOM.render
+/*                   Component to render. Holds Router
 /* ------------------------------------------------------------------- */
 
-// =====> Component to render. Holds Router
 class App extends Component {
   render() {
     return (
@@ -69,49 +65,104 @@ class App extends Component {
   };
 };
 
-// =====> Routes under Firebase Auth validation
+/* ------------------------------------------------------------------- */
+/*                 Routes under Firebase Auth validation
+/* ------------------------------------------------------------------- */
+
 class Routes extends Component {
+  state = {
+    loader: false
+  }
+
+  // ==================>                             <================== //
+  //                  Lifecycle hook (just before render)
+  // ==================>                             <================== //
+
+  componentDidMount() {
+    // If authUser already received -> stop loader
+    if (!!this.props.authUser) return this.setState({ loader: true })
+
+    // Else run loader for 3s
+    clearTimeout(this.timer)
+    this.timer = setTimeout(() => this.setState({ loader: true }), 2000)
+  }
+
+  // ==================>                             <================== //
+  //                  Lifecycle hook (just before destroy)
+  // ==================>                             <================== //
+
+  componentWillUnmount() {
+    clearTimeout(this.timer)
+  }
+
+  // ==================>                             <================== //
+  //                              Render
+  // ==================>                             <================== //
+
   render() {
-    // Receive authUser prop
-    const { authUser } = this.props;
+    return this.state.loader
+      ? (
+        <Switch>
+          <Route path={routes.HOME} exact component={Home} />
 
-    // Set default header for request via axios
-    if (authUser) axios.defaults.headers.common['userid'] = authUser.email;
+          {this.props.authUser
+            ? <Main>
+                <Switch>
+                  <Route exact path={routes.PROFILE} component={Profile} />
+                  <Route exact path={routes.DASHBOARD} component={Dashboard} />
+                  <Route exact path={routes.MENU} component={Menu} />
+                  <Route exact path={routes.MENU_ITEM} component={MenuItem} />
+                  <Route exact path={routes.DISHES} component={Dishes} />
+                  <Route exact path={routes.DISH} component={Dish} />
+                  <Route exact path={routes.PRODUCTS} component={Products} />
+                  <Route exact path={routes.PRODUCT} component={Product} />
 
-    return (
-      <Switch>
-        <Route path={routes.HOME} exact component={Home} />
-        <Route path={routes.REGISTER} exact component={Register} />
-        <Route path={routes.LOGIN} exact component={Login} />
-        <Route path={routes.RESET_PWD} exact component={ResetPwd} />
-        {authUser
-          ? <Main>
-              <Switch>
-                <Route exact path={routes.PROFILE} component={Profile} />
-                <Route exact path={routes.DASHBOARD} component={Dashboard} />
-                <Route exact path={routes.MENU} component={Menu} />
-                <Route exact path={routes.MENU_ITEM} component={MenuItem} />
-                <Route exact path={routes.DISHES} component={Dishes} />
-                <Route exact path={routes.DISH} component={Dish} />
-                <Route exact path={routes.PRODUCTS} component={Products} />
-                <Route exact path={routes.PRODUCT} component={Product} />
+                  <Redirect exact path={routes.REGISTER} to={routes.DASHBOARD} />
+                  <Redirect exact path={routes.LOGIN} to={routes.DASHBOARD} />
+                  <Redirect exact path={routes.RESET_PWD} to={routes.DASHBOARD} />
+
+                  <Route component={NotFound} />
+                </Switch>
+              </Main>
+            : <Switch>
+                {/* <Route exact path={routes.PROFILE} component={Loader} />
+                <Route exact path={routes.DASHBOARD} component={Loader} />
+                <Route exact path={routes.MENU} component={Loader} />
+                <Route exact path={routes.MENU_ITEM} component={Loader} />
+                <Route exact path={routes.DISHES} component={Loader} />
+                <Route exact path={routes.DISH} component={Loader} />
+                <Route exact path={routes.PRODUCTS} component={Loader} />
+                <Route exact path={routes.PRODUCT} component={Loader} /> */}
+
+                <Redirect exact path={routes.PROFILE} to={routes.LOGIN} />
+                <Redirect exact path={routes.DASHBOARD} to={routes.LOGIN} />
+                <Redirect exact path={routes.MENU} to={routes.LOGIN} />
+                <Redirect exact path={routes.MENU_ITEM} to={routes.LOGIN} />
+                <Redirect exact path={routes.DISHES} to={routes.LOGIN} />
+                <Redirect exact path={routes.DISH} to={routes.LOGIN} />
+                <Redirect exact path={routes.PRODUCTS} to={routes.LOGIN} />
+                <Redirect exact path={routes.PRODUCT} to={routes.LOGIN} />
+
+                <Route exact path={routes.REGISTER} component={Register} />
+                <Route exact path={routes.LOGIN} component={Login} />
+                <Route exact path={routes.RESET_PWD} component={ResetPwd} />
+
                 <Route component={NotFound} />
               </Switch>
-            </Main>
-          : <Switch>
-              <Route path='*' component={Loader} />
-            </Switch>
-        }
-        <Route component={NotFound} />
-      </Switch>
-    )
+          }
+        </Switch>
+      )
+      : <Loader />
   };
 };
 
 // =====> Provide Auth to Routes component
-Routes = withAuth(provideLang(Routes));
+Routes = provideAuth(provideLang(Routes));
 
-// =====> Render App
+/* ------------------------------------------------------------------- */
+/*                             Render App
+/* ------------------------------------------------------------------- */
+
 ReactDOM.render(
   <App />,
   document.getElementById('root')

@@ -17,7 +17,7 @@ import * as api from './api';
 import Loader from '../components/Loader';
 
 // =====> With User
-import { withUser } from './store.js';
+import { withAuth } from './store.js';
 
 /* ------------------------------------------------------------------- */
 /*                         Languages Context
@@ -73,6 +73,14 @@ export const provideLang = Component => {
     }
 
     // ==================>                             <================== //
+    //                  Lifecycle hook (just after render)
+    // ==================>                             <================== //
+
+    componentDidMount() {
+      this.changeLang()
+    }
+
+    // ==================>                             <================== //
     //     Here we look for authUser received & do first lang download
     // ==================>                             <================== //
 
@@ -88,6 +96,7 @@ export const provideLang = Component => {
 
     componentWillUnmount() {
       this.changeLang = null
+      this.setState({ user: '', lang: '' })
     }
 
     // ==================>                             <================== //
@@ -95,13 +104,20 @@ export const provideLang = Component => {
     // ==================>                             <================== //
 
     render() {
+      // Get variables from state & props
+      const { user, lang } = this.state;
+      const { authUser } = this.props;
+      // console.log('=====> authUser', authUser)
+      // console.log('=====> user', user)
+      // console.log('=====> lang', lang)
+
       return (
         <LangContext.Provider value={this.state.lang}>
           <ChangeLangContext.Provider value={this.changeLang}>
             <UserContext.Provider value={this.state.user}>
-              {this.state.lang
+              {!!authUser && !!lang && !!user
                 ? <Component {...this.props} />
-                : this.props.authUser
+                : !!authUser && (!lang || !user)
                   ? <Loader />
                   : <Component {...this.props} />
               }
@@ -116,7 +132,7 @@ export const provideLang = Component => {
   //                          Apply authUser
   // ==================>                             <================== //
 
-  return withUser(ProvideLang)
+  return withAuth(ProvideLang)
 };
 
 /* ------------------------------------------------------------------- */
@@ -133,17 +149,17 @@ export const withLang = Component => props => (
 /*               Provide changeLang handler to Component
 /* ------------------------------------------------------------------- */
 
-export const changeLang = Component => props => (
+export const withChangeLang = Component => props => (
   <ChangeLangContext.Consumer>
     {changeLang => <Component {...props} changeLang={changeLang} />}
   </ChangeLangContext.Consumer>
 );
 
 /* ------------------------------------------------------------------- */
-/*                    Provide User Profile to Component
+/*                  Provide User Profile to Component
 /* ------------------------------------------------------------------- */
 
-export const withUserProfile = Component => props => (
+export const withUser = Component => props => (
   <UserContext.Consumer>
     {profile => <Component {...props} userProfile={profile} />}
   </UserContext.Consumer>

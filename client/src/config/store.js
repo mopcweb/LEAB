@@ -9,7 +9,7 @@ import { withRouter } from 'react-router-dom';
 import * as routes from './routes';
 
 /* ------------------------------------------------------------------- */
-/*                             Firebase
+/*                            Firebase
 /* ------------------------------------------------------------------- */
 
 // =====> Firebase Context
@@ -29,9 +29,12 @@ export const withFirebase = Component => props => (
 // =====> AuthUser Context
 export const AuthContext = createContext(null);
 
-// =====> AuthUser HOC
-export const withAuth = Component => {
-  class WithAuth extends React.Component {
+/* ------------------------------------------------------------------- */
+/*                        provideAuth HOC
+/* ------------------------------------------------------------------- */
+
+export const provideAuth = Component => {
+  class Auth extends React.Component {
     constructor(props) {
       super(props);
 
@@ -47,31 +50,34 @@ export const withAuth = Component => {
 
     componentDidMount() {
       this.listener = this.props.firebase.auth.onAuthStateChanged(
-        authUser => {
-          authUser
-            ? this.handleUserLoggedIn(authUser)
-            : this.handleUserLoggedOut()
-      });
+        async authUser => authUser
+          ? await this.handleUserLoggedIn(authUser)
+          : this.handleUserLoggedOut() );
     }
 
     // ==================>                             <================== //
     //   If user logged in -> change state & store user into localStorage
     // ==================>                             <================== //
 
-    handleUserLoggedIn = (authUser) => {
-      // Save current user
-      this.setState({ authUser });
-
+    handleUserLoggedIn = async authUser => {
       // Save current user lo localStorage
       window.localStorage.setItem('token', JSON.stringify(authUser));
+
+      const { uid, email } = authUser;
+
+      // Send token to server
+      await this.props.firebase.doGetIdToken(uid, email);
+
+      // Save current user
+      this.setState({ authUser });
 
       // Receive router props
       const { location, history } = this.props;
 
       // If user logged in -> redirect from Login, Register & Reset pwd pages
-      if (location.pathname === routes.LOGIN) history.push(routes.DASHBOARD)
-      if (location.pathname === routes.REGISTER) history.push(routes.DASHBOARD)
-      if (location.pathname === routes.RESET_PWD) history.push(routes.DASHBOARD)
+      const unProtected = [ routes.LOGIN, routes.REGISTER, routes.RESET_PWD ];
+
+      if(unProtected.find(item => item === location.pathname)) history.push(routes.DASHBOARD);
     }
 
     // ==================>                             <================== //
@@ -85,8 +91,15 @@ export const withAuth = Component => {
       // Clear localStorage
       window.localStorage.clear();
 
-      // Redirect to Home page
-      this.props.history.push(routes.HOME);
+      // Receive router props
+      const { location, history } = this.props;
+
+      const protectedR = [
+        routes.DASHBOARD, routes.PROFILE,routes.MENU, routes.MENU_ITEM, routes.DISHES, routes.DISH, routes.PRODUCTS, routes.PRODUCT
+      ];
+
+      // Redirect to Login page if unsigned
+      if (protectedR.find(item => item === location.pathname)) history.push(routes.LOGIN)
     }
 
     // ==================>                             <================== //
@@ -104,9 +117,7 @@ export const withAuth = Component => {
     render() {
       return (
         <AuthContext.Provider value={this.state.authUser}>
-          <AuthContext.Consumer>
-            {authUser => <Component {...this.props} authUser={authUser} />}
-          </AuthContext.Consumer>
+            <Component {...this.props} authUser={this.state.authUser} />
         </AuthContext.Provider>
       );
     }
@@ -116,20 +127,19 @@ export const withAuth = Component => {
   //                    Apply Firebase & Router props
   // ==================>                             <================== //
 
-  return withRouter(withFirebase(WithAuth));
+  return withRouter(withFirebase(Auth));
 };
 
 /* ------------------------------------------------------------------- */
-/*                              withUser
+/*                        Provide authUser HOC
 /* ------------------------------------------------------------------- */
 
 // =====> currentUser HOC
-export const withUser = Component => props => (
+export const withAuth = Component => props => (
   <AuthContext.Consumer>
     {authUser => <Component {...props} authUser={authUser} />}
   </AuthContext.Consumer>
 );
-
 
 
 

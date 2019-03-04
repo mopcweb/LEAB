@@ -19,10 +19,10 @@ import * as api from '../../config/api';
 import { globalC } from '../../config/constants';
 
 // =====> Store
-import { withFirebase, withUser } from '../../config/store';
+import { withFirebase, withAuth } from '../../config/store';
 
 // =====> Lang
-import { withLang, changeLang } from '../../config/lang';
+import { withLang, withChangeLang } from '../../config/lang';
 
 /* ------------------------------------------------------------------- */
 /*                            My Components
@@ -113,8 +113,6 @@ class Profile extends Component {
     this.setState({[state]: e.target.value});
 
     if (state === 'username') this.setState({[state]: capitalize(e.target.value)});
-
-    // if (state === 'lang') this.props.changeLang();
   }
 
   // ==================>                             <================== //
@@ -462,4 +460,4 @@ class Form extends Component {
 /* ------------------------------------------------------------------- */
 
 // =====> Call Form with FbContext & Router & Lang
-export default withFirebase(withUser(withLang(changeLang(Profile))));
+export default withFirebase(withAuth(withLang(withChangeLang(Profile))));

@@ -138,25 +138,25 @@ router.put('/:title', (req, res) => {
 /*                               DELETE
 /* ------------------------------------------------------------------- */
 
-router.delete('/:id', (req, res) => {
-  // Receive param
-  const { id } = req.params;
-
-  // Get url & method for error response
-  const { originalUrl, method } = req;
-
-  // Delete user(s)
-  LangModel
-    .deleteMany(
-      id === 'all'
-      ? {}
-      : {_id: id}
-    )
-    .then(lang => lang.deletedCount !== 0
-      ? successRes(res, successCode, deleteSuccessMsg, originalUrl, method)
-      : errorRes(res, badReqCode, deleteErrorMsg, originalUrl, method))
-    .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
-});
+// router.delete('/:id', (req, res) => {
+//   // Receive param
+//   const { id } = req.params;
+//
+//   // Get url & method for error response
+//   const { originalUrl, method } = req;
+//
+//   // Delete user(s)
+//   LangModel
+//     .deleteMany(
+//       id === 'all'
+//       ? {}
+//       : {_id: id}
+//     )
+//     .then(lang => lang.deletedCount !== 0
+//       ? successRes(res, successCode, deleteSuccessMsg, originalUrl, method)
+//       : errorRes(res, badReqCode, deleteErrorMsg, originalUrl, method))
+//     .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
+// });
 
 /* ------------------------------------------------------------------- */
 /*                               Export

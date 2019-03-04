@@ -15,7 +15,7 @@ import './index.sass';
 import * as routes from '../../../config/routes';
 
 // =====> withLang
-import { withLang, withUserProfile } from '../../../config/lang';
+import { withLang, withUser } from '../../../config/lang';
 
 /* ------------------------------------------------------------------- */
 /*                              Firebase
@@ -256,6 +256,6 @@ class Copy extends Component {
 /*                               Export
 /* ------------------------------------------------------------------- */
 
-export default withUserProfile(withLang(Nav));
+export default withUser(withLang(Nav));
 
 //

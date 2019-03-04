@@ -19,19 +19,3 @@ export const makeURL = data => {
 export const replaceSigns = (data) => {
   return data.replace(/-/gi, ' ').trim()
 };
-
-export const fetchData = (url, filename, storeTo) => {
-  fetch(url, {headers: {'data': filename}})
-    .then(res => res.json())
-    .then(data => data)
-    .catch(err => console.log(err))
-};
-
-// Standart fetch + error handling + custom json() parsing of response
-export const request = (url, options?) => {
-  return fetch(url, options)
-    .then(res => {
-      if (res.ok) return res.json()
-      throw Error(res.status);
-    })
-};

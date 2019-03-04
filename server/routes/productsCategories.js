@@ -1,11 +1,15 @@
 const express = require('express');
+const mongoose = require('mongoose');
 
 /* ------------------------------------------------------------------- */
 /*                               Config
 /* ------------------------------------------------------------------- */
 
-// =====> Import model for Category
-const CategoryModel = require('../models/Category');
+// =====> Import schema for Category
+const CategorySchema = require('../models/CategorySchema');
+
+// =====> Create model for products categories
+const CategoryModel = mongoose.model('productsCategories', CategorySchema);
 
 // =====> Define router
 const router = express.Router();
@@ -17,8 +21,11 @@ const router = express.Router();
 const { errorRes, successRes } = require('../constants');
 
 const {
-  existCode, badReqCode, successCode, existMsg, updateSuccessMsg,
-  updateErrorMsg, deleteSuccessMsg, deleteErrorMsg
+  existCode, badReqCode, successCode
+} = require('../constants').statusCodes;
+
+const {
+  existMsg, updateSuccessMsg, updateErrorMsg, deleteSuccessMsg, deleteErrorMsg
 } = require('../constants').categories;
 
 /* ------------------------------------------------------------------- */

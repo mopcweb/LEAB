@@ -29,8 +29,8 @@ import { register } from '../../config/constants';
 // =====> Provide Firebase
 import { withFirebase } from '../../config/store';
 
-// =====> Provide changeLang
-import { changeLang } from '../../config/lang';
+// =====> Provide withChangeLang
+import { withChangeLang } from '../../config/lang';
 
 /* ------------------------------------------------------------------- */
 /*                              My components
@@ -175,7 +175,8 @@ class Form extends Component {
     };
 
     // I have to do it before calling Firebase API
-    // Because when API called, we'll be redirected out of Register
+    // Because when API called, we'll be redirected out of Register as in store.js
+    // there is a redirect condition if authUser
     // BUT this.setState would be called after that -> error & memory leak
     // Set state to initial empty value
     this.setState({
@@ -183,33 +184,34 @@ class Form extends Component {
     });
 
     // Firebase API for creating new User
-    const user = await this.props.firebase
+    await this.props.firebase
       .doCreateUserWithEmailAndPassword(email, password)
-      .then(res => res)
+      .then(async user => {
+        console.log('=====> New user', user)
+
+        await axios
+          .post(api.USERS, {
+            username, email,
+            img: register.defaultImg,
+            standart: register.defaultStandart,
+            big: register.defaultBig,
+            lang: register.lang
+          })
+          .catch(err => {
+            console.log('=====> Error in Register POST', err)
+            new Error(err)
+          });
+
+        // Request default lang for this user
+        this.props.changeLang();
+
+        // Redirect to dashboard
+        this.props.history.push(routes.DASHBOARD);
+      })
       .catch(err => {
         clearTimeout(this.timer);
         this.timer = this.showAlert(err.message, 'error');
       });
-
-    // If there is error -> don't save user data into db
-    if (!user) return;
-
-    // Send data to the db
-    axios
-      .post(api.USERS, {
-        username, email,
-        img: register.defaultImg,
-        standart: register.defaultStandart,
-        big: register.defaultBig,
-        lang: register.lang
-      })
-      .catch(err => console.log('=====> Error', err));
-
-    // Request default lang for this user
-    this.props.changeLang();
-
-    // Redirect to dashboard
-    this.props.history.push(routes.DASHBOARD);
   }
 
   // ==================>                             <================== //
@@ -281,7 +283,7 @@ class Form extends Component {
 };
 
 // =====> Call Form with FbContext & Router & changeLang func
-const SignUp = withRouter(withFirebase(changeLang(Form)));
+const SignUp = withRouter(withFirebase(withChangeLang(Form)));
 
 /* ------------------------------------------------------------------- */
 /*                               Input

@@ -12,13 +12,12 @@ const router = express.Router();
 /*                             Constants
 /* ------------------------------------------------------------------- */
 
-// =====> Import constants
-const { response } = require('../constants').error;
-
 // =====> Constants
 const { errorRes } = require('../constants');
 
-const { errorMsg, notFoundCode } = require('../constants').error;
+const { errorMsg } = require('../constants').error;
+
+const { notFoundCode } = require('../constants').statusCodes;
 
 /* ------------------------------------------------------------------- */
 /*                             Middlewares

@@ -17,9 +17,12 @@ const router = express.Router();
 const { errorRes, successRes } = require('../constants');
 
 const {
-  existMsg, existCode, badReqCode, successCode,
-  updateSuccessMsg, updateErrorMsg, deleteSuccessMsg,
-  deleteErrorMsg, emailNoChangeMsg, forbiddenCode, noEmailMsg
+  existCode, badReqCode, successCode, forbiddenCode
+} = require('../constants').statusCodes;
+
+const {
+  existMsg, updateSuccessMsg, updateErrorMsg, deleteSuccessMsg,
+  deleteErrorMsg, emailNoChangeMsg, noEmailMsg
 } = require('../constants').users;
 
 /* ------------------------------------------------------------------- */
@@ -132,25 +135,25 @@ router.put('/:id', (req, res) => {
 /*                               DELETE
 /* ------------------------------------------------------------------- */
 
-router.delete('/:id', (req, res) => {
-  // Receive param
-  const { id } = req.params;
-
-  // Get url & method for error response
-  const { originalUrl, method } = req;
-
-  // Delete user(s)
-  UserModel
-    .deleteMany(
-      id === 'all'
-      ? {}
-      : {_id: id}
-    )
-    .then(user => user.deletedCount !== 0
-      ? successRes(res, successCode, deleteSuccessMsg, originalUrl, method)
-      : errorRes(res, badReqCode, deleteErrorMsg, originalUrl, method))
-    .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
-});
+// router.delete('/:id', (req, res) => {
+//   // Receive param
+//   const { id } = req.params;
+//
+//   // Get url & method for error response
+//   const { originalUrl, method } = req;
+//
+//   // Delete user(s)
+//   UserModel
+//     .deleteMany(
+//       id === 'all'
+//       ? {}
+//       : {_id: id}
+//     )
+//     .then(user => user.deletedCount !== 0
+//       ? successRes(res, successCode, deleteSuccessMsg, originalUrl, method)
+//       : errorRes(res, badReqCode, deleteErrorMsg, originalUrl, method))
+//     .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
+// });
 
 /* ------------------------------------------------------------------- */
 /*                               Export

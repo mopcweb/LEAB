@@ -1,9 +1,14 @@
 import app from 'firebase/app';
 import 'firebase/auth';
 
+import axios from 'axios';
+
 /* ------------------------------------------------------------------- */
 /*                              Config
 /* ------------------------------------------------------------------- */
+
+// =====> API
+// import * as api from './api';
 
 // const devConfig = {
 //   apiKey: process.env.REACT_APP_DEV_API_KEY,
@@ -49,18 +54,38 @@ export default class Firebase {
   //                             Auth API
   // ==================>                             <================== //
 
+  // =====> Create account
   doCreateUserWithEmailAndPassword = (email, password) =>
     this.auth.createUserWithEmailAndPassword(email, password)
 
+  // =====> Sign in
   doSignInWithEmailAndPassword = (email, password) =>
     this.auth.signInWithEmailAndPassword(email, password)
 
+  // =====> Sign Out
   doSignOut = () => this.auth.signOut()
 
+  // =====> Reset Pwd
   doPasswordReset = email => this.auth.sendPasswordResetEmail(email)
 
+  // =====> Update Pwd
   doPasswordUpdate = password =>
     this.auth.currentUser.updatePassword(password)
+
+  // =====> Send token
+  doGetIdToken = (uid, email) =>
+    this.auth.currentUser.getIdToken(true)
+      // .then(token => axios
+      //   .post(api.AUTH, { uid }, { headers: { token } })
+      //   .then(res => res)
+      //   .catch(err => new Error(err)))
+      .then(token => {
+        // Provide headers to axios
+        axios.defaults.headers.common['token'] = token;
+        axios.defaults.headers.common['uid'] = uid;
+        axios.defaults.headers.common['userid'] = email;
+      })
+      .catch(err => console.log('=====> Error sending token', err))
 };
 
 

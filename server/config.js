@@ -1,16 +1,21 @@
+// =====> Use .env file
+require('dotenv').config();
+
 /* ------------------------------------------------------------------- */
 /*                              MongoDb
 /* ------------------------------------------------------------------- */
 
-const {user, pwd, host, port, db} = {
-  user: 'admin',
-  pwd: 'qaz12345',
-  host: 'localhost',
-  port: '27017',
-  db: 'leab'
+const {user, pwd, host, port, db, authSource} = {
+  user: process.env.MONGO_USER,
+  pwd: process.env.MONGO_PWD,
+  host: process.env.MONGO_HOST,
+  port: process.env.MONGO_PORT,
+  db: process.env.MONGO_DB,
+  authSource: process.env.MONGO_AUTH_SOURCE
 };
 
-const MongoURI = `mongodb://${user}:${pwd}@${host}${port ? `:${port}` : ''}/${db}`;
+// =====> Build mongoURI
+const MongoURI = `mongodb://${user}:${pwd}@${host}${port ? `:${port}` : ''}/${db}?authSource=${authSource}`;
 
 /* ------------------------------------------------------------------- */
 /*                               Routes
@@ -30,7 +35,9 @@ const routes = {
   DISHES: api + '/dishes',
   DISHES_CATEGORIES: api + '/dishesCategories',
   PRODUCTS: api + '/products',
-  PRODUCTS_CATEGORIES: api + '/productsCategories'
+  PRODUCTS_CATEGORIES: api + '/productsCategories',
+
+  AUTH: api + '/auth',
 };
 
 /* ------------------------------------------------------------------- */
@@ -50,11 +57,15 @@ const config = {
   // =====> Mongo options
   MongoOpts: {
     useNewUrlParser: true,
-    useFindAndModify: false
+    useFindAndModify: false,
+    keepAlive: 1,
+    connectTimeoutMS: 30000,
+    reconnectTries: 30,
+    reconnectInterval: 5000
   },
 
   // =====> Port
-  port: 3001,
+  port: process.env.PORT,
 
   // =====> BodyParser options
   bp: {
@@ -67,7 +78,10 @@ const config = {
     }
   },
 
-}
+  // =====> Firebase Admin SDK
+  databaseURL: process.env.FB_DATABASE_URL
+
+};
 
 /* ------------------------------------------------------------------- */
 /*                              Export

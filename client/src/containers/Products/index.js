@@ -15,9 +15,6 @@ import './index.sass';
 // =====> Api
 import * as api from '../../config/api';
 
-// =====> Store
-import { withUser } from '../../config/store';
-
 // =====> Lang
 import { withLang } from '../../config/lang';
 
@@ -404,7 +401,8 @@ class Products extends Component {
 /*                   Provide authUser prop & Export
 /* ------------------------------------------------------------------- */
 
-export default (withUser(withLang(Products)))
+// export default (withUser(withLang(Products)))
+export default withLang(Products)
 
 
 //

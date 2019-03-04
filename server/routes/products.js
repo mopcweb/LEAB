@@ -17,8 +17,11 @@ const router = express.Router();
 const { errorRes, successRes } = require('../constants');
 
 const {
-  existCode, badReqCode, successCode, existMsg, updateSuccessMsg,
-  updateErrorMsg, deleteSuccessMsg, deleteErrorMsg
+  existCode, badReqCode, successCode
+} = require('../constants').statusCodes;
+
+const {
+  existMsg, updateSuccessMsg, updateErrorMsg, deleteSuccessMsg, deleteErrorMsg
 } = require('../constants').products;
 
 /* ------------------------------------------------------------------- */

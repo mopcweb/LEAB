@@ -30,24 +30,21 @@ const general = {
   // =====> No userId provided error
   noUserIdMsg: 'There were no userId provided',
 
-  // =====> 400: Bad Request
-  badReqCode: statusCodes.badReqCode,
+  // ======> No/invalid token or uid provided
+  invalidTokenMsg: 'Invalid token provided',
 };
 
 /* ------------------------------------------------------------------- */
-/*                              Error
+/*                               Error
 /* ------------------------------------------------------------------- */
 
 const error = {
   // =====> No userId provided error
   errorMsg: 'No such api provided via web-server',
-
-  // =====> 400: Bad Request
-  notFoundCode: statusCodes.notFoundCode,
 };
 
 /* ------------------------------------------------------------------- */
-/*                              Users
+/*                               Users
 /* ------------------------------------------------------------------- */
 
 const users = {
@@ -66,23 +63,11 @@ const users = {
   // =====> No email provided error
   noEmailMsg: 'There were no email provided',
 
-  // =====> 400: Bad Request
-  badReqCode: statusCodes.badReqCode,
-
   // =====> Exist response
   existMsg: 'There is already exists a user with email:',
 
-  // =====> 409: Conflict
-  existCode: statusCodes.conflictCode,
-
-  // =====> 200: OK
-  successCode: statusCodes.successCode,
-
   // =====> Error -> can't change email
   emailNoChangeMsg: 'It is not allowed to change email property',
-
-  // =====> 403: Forbidden
-  forbiddenCode: statusCodes.forbiddenCode,
 };
 
 /* ------------------------------------------------------------------- */
@@ -130,17 +115,8 @@ const products = {
   // =====> Delete error
   deleteErrorMsg: 'Error occured while deleting',
 
-  // =====> 400: Bad Request
-  badReqCode: statusCodes.badReqCode,
-
   // =====> Exist response
   existMsg: 'There is already exists a product with title:',
-
-  // =====> 409: Conflict
-  existCode: statusCodes.conflictCode,
-
-  // =====> 200: OK
-  successCode: statusCodes.successCode,
 };
 
 /* ------------------------------------------------------------------- */
@@ -160,17 +136,8 @@ const categories = {
   // =====> Delete error
   deleteErrorMsg: 'Error occured while deleting',
 
-  // =====> 400: Bad Request
-  badReqCode: statusCodes.badReqCode,
-
   // =====> Exist response
   existMsg: 'There is already exists a category with title:',
-
-  // =====> 409: Conflict
-  existCode: statusCodes.conflictCode,
-
-  // =====> 200: OK
-  successCode: statusCodes.successCode,
 };
 
 /* ------------------------------------------------------------------- */
@@ -180,13 +147,19 @@ const categories = {
 // =====> Success response
 const successRes = (res, status, result, url, method) => {
   console.log({ status, statusText: 'Success', url, method, result });
-  return res.status(status).send({ status, statusText: 'Success', url, method, result });
+
+  return res
+    .status(status)
+    .send({ status, statusText: 'Success', url, method, result });
 };
 
 // =====> Error response
 const errorRes = (res, status, result, url, method) => {
   console.error({ status, statusText: 'Error', url, method, result });
-  return res.status(status).send({ status, statusText: 'Error', url, method, result });
+
+  return res
+    .status(status)
+    .send({ status, statusText: 'Error', url, method, result });
 };
 
 /* ------------------------------------------------------------------- */

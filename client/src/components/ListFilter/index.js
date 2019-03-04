@@ -201,7 +201,7 @@ class Categories extends Component {
 
 class Category extends Component {
   render() {
-    const { clicked, value, filter, lang } = this.props;
+    const { clicked, value, filter } = this.props;
 
     const filteredCat = clicked.toLowerCase() === filter.toLowerCase();
 

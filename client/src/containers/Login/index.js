@@ -140,11 +140,16 @@ class Form extends Component {
     // Prevent default page reload
     e.preventDefault();
 
+    // Get necessary variables from state
     const { email, password } = this.state;
 
-    this.props.firebase
+    // Get necessary variables from props
+    const { firebase, history } = this.props;
+
+    firebase
       .doSignInWithEmailAndPassword(email, password)
-      .then(authUser => {
+      .then(async authUser => {
+
         // Set to default empty value
         this.setState({
           email: '',
@@ -152,7 +157,7 @@ class Form extends Component {
         });
 
         // Redirect to dashboard
-        this.props.history.push(routes.DASHBOARD);
+        history.push(routes.DASHBOARD);
       })
       .catch(err => {
         clearTimeout(this.timer);
