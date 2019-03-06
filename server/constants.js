@@ -20,6 +20,21 @@ const statusCodes = {
 
   // =====> 409: Conflict (Use for Already exist only)
   conflictCode: 409,
+
+  // =====> 500: Internal Server Error
+  internalServerErrorCode: 500,
+
+  // =====> 502: Bad Gateway
+  badGatewayCode: 502,
+};
+
+/* ------------------------------------------------------------------- */
+/*                        Mongo Connection Error
+/* ------------------------------------------------------------------- */
+
+const mongo = {
+  // =====> Connection to MongoDB Error
+  connectionErrMsg: 'Database connection error. Please try again later',
 };
 
 /* ------------------------------------------------------------------- */
@@ -170,6 +185,7 @@ const constants = {
   statusCodes,
   errorRes,
   successRes,
+  mongo,
   general,
   error,
   users,

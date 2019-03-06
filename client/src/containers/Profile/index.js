@@ -31,7 +31,7 @@ import { withLang, withChangeLang } from '../../config/lang';
 import { Wrapper } from '../../components/Main';
 import { Inputs, Select, Submit } from '../../components/FormElems';
 import { capitalize } from '../../components/UsefulF';
-import Alert, { showAlert } from '../../components/Alert';
+import withAlert from '../../components/Alert';
 
 /* ------------------------------------------------------------------- */
 /*                               Profile
@@ -60,16 +60,8 @@ class Profile extends Component {
       langs: this.props.lang ? this.props.lang.constants.global.langs : '',
       lang: 'en',
       standart: '',
-      big: '',
-      alert: {
-        show: false,
-        value: '',
-        status: '',
-      }
+      big: ''
     };
-
-    // =====> Bind all methods
-    this.showAlert = showAlert.bind(this);
 
     // =====> Config for inputs of config section
     // {
@@ -116,20 +108,6 @@ class Profile extends Component {
   }
 
   // ==================>                             <================== //
-  //             Handle close alert by clicking on its cross
-  // ==================>                             <================== //
-
-  handleAlertClose = (e) => {
-    clearTimeout(this.timer);
-
-    this.setState({ alert: {
-      show: false,
-      value: '',
-      status: ''
-    }});
-  }
-
-  // ==================>                             <================== //
   //                        Handle submit btn
   // ==================>                             <================== //
 
@@ -141,7 +119,7 @@ class Profile extends Component {
     const { password } = this.state;
 
     // Get language profile config
-    const profile = this.props.lang ? this.props.lang.constants.profile : '';
+    const profile = this.props.lang.constants.profile;
 
     // Call Firebase Api -> Update pwd
     this.props.firebase
@@ -151,14 +129,9 @@ class Profile extends Component {
         this.setState({password: '', confirmPassword: ''})
 
         // And show success msg
-        clearTimeout(this.timer);
-        this.timer = this.showAlert(profile.pwdUpdateMsg, 'success');
+        return this.props.showAlert(profile.pwdUpdateMsg, 'success');
       })
-      .catch(err => {
-        // Show error msg
-        clearTimeout(this.timer);
-        this.timer = this.showAlert(err.message, 'error');
-      });
+      .catch(err => this.props.showAlert(err.message, 'error'));
   }
 
   // ==================>                             <================== //
@@ -170,19 +143,15 @@ class Profile extends Component {
     const file = e.target.files[0];
 
     // Get language global config
-    const globalL = this.props.lang ? this.props.lang.constants.global : '';
+    const { global } = this.props.lang.constants;
 
     // Show error alert if file type is not image
-    if (file && file.type.indexOf('image') === -1) {
-      clearTimeout(this.timer);
-      return this.timer = this.showAlert(globalL.onlyImgsMsg, 'error');
-    };
+    if (file && file.type.indexOf('image') === -1)
+    return this.props.showAlert(global.onlyImgsMsg, 'error');
 
     // Show error alert if jile size more than global.fileSize
-    if (file && file.size > globalL.fileSize) {
-      clearTimeout(this.timer);
-      return this.timer = this.showAlert(globalL.fileTooBigMsg, 'error');
-    };
+    if (file && file.size > global.fileSize)
+    return this.props.showAlert(global.fileTooBigMsg, 'error');
 
     // New reader
     const reader = new FileReader();
@@ -209,10 +178,7 @@ class Profile extends Component {
     const { profile } = this.props.lang.constants;
 
     // Stop running & show error message if there is no text
-    if (!username) {
-      clearTimeout(this.timer);
-      return this.timer = this.showAlert(profile.emptyUsernameMsg, 'error');
-    };
+    if (!username) return this.props.showAlert(profile.emptyUsernameMsg, 'error');
 
     // Send data into db
     axios
@@ -221,12 +187,12 @@ class Profile extends Component {
        })
       .then(res => {
         // Show success message
-        clearTimeout(this.timer);
-        this.timer = this.showAlert(profile.profileUpMsg, 'success');
+        this.props.showAlert(profile.profileUpMsg, 'success');
 
+        // Update lang
         this.props.changeLang();
       })
-      .catch(err => console.log('=====> Error', err));
+      .catch(err => err);
   }
 
   // ==================>                             <================== //
@@ -248,7 +214,7 @@ class Profile extends Component {
     axios
       .get(api.USERS + '/' + email)
       .then(res => this.updateUser(res.data))
-      .catch(err => console.log('=====> Error', err));
+      .catch(err => err);
   }
 
   // ==================>                             <================== //
@@ -266,14 +232,6 @@ class Profile extends Component {
   }
 
   // ==================>                             <================== //
-  //                  Lifecycle hook (just before destroy)
-  // ==================>                             <================== //
-
-  componentWillUnmount() {
-    clearTimeout(this.timer);
-  }
-
-  // ==================>                             <================== //
   //                               Render
   // ==================>                             <================== //
 
@@ -281,7 +239,7 @@ class Profile extends Component {
     // Receive state variables
     const {
       username, user, password, confirmPassword, currency, currencies,
-      img, standart, big, ccal, proteins, fats, carbs, alert, lang, langs
+      img, standart, big, ccal, proteins, fats, carbs, lang, langs
     } = this.state;
 
     // Get language into variable
@@ -364,9 +322,6 @@ class Profile extends Component {
           </Form>
         </Wrapper>
 
-        <Alert value={alert.value} status={alert.status} show={alert.show}
-          onClick={this.handleAlertClose}
-        />
       </Fragment>
     )
   };
@@ -460,4 +415,4 @@ class Form extends Component {
 /* ------------------------------------------------------------------- */
 
 // =====> Call Form with FbContext & Router & Lang
-export default withFirebase(withAuth(withLang(withChangeLang(Profile))));
+export default withAlert(withFirebase(withAuth(withLang(withChangeLang(Profile)))));

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Fragment, createContext } from 'react';
 
 /* ------------------------------------------------------------------- */
 /*                              Styles
@@ -7,36 +7,110 @@ import React, { Component } from 'react';
 import './index.sass';
 
 /* ------------------------------------------------------------------- */
-/*                              Alert component
+/*                            Alert HOC
 /* ------------------------------------------------------------------- */
 
-export default class Alert extends Component {
-  render() {
-    return (
-      this.props.show
-        ? <div className={`Message Message_${this.props.status}`}>
-            <span className='Message-Close' onClick={this.props.onClick}></span>
-            {this.props.value}
-          </div>
-        : null
-    )
+// =====> Alert Contexts
+const ShowAlertContext = createContext(null);
+const CloseAlertContext = createContext(null);
+
+// =====> Provide Alert component with encapsulated methods
+export const provideAlert = Component => {
+  class Alert extends React.Component {
+    constructor(props) {
+      super(props);
+
+      // =====> State
+      this.state = {
+        alert: {
+          show: false,
+          value: '',
+          status: ''
+        },
+        important: false
+      };
+    }
+
+    // ==================>                             <================== //
+    //                             Show Alert
+    // ==================>                             <================== //
+
+    showAlert = (value, status, time?, important?) => {
+      // If now showing important alert -> stop
+      if (this.state.important) return;
+
+      // Clear prev timer if it is
+      clearTimeout(this.timer);
+
+      // Update state
+      this.setState({alert: { show: true, value, status }, important});
+
+      // Hide error alert in 5 seconds
+      return this.timer = setTimeout(this.closeAlert, time ? time : 5000);
+    }
+
+    // ==================>                             <================== //
+    //                             Close Alert
+    // ==================>                             <================== //
+
+    closeAlert = () => {
+      // Clear timer
+      clearTimeout(this.timer)
+
+      // Updare state
+      this.setState({alert: { show: false, value: '', status: '' }, important: false})
+    }
+
+    // ==================>                             <================== //
+    //                  Lifecycle hook (just before destroy)
+    // ==================>                             <================== //
+
+    componentWillUnmount() {
+      clearTimeout(this.timer);
+    }
+
+    // ==================>                             <================== //
+    //                               Render
+    // ==================>                             <================== //
+
+    render() {
+      return (
+        <ShowAlertContext.Provider value={this.showAlert}>
+          <CloseAlertContext.Provider value={this.closeAlert}>
+            <Fragment>
+              <Component {...this.props} />
+              {this.state.alert.show
+                ? <div className={`Message Message_${this.state.alert.status}`}>
+                    <span className='Message-Close' onClick={this.closeAlert}></span>
+                    {this.state.alert.value}
+                  </div>
+                : null}
+            </Fragment>
+          </CloseAlertContext.Provider>
+        </ShowAlertContext.Provider>
+      )
+    };
   };
+
+  // ==================>                             <================== //
+  //                      Return modified component
+  // ==================>                             <================== //
+
+  return Alert;
 };
 
-// Show alert with props. Declared as es5 function to prevent lose of context. YOU should bind(this) in components constructor before usage
-export function showAlert(value, status, time?) {
-  this.setState({alert: {
-    show: true,
-    value,
-    status
-  }});
+// =====> provide Show & Close Methods of Alert Component
+const withAlert = Component => props => (
+  <ShowAlertContext.Consumer>
+    {showAlert => (
+      <CloseAlertContext.Consumer>
+        {closeAlert => <Component {...props} showAlert={showAlert} closeAlert={closeAlert} />}
+      </CloseAlertContext.Consumer>
+    )}
+  </ShowAlertContext.Consumer>
+);
 
-  // Hide error alert in 5 seconds
-  return setTimeout(() => {
-    this.setState({alert: {
-      show: false,
-      value: '',
-      status: ''
-    }})
-  }, time ? time : 5000);
-};
+export default withAlert;
+
+
+//

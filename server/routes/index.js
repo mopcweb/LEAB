@@ -27,18 +27,28 @@ const router = express.Router();
 /*                             Constants
 /* ------------------------------------------------------------------- */
 
-const { errorRes } = require('../constants');
+const { errorRes, statusCodes, mongo } = require('../constants');
 
 const { noUserIdMsg } = require('../constants').general;
-
-const { badReqCode } = require('../constants').statusCodes;
 
 /* ------------------------------------------------------------------- */
 /*                               MongoDb
 /* ------------------------------------------------------------------- */
 
 // =====> Connect MongoDb
-mongoose.connect(MongoURI, MongoOpts);
+// mongoose.connect(MongoURI, MongoOpts);
+
+// =====> Connect MongoDB
+router.use('/', (req, res, next) => {
+  // If connection already open -> proceed next()
+  if (mongoose.connection.readyState !== 0) return next();
+
+  // Connect to MongoDb and proceed further
+  // If connection error -> send response
+  mongoose.connect(MongoURI, MongoOpts)
+    .then(next())
+    .catch(err => errorRes(res, statusCodes.badGatewayCode, mongo.connectionErrMsg, req.originalUrl, req.method));
+});
 
 /* ------------------------------------------------------------------- */
 /*                             Middleware

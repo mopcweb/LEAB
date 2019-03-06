@@ -2,7 +2,16 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { Route, BrowserRouter as Router, Switch, Redirect } from 'react-router-dom';
 
+/* ------------------------------------------------------------------- */
+/*                           Service Worker
+/* ------------------------------------------------------------------- */
+
 import * as serviceWorker from './serviceWorker';
+
+/* ------------------------------------------------------------------- */
+/*                              Styles
+/* ------------------------------------------------------------------- */
+
 import './index.sass';
 
 /* ------------------------------------------------------------------- */
@@ -12,8 +21,11 @@ import './index.sass';
 // =====> Routes
 import * as routes from './config/routes';
 
+// ======> Axios
+import axios from 'axios';
+
 /* ------------------------------------------------------------------- */
-/*                              Import My Components
+/*                         Import My Components
 /* ------------------------------------------------------------------- */
 
 // =====> Main Container
@@ -21,6 +33,9 @@ import Main from './components/Main';
 
 // =====> Loader
 import Loader from './components/Loader';
+
+// =====> Alert
+import withAlert, { provideAlert } from './components/Alert';
 
 // =====> Unprotected routes
 import Home from './containers/Home';
@@ -79,6 +94,55 @@ class Routes extends Component {
   // ==================>                             <================== //
 
   componentDidMount() {
+    // Interceptor for all axios responses
+    // To define internet and mongo connection
+    axios.interceptors.response.use(
+      res => res,
+      err => {
+        // If network error -> redirect to offline page
+        if (err.response === undefined) {
+          console.log('=====> You are offline <=====');
+
+          // Sign out & redirect
+          this.props.firebase.doSignOut()
+            .then(this.props.history.push(routes.HOME))
+        };
+
+        // If connection Error
+        if (err.response.status === 502) {
+          // Show error
+          this.props.showAlert('Mongo connection error', 'error', null, true)
+
+          // Sign out & redirect
+          this.props.firebase.doSignOut()
+            .then(this.props.history.push(routes.HOME))
+
+          // Define current location (should not be login/register/forgotPwd)
+          // const location = [
+          //   routes.LOGIN, routes.REGISTER, routes.FORGOT_PWD
+          // ].find(item => item === window.location.pathname);
+
+          // if (!location) {
+            // Show error msg
+            // this.alertService.show.call(this, 'alert', 'Mongo connection error', 'error');
+
+            // Log out
+            // setTimeout(this.handleLogOut, 5000);
+          // };
+        };
+
+        // For debug in browser while dev
+        if (err.response !== undefined) {
+          err.response.data
+            ? console.log(err.response.data)
+            : console.log(err.response);
+        }
+
+        // Return promise reject with err
+        return Promise.reject(err);
+      }
+    );
+
     // If authUser already received -> stop loader
     if (!!this.props.authUser) return this.setState({ loader: true })
 
@@ -88,7 +152,7 @@ class Routes extends Component {
   }
 
   // ==================>                             <================== //
-  //                  Lifecycle hook (just before destroy)
+  //                 Lifecycle hook (just before destroy)
   // ==================>                             <================== //
 
   componentWillUnmount() {
@@ -96,7 +160,7 @@ class Routes extends Component {
   }
 
   // ==================>                             <================== //
-  //                              Render
+  //                               Render
   // ==================>                             <================== //
 
   render() {
@@ -156,8 +220,8 @@ class Routes extends Component {
   };
 };
 
-// =====> Provide Auth to Routes component
-Routes = provideAuth(provideLang(Routes));
+// =====> Provide Alert, Auth & Lang to Routes component
+Routes = provideAlert(withAlert(provideAuth(provideLang(Routes))));
 
 /* ------------------------------------------------------------------- */
 /*                             Render App

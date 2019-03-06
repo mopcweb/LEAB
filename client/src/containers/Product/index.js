@@ -30,7 +30,7 @@ import { withLang } from '../../config/lang';
 
 import { Inputs, Input, Select, SubmitLink } from '../../components/FormElems';
 import { Wrapper } from '../../components/Main';
-import Alert, { showAlert } from '../../components/Alert';
+import withAlert from '../../components/Alert';
 import { capitalize, makeURL } from '../../components/UsefulF';
 
 /* ------------------------------------------------------------------- */
@@ -57,15 +57,7 @@ class Product extends Component {
       carbs: '',
       ccal: this.props.lang.constants.product.defaultCalories,
       ccalUnified: '',
-      alert: {
-        show: false,
-        value: '',
-        status: '',
-      }
     };
-
-    // =====> Bind showAlert method
-    this.showAlert = showAlert.bind(this);
   };
 
   // ==================>                             <================== //
@@ -122,13 +114,13 @@ class Product extends Component {
 
     // Get necessary props form lang
     const {
-      requiredFiledsMsg, updateProductMsg, addProductMsg
+      requiredFiledsMsg, updateProductMsg, addProductMsg, defaultAltAmount
     } = this.props.lang.constants.product;
 
     // Create obj with data
     const data = {
       title, link, img, price, ccal, unit, category, ccalUnified,
-      amount: amount ? amount : this.props.lang.constants.product.defaultAltAmount,
+      amount: amount ? amount : defaultAltAmount,
       proteins: proteins ? proteins : 0,
       fats: fats ? fats : 0,
       carbs: carbs ? carbs : 0,
@@ -140,8 +132,7 @@ class Product extends Component {
       e.preventDefault();
 
       // Show error alert
-      clearTimeout(this.timer);
-      return this.timer = this.showAlert(requiredFiledsMsg, 'error');
+      return this.props.showAlert(requiredFiledsMsg, 'error');
     };
 
     await axios({
@@ -149,15 +140,13 @@ class Product extends Component {
         url: `${api.PRODUCTS}${id ? '/' + id : ''}`,
         data
       })
-      .then(res => console.log(`=====> ${id ? 'Updated product' : 'Created product'}`, res))
-      .catch(err => console.log('=====> Error', err))
+      .catch(err => err)
 
     // Request for this new product -> to receive product id
     this.getProduct();
 
     // Show success alert
-    clearTimeout(this.timer);
-    this.timer = this.showAlert(id ? updateProductMsg : addProductMsg, 'success');
+    this.props.showAlert(id ? updateProductMsg : addProductMsg, 'success');
   }
 
   // ==================>                             <================== //
@@ -174,18 +163,16 @@ class Product extends Component {
       e.preventDefault();
 
       // Show eror alert
-      clearTimeout(this.timer);
-      return this.timer = this.showAlert(noSavedDataMsg, 'error');
+      return this.props.showAlert(noSavedDataMsg, 'error');
     };
 
     // Ask if sure
-    if (!window.confirm(confirmMsg)) return e.preventDefault()
+    if (!window.confirm(confirmMsg)) return e.preventDefault();
 
     // Request
     await axios
       .delete(`${api.PRODUCTS}/${this.state.id}`)
-      .then(res => console.log('=====> Deleted', res.data))
-      .catch(err => console.log('=====> Error', err))
+      .catch(err => err)
   }
 
   // ==================>                             <================== //
@@ -200,16 +187,12 @@ class Product extends Component {
     const { global } = this.props.lang.constants;
 
     // Show error alert if file type is not image
-    if (file && file.type.indexOf('image') === -1) {
-      clearTimeout(this.timer);
-      return this.timer = this.showAlert(global.onlyImgsMsg, 'error');
-    };
+    if (file && file.type.indexOf('image') === -1)
+    return this.props.showAlert(global.onlyImgsMsg, 'error');
 
     // Show error alert if jile size more than global.fileSize
-    if (file && file.size > global.fileSize) {
-      clearTimeout(this.timer);
-      return this.timer = this.showAlert(global.fileTooBigMsg, 'error');
-    };
+    if (file && file.size > global.fileSize)
+    return this.props.showAlert(global.fileTooBigMsg, 'error');
 
     // New reader
     const reader = new FileReader();
@@ -222,34 +205,12 @@ class Product extends Component {
   }
 
   // ==================>                             <================== //
-  //            Handle close alert by clicking on its cross
-  // ==================>                             <================== //
-
-  handleAlertClose = (e) => {
-    clearTimeout(this.timer);
-
-    this.setState({ alert: {
-      show: false,
-      value: '',
-      status: ''
-    }});
-  }
-
-  // ==================>                             <================== //
   //                 Lifecycle hook (just before render)
   // ==================>                             <================== //
 
   componentDidMount() {
     this.getCategories();
     this.getProduct();
-  }
-
-  // ==================>                             <================== //
-  //                Lifecycle hook (just before destroy)
-  // ==================>                             <================== //
-
-  componentWillUnmount() {
-    clearTimeout(this.timer);
   }
 
   // ==================>                             <================== //
@@ -266,9 +227,6 @@ class Product extends Component {
         // Default sorting from a -> b
         categories.sort((a, b) => a.title.localeCompare(b.title));
 
-        // Console.log for debug
-        console.log(`=====> Categories`, categories);
-
         // Update State
         this.setState({
           categories,
@@ -277,7 +235,7 @@ class Product extends Component {
             : this.props.lang.constants.product.defaultCategory
         });
       })
-      .catch(err => console.log('=====> Error', err));
+      .catch(err => err);
   }
 
   // ==================>                             <================== //
@@ -298,7 +256,7 @@ class Product extends Component {
     const product = await axios
       .get(`${api.PRODUCTS}/${prodLink}`)
       .then(res => res.data)
-      .catch(err => console.log('=====> Error', err));
+      .catch(err => err);
 
     // Redirect if not found page
     if (!product) {
@@ -306,9 +264,6 @@ class Product extends Component {
       // Else -> redirect to Not Found
       return (prodLink === 'new-item') ? null : history.push(routes.NOT_FOUND)
     };
-
-    // Console log for debug
-    console.log('=====> Product', product)
 
     // Get product variables
     const {
@@ -370,8 +325,6 @@ class Product extends Component {
         </div>
 
         <UsedIn lang={this.props.lang.constants.product} />
-        <Alert value={this.state.alert.value} status={this.state.alert.status}
-        show={this.state.alert.show} onClick={this.handleAlertClose} />
       </Wrapper>
     )
   };
@@ -533,7 +486,7 @@ class UsedItem extends Component {
 /*                   Provide router props & Export
 /* ------------------------------------------------------------------- */
 
-export default withRouter(withLang(Product))
+export default withAlert(withRouter(withLang(Product)))
 
 
 //

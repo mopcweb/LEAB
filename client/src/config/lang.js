@@ -63,13 +63,16 @@ export const provideLang = Component => {
           this.setState({ user: res.data });
           this.lang = res.data.lang;
         })
-        .catch(err => console.log(err.response));
+        .catch(err => err);
+
+      // Stop if there is no lang
+      if (!this.lang) return;
 
       // Get data for this lang
       await axios
         .get(api.LANGS + '/' + this.lang)
         .then(res => this.setState({ lang: res.data }))
-        .catch(err => console.log(err.response));
+        .catch(err => err);
     }
 
     // ==================>                             <================== //
@@ -77,7 +80,7 @@ export const provideLang = Component => {
     // ==================>                             <================== //
 
     componentDidMount() {
-      this.changeLang()
+      this.changeLang();
     }
 
     // ==================>                             <================== //
@@ -86,7 +89,7 @@ export const provideLang = Component => {
 
     componentDidUpdate(prevProps, prevState) {
       if (prevProps.authUser !== this.props.authUser) {
-        this.changeLang()
+        this.changeLang();
       };
     }
 
@@ -95,8 +98,8 @@ export const provideLang = Component => {
     // ==================>                             <================== //
 
     componentWillUnmount() {
-      this.changeLang = null
-      this.setState({ user: '', lang: '' })
+      this.changeLang = null;
+      this.setState({ user: '', lang: '' });
     }
 
     // ==================>                             <================== //
@@ -107,9 +110,6 @@ export const provideLang = Component => {
       // Get variables from state & props
       const { user, lang } = this.state;
       const { authUser } = this.props;
-      // console.log('=====> authUser', authUser)
-      // console.log('=====> user', user)
-      // console.log('=====> lang', lang)
 
       return (
         <LangContext.Provider value={this.state.lang}>

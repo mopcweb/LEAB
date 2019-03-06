@@ -22,7 +22,7 @@ import { withFirebase } from '../../config/store';
 /* ------------------------------------------------------------------- */
 
 import { Wrapper } from '../../components/Main';
-import Alert, { showAlert } from '../../components/Alert';
+import withAlert from '../../components/Alert';
 
 /* ------------------------------------------------------------------- */
 /*                               Login
@@ -100,30 +100,8 @@ class Form extends Component {
     // =====> State
     this.state = {
       email: '',
-      password: '',
-      alert: {
-        show: false,
-        value: '',
-        status: '',
-      }
+      password: ''
     };
-
-    // =====> Bind showAlert method
-    this.showAlert = showAlert.bind(this);
-  }
-
-  // ==================>                             <================== //
-  //                     Handle click on add button
-  // ==================>                             <================== //
-  // =====> Handle close alert by clicking on its cross
-  handleAlertClose = (e) => {
-    clearTimeout(this.timer);
-
-    this.setState({ alert: {
-      show: false,
-      value: '',
-      status: ''
-    }});
   }
 
   // ==================>                             <================== //
@@ -144,11 +122,11 @@ class Form extends Component {
     const { email, password } = this.state;
 
     // Get necessary variables from props
-    const { firebase, history } = this.props;
+    const { firebase, history, showAlert } = this.props;
 
     firebase
       .doSignInWithEmailAndPassword(email, password)
-      .then(async authUser => {
+      .then(authUser => {
 
         // Set to default empty value
         this.setState({
@@ -159,18 +137,7 @@ class Form extends Component {
         // Redirect to dashboard
         history.push(routes.DASHBOARD);
       })
-      .catch(err => {
-        clearTimeout(this.timer);
-        this.timer = this.showAlert(err.message, 'error');
-      });
-  }
-
-  // ==================>                             <================== //
-  //                Lifecycle hook (just before destroy)
-  // ==================>                             <================== //
-
-  componentWillUnmount() {
-    clearTimeout(this.timer);
+      .catch(err => showAlert(err.message, 'error'));
   }
 
   // ==================>                             <================== //
@@ -203,20 +170,13 @@ class Form extends Component {
             Sign in
           </button>
         </form>
-
-        <Alert
-          value={this.state.alert.value}
-          status={this.state.alert.status}
-          show={this.state.alert.show}
-          onClick={this.handleAlertClose}
-        />
       </Fragment>
     )
   };
 };
 
 // =====> Call Form with FbContext & Router
-const SignIn = withRouter(withFirebase(Form));
+const SignIn = withRouter(withAlert(withFirebase(Form)));
 
 /* ------------------------------------------------------------------- */
 /*                               Input

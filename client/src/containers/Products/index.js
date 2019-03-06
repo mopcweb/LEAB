@@ -25,7 +25,7 @@ import { withLang } from '../../config/lang';
 import {Wrapper} from '../../components/Main';
 import List from '../../components/ListFilter';
 import Modal from '../../components/Modal';
-import Alert, { showAlert } from '../../components/Alert';
+import withAlert from '../../components/Alert';
 import ListOfItems from '../../components/ListOfItems';
 import { capitalize } from '../../components/UsefulF';
 
@@ -45,16 +45,8 @@ class Products extends Component {
       catImgTitle: this.props.lang.constants.products.catImgTitle,
       categories: [],
       products: [],
-      alert: {
-        show: false,
-        value: '',
-        status: '',
-      }
     };
-
-    // =====> Bind showAlert method
-    this.showAlert = showAlert.bind(this);
-  };
+  }
 
   // ==================>                             <================== //
   //                  Handle open/close Modal component
@@ -81,30 +73,14 @@ class Products extends Component {
     const { products } = this.props.lang.constants;
 
     // Stop running & show error message if there is no text
-    if (this.state.catTitle === '') {
-      clearTimeout(this.timer);
-      return this.timer = this.showAlert(products.addEmptyCatTitleMsg, 'error');
-    };
+    if (this.state.catTitle === '')
+    return this.props.showAlert(products.addEmptyCatTitleMsg, 'error');
 
     // Save & send new category
     await axios
       .post(api.PRODUCTS_CATEGORIES, { img: catImg, title: capitalize(catTitle) })
-      .then(res => {
-        // Show success message
-        clearTimeout(this.timer);
-        this.timer = this.showAlert(products.addCategoryMsg, 'success');
-
-        // Console.log result of request
-        console.log('=====> New category', res.data)
-      })
-      .catch(err => {
-        // Show error message
-        clearTimeout(this.timer);
-        this.timer = this.showAlert(products.existMsg, 'error');
-
-        // Console.log result of request
-        console.log('=====> Error ', err)
-      });
+      .then(res => this.props.showAlert(products.addCategoryMsg, 'success'))
+      .catch(err => this.props.showAlert(products.existMsg, 'error'));
 
     // Reset input value
     this.setState({ catTitle: '', catImg: '', catImgTitle: products.catImgTitle });
@@ -125,16 +101,12 @@ class Products extends Component {
     const { global } = this.props.lang.constants;
 
     // =====> Error: file type is not image
-    if (file && file.type.indexOf('image') === -1) {
-      clearTimeout(this.timer);
-      return this.timer = this.showAlert(global.onlyImgsMsg, 'error');
-    };
+    if (file && file.type.indexOf('image') === -1)
+    return this.props.showAlert(global.onlyImgsMsg, 'error');
 
     // =====> Error: jile size is more than global.fileSize
-    if (file && file.size > global.fileSize) {
-      clearTimeout(this.timer);
-      return this.timer = this.showAlert(global.fileTooBigMsg, 'error');
-    };
+    if (file && file.size > global.fileSize)
+    return this.props.showAlert(global.fileTooBigMsg, 'error');
 
     // Change label value of file input
     if (file) this.setState({catImgTitle: file.name});
@@ -167,20 +139,18 @@ class Products extends Component {
     const { products } = this.props.lang.constants;
 
     // =====> Ask if sure & stop running if not sure
-    if (!window.confirm(products.confirmMsg)) return
+    if (!window.confirm(products.confirmMsg)) return;
 
     // Check if there any products using this category
     // If they are -> save into array
     this.existProducts = await axios
       .get(api.PRODUCTS, { params: { category: this.title } })
       .then(res => res.data)
-      .catch(err => console.log('=====> Error', err));
+      .catch(err => err);
 
     // =====> Error: Can't rename into empty string
-    if (this.rename.toLowerCase() === 'rename' && this.inputValue === '') {
-      clearTimeout(this.timer);
-      return this.timer = this.showAlert(products.renameEmptyCatTitleMsg, 'error');
-    };
+    if (this.rename.toLowerCase() === 'rename' && this.inputValue === '')
+    return this.props.showAlert(products.renameEmptyCatTitleMsg, 'error');
 
     // If btn value is 'rename' & input Value !== initial title
     // Then -> PUT request to change category title
@@ -189,21 +159,13 @@ class Products extends Component {
     if (await this.handleRenameItem()) return;
 
     // If there are products in category -> decline DELETE
-    if (this.existProducts.length > 0) {
-      clearTimeout(this.timer);
-      return this.timer = this.showAlert(products.notEmptyCategoryMsg, 'error');
-    };
+    if (this.existProducts.length > 0)
+    return this.props.showAlert(products.notEmptyCategoryMsg, 'error');
 
     await axios
       .delete(`${api.PRODUCTS_CATEGORIES}/${this.id}`)
-      .then(res => {
-        // Show success message
-        clearTimeout(this.timer);
-        this.timer = this.showAlert(products.deleteCategoryMsg, 'success');
-
-        console.log('=====> Category deleted', res.data)
-      })
-      .catch(err => console.log('=====> Error', err));
+      .then(res => this.props.showAlert(products.deleteCategoryMsg, 'success'))
+      .catch(err => err);
 
     // Request & update categories
     await this.getCategories();
@@ -222,8 +184,7 @@ class Products extends Component {
         .put(`${api.PRODUCTS_CATEGORIES}/${this.id}`, { title: capitalize(this.inputValue) })
         .then(async res => {
           // Show success message
-          clearTimeout(this.timer);
-          this.timer = this.showAlert(products.updateCategoryMsg, 'success');
+          this.props.showAlert(products.updateCategoryMsg, 'success');
 
           // If there are any matching products
           // Then -> PUT new category title into matching products
@@ -232,8 +193,7 @@ class Products extends Component {
 
               await axios
                 .put(`${api.PRODUCTS}/${item._id}`, { category: capitalize(this.inputValue) })
-                .then(res => console.log('=====> updated product\'s category', res.data))
-                .catch(err => console.log('=====> Error', err));
+                .catch(err => err);
 
             });
           };
@@ -241,18 +201,8 @@ class Products extends Component {
           // Request again updated categories and products
           this.getCategories();
           this.getProducts();
-
-          // Console.log result of request
-          console.log('=====> Updated category', res.data);
         })
-        .catch(err => {
-          // Show error message
-          clearTimeout(this.timer);
-          this.timer = this.showAlert(products.existMsg, 'error');
-
-          // Console.log result of request
-          console.log('=====> Error', err)
-        });
+        .catch(err => this.props.showAlert(products.existMsg, 'error'));
 
       // Return true value -> to stop running DELETE func further
       return true
@@ -269,20 +219,6 @@ class Products extends Component {
   handleCatTitleChange = (e) => this.setState({ catTitle: capitalize(e.target.value) })
 
   // ==================>                             <================== //
-  //            Handle closing alert by clicking on its cross
-  // ==================>                             <================== //
-
-  handleAlertClose = (e) => {
-    clearTimeout(this.timer);
-
-    this.setState({ alert: {
-      show: false,
-      value: '',
-      status: ''
-    }});
-  }
-
-  // ==================>                             <================== //
   //                 Lifecycle hook (just before render)
   // ==================>                             <================== //
 
@@ -290,14 +226,6 @@ class Products extends Component {
     // Get all categories before first render
     this.getCategories();
     this.getProducts();
-  }
-
-  // ==================>                             <================== //
-  //                Lifecycle hook (just before destroy)
-  // ==================>                             <================== //
-
-  componentWillUnmount() {
-    clearTimeout(this.timer);
   }
 
   // ==================>                             <================== //
@@ -320,7 +248,7 @@ class Products extends Component {
         // Update State
         this.setState({categories})
       })
-      .catch(err => console.log('=====> Error', err));
+      .catch(err => err);
   }
 
   // ==================>                             <================== //
@@ -340,7 +268,7 @@ class Products extends Component {
         // Update State
         this.setState({products: products.data})
       })
-      .catch(err => console.log('=====> Error', err));
+      .catch(err => err);
   }
 
   // ==================>                             <================== //
@@ -390,7 +318,6 @@ class Products extends Component {
             onChange={this.handleCatTitleChange}
             onPreviewImg={this.handlePreviewImg}
           />
-          <Alert value={this.state.alert.value} status={this.state.alert.status} show={this.state.alert.show} onClick={this.handleAlertClose} />
         </Modal>
       </Wrapper>
     )
@@ -402,7 +329,7 @@ class Products extends Component {
 /* ------------------------------------------------------------------- */
 
 // export default (withUser(withLang(Products)))
-export default withLang(Products)
+export default withAlert(withLang(Products))
 
 
 //

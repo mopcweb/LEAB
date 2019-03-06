@@ -22,7 +22,7 @@ import { withFirebase } from '../../config/store';
 /* ------------------------------------------------------------------- */
 
 import { Wrapper } from '../../components/Main';
-import Alert, { showAlert } from '../../components/Alert';
+import withAlert from '../../components/Alert';
 
 /* ------------------------------------------------------------------- */
 /*                          ResetPwd component
@@ -93,29 +93,8 @@ class Form extends Component {
     super(props);
 
     this.state = {
-      email: '',
-      alert: {
-        show: false,
-        value: '',
-        status: '',
-      }
+      email: ''
     };
-
-    this.showAlert = showAlert.bind(this);
-  }
-
-  // ==================>                             <================== //
-  //         Handler for closing alert by clicking on its cross
-  // ==================>                             <================== //
-
-  handleAlertClose = (e) => {
-    clearTimeout(this.timer);
-
-    this.setState({ alert: {
-      show: false,
-      value: '',
-      status: ''
-    }});
   }
 
   // ==================>                             <================== //
@@ -137,24 +116,10 @@ class Form extends Component {
     await this.props.firebase
       .doPasswordReset(email)
       .then(() => {
-        this.setState({email: ''})
-        this.props.history.push(routes.LOGIN)
+        this.setState({email: ''});
+        this.props.history.push(routes.LOGIN);
       })
-      .catch(err => {
-        clearTimeout(this.timer);
-        this.timer = this.showAlert(err.message, 'error');
-
-        return console.log('=====> Error:', {status: 'Error', error: err.message})
-      });
-  }
-
-  // ==================>                             <================== //
-  //                Lifecycle hook (just before destroy)
-  // ==================>                             <================== //
-
-  componentWillUnmount() {
-    // Clear alert timeout
-    clearTimeout(this.timer);
+      .catch(err => this.props.showAlert(err.message, 'error'));
   }
 
   // ==================>                             <================== //
@@ -180,15 +145,13 @@ class Form extends Component {
             Reset password
           </button>
         </form>
-
-        <Alert value={this.state.alert.value} status={this.state.alert.status} show={this.state.alert.show} onClick={this.handleAlertClose} />
       </Fragment>
     )
   };
 };
 
 // =====> Call Form with FbContext & Router
-const SignIn = withRouter(withFirebase(Form));
+const SignIn = withRouter(withAlert(withFirebase(Form)));
 
 /* ------------------------------------------------------------------- */
 /*                                Input

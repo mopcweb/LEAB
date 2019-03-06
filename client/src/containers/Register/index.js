@@ -37,7 +37,7 @@ import { withChangeLang } from '../../config/lang';
 /* ------------------------------------------------------------------- */
 
 import { Wrapper } from '../../components/Main';
-import Alert, { showAlert } from '../../components/Alert';
+import withAlert from '../../components/Alert';
 import { capitalize } from '../../components/UsefulF';
 
 /* ------------------------------------------------------------------- */
@@ -111,30 +111,8 @@ class Form extends Component {
       username: '',
       email: '',
       password: '',
-      confirmPassword: '',
-      alert: {
-        show: false,
-        value: '',
-        status: '',
-      }
+      confirmPassword: ''
     };
-
-    // =====> Bind showAlert method
-    this.showAlert = showAlert.bind(this);
-  }
-
-  // ==================>                             <================== //
-  //             Handle close alert by clicking on its cross
-  // ==================>                             <================== //
-
-  handleAlertClose = (e) => {
-    clearTimeout(this.timer);
-
-    this.setState({ alert: {
-      show: false,
-      value: '',
-      status: ''
-    }});
   }
 
   // ==================>                             <================== //
@@ -164,15 +142,9 @@ class Form extends Component {
       .catch(err => console.log('=====> Error', err));
 
     // If exists -> stop running function
-    if (exist) {
-      clearTimeout(this.timer);
-      return this.timer = this.showAlert(register.existMsg, 'error');
-    };
+    if (exist) return this.props.showAlert(register.existMsg, 'error');
 
-    if (password.length < 6) {
-      clearTimeout(this.timer);
-      return this.timer = this.showAlert(register.weakPwdMsg, 'error');
-    };
+    if (password.length < 6) return this.props.showAlert(register.weakPwdMsg, 'error');
 
     // I have to do it before calling Firebase API
     // Because when API called, we'll be redirected out of Register as in store.js
@@ -197,10 +169,7 @@ class Form extends Component {
             big: register.defaultBig,
             lang: register.lang
           })
-          .catch(err => {
-            console.log('=====> Error in Register POST', err)
-            new Error(err)
-          });
+          .catch(err => new Error(err));
 
         // Request default lang for this user
         this.props.changeLang();
@@ -208,18 +177,7 @@ class Form extends Component {
         // Redirect to dashboard
         this.props.history.push(routes.DASHBOARD);
       })
-      .catch(err => {
-        clearTimeout(this.timer);
-        this.timer = this.showAlert(err.message, 'error');
-      });
-  }
-
-  // ==================>                             <================== //
-  //                  Lifecycle hook (just before destroy)
-  // ==================>                             <================== //
-
-  componentWillUnmount() {
-    clearTimeout(this.timer);
+      .catch(err => this.props.showAlert(err.message, 'error'));
   }
 
   // ==================>                             <================== //
@@ -270,20 +228,13 @@ class Form extends Component {
             {register.submit}
           </button>
         </form>
-
-        <Alert
-          value={this.state.alert.value}
-          status={this.state.alert.status}
-          show={this.state.alert.show}
-          onClick={this.handleAlertClose}
-        />
       </Fragment>
     )
   };
 };
 
 // =====> Call Form with FbContext & Router & changeLang func
-const SignUp = withRouter(withFirebase(withChangeLang(Form)));
+const SignUp = withRouter(withAlert(withFirebase(withChangeLang(Form))));
 
 /* ------------------------------------------------------------------- */
 /*                               Input
