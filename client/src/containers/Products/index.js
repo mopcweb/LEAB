@@ -128,7 +128,7 @@ class Products extends Component {
   handleRemoveItem = async (e) => {
     // Define clicked category: id, label text, value of assotiated input
     this.id = e.target.htmlFor;
-    this.rename = e.target.textContent;
+    this.rename = e.target.getAttribute('type');
     this.inputValue = document.getElementById(this.id).value;
 
     // Find category title by id
@@ -299,6 +299,7 @@ class Products extends Component {
         />
         <Modal isOpen={this.state.isOpen} onClick={this.handleOpenModal}>
           <ListOfItems
+            lang={products}
             inputs={[
               {
                 type: 'text',
@@ -312,7 +313,6 @@ class Products extends Component {
             }}
             img={this.state.catImgTitle}
             items={this.state.categories}
-            showAlert={this.showAlert}
             onAdd={this.handleAddItem}
             onRemove={this.handleRemoveItem}
             onChange={this.handleCatTitleChange}

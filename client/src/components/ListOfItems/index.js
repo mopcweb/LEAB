@@ -22,6 +22,7 @@ export default class ListOfItems extends Component {
     return (
       <div className='ListOfItems'>
         <Form
+          lang={this.props.lang}
           inputs={this.props.inputs}
           inputsValues={this.props.inputsValues}
           img={this.props.img}
@@ -30,7 +31,12 @@ export default class ListOfItems extends Component {
           onChange={this.props.onChange}
           onPreviewImg={this.props.onPreviewImg}
         />
-        <Items data={this.props.items} addColumn={this.props.addColumn} onRemove={this.props.onRemove} />
+        <Items
+          lang={this.props.lang}
+          data={this.props.items}
+          addColumn={this.props.addColumn}
+          onRemove={this.props.onRemove}
+        />
       </div>
     )
   };
@@ -52,7 +58,7 @@ class Form extends Component {
         <input id='catImg' type='file' onChange={this.props.onPreviewImg} />
 
         <Inputs data={this.props.inputs} values={this.props.inputsValues} onChange={this.props.onChange} />
-        <Submit value='Add' onClick={this.props.onAdd} />
+        <Submit value={this.props.lang.addCategoryBtn} onClick={this.props.onAdd} />
       </form>
     )
   };
@@ -69,6 +75,7 @@ class Items extends Component {
         <table>
           <tbody>
             <Rows
+              lang={this.props.lang}
               data={this.props.data}
               addColumn={this.props.addColumn}
               onRemove={this.props.onRemove}
@@ -92,6 +99,7 @@ class Rows extends Component {
     return (
       filtered.map((item, i) => (
         <Row
+          lang={this.props.lang}
           key={item.id}
           title={item.title}
           id={item.id}
@@ -114,12 +122,7 @@ class Row extends Component {
     // =====> State
     this.state = {
       isChanged: false,
-      value: undefined,
-      alert: {
-        show: false,
-        value: '',
-        status: ''
-      }
+      value: undefined
     };
   }
 
@@ -134,7 +137,8 @@ class Row extends Component {
   // ==================>                             <================== //
 
   handleMouseLeave = (e) => {
-    if (this.props.title !== this.state.value && this.state.value !== undefined) return;
+    // if (this.props.title !== this.state.value && this.state.value !== undefined) return;
+    if (this.state.value && this.props.title !== this.state.value) return;
 
     this.setState({isChanged: false});
   }
@@ -167,8 +171,9 @@ class Row extends Component {
             type='text'
             name={this.props.title}
             id={this.props.id}
-            // defaultValue={capitalize(this.props.title)}
-            value={this.state.value === undefined ? capitalize(this.props.title) : capitalize(this.state.value)}
+            value={this.state.value === undefined
+              ? capitalize(this.props.title)
+              : capitalize(this.state.value)}
             onChange={this.handleRename}
             onMouseEnter={this.handleMouseEnter}
             onMouseLeave={this.handleMouseLeave}
@@ -181,7 +186,9 @@ class Row extends Component {
             onClick={this.props.onRemove}
             type={this.state.isChanged ? 'rename' : 'delete'}
           >
-            {this.state.isChanged ? 'rename' : 'delete'}
+            {this.state.isChanged
+              ? this.props.lang.renameCategoryBtn
+              : this.props.lang.deleteCategoryBtn}
           </label>
         </td>
       </tr>
