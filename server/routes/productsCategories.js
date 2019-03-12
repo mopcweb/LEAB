@@ -21,7 +21,7 @@ const router = express.Router();
 const { errorRes, successRes } = require('../constants');
 
 const {
-  existCode, badReqCode, successCode
+  existCode, badReqCode, successCode, internalServerErrorCode
 } = require('../constants').statusCodes;
 
 const {
@@ -45,7 +45,7 @@ router.post('/', async (req, res) => {
   const exist = await CategoryModel
     .findOne({ title, userId })
     .then(category => category)
-    .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
+    .catch(err => errorRes(res, internalServerErrorCode, err, originalUrl, method));
 
   // Stop running if already exists
   if (exist) return errorRes(res, existCode, `${ existMsg } ${ title }`, originalUrl, method);
@@ -61,7 +61,7 @@ router.post('/', async (req, res) => {
   category
     .save()
     .then(user => res.send(user))
-    .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
+    .catch(err => errorRes(res, internalServerErrorCode, err, originalUrl, method));
 });
 
 /* ------------------------------------------------------------------- */
@@ -83,26 +83,26 @@ router.get('/:title?', (req, res) => {
     CategoryModel
       .findOne({ title, userId })
       .then(category => res.send(category))
-      .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
+      .catch(err => errorRes(res, internalServerErrorCode, err, originalUrl, method));
   } else if (title) {
     // ===================> SHOULD BE REMOVED LATER
     // Else if there is only title -> get all using it
     CategoryModel
       .findOne({ title })
       .then(category => res.send(category))
-      .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
+      .catch(err => errorRes(res, internalServerErrorCode, err, originalUrl, method));
   } else if (userId) {
     // Else if there is only userId -> get all using it
     CategoryModel
       .find({ userId })
       .then(categories => res.send(categories))
-      .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
+      .catch(err => errorRes(res, internalServerErrorCode, err, originalUrl, method));
   } else {
     // Else get all
     CategoryModel
       .find()
       .then(categories => res.send(categories))
-      .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
+      .catch(err => errorRes(res, internalServerErrorCode, err, originalUrl, method));
   };
 });
 
@@ -126,7 +126,7 @@ router.put('/:id', async (req, res) => {
   const exist = await CategoryModel
     .findOne({ title, userId })
     .then(category => category)
-    .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
+    .catch(err => errorRes(res, internalServerErrorCode, err, originalUrl, method));
 
   // Stop running if already exists
   if (exist) return errorRes(res, existCode, `${ existMsg } ${ title }`, originalUrl, method);
@@ -143,7 +143,7 @@ router.put('/:id', async (req, res) => {
     .then(category => category
       ? successRes(res, successCode, updateSuccessMsg, originalUrl, method)
       : errorRes(res, badReqCode, updateErrorMsg, originalUrl, method))
-    .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
+    .catch(err => errorRes(res, internalServerErrorCode, err, originalUrl, method));
 });
 
 /* ------------------------------------------------------------------- */
@@ -165,7 +165,7 @@ router.delete('/:id', (req, res) => {
     .then(category => category.deletedCount !== 0
       ? successRes(res, successCode, deleteSuccessMsg, originalUrl, method)
       : errorRes(res, badReqCode, deleteErrorMsg, originalUrl, method))
-    .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
+    .catch(err => errorRes(res, internalServerErrorCode, err, originalUrl, method));
 });
 
 /* ------------------------------------------------------------------- */

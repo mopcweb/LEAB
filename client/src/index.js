@@ -21,6 +21,9 @@ import './index.sass';
 // =====> Routes
 import * as routes from './config/routes';
 
+// =====> Constants
+import { statusCodes, globalC } from './config/constants';
+
 // ======> Axios
 import axios from 'axios';
 
@@ -32,7 +35,7 @@ import axios from 'axios';
 import Main from './components/Main';
 
 // =====> Loader
-import Loader from './components/Loader';
+import withLoader, { provideLoader } from './components/Loader';
 
 // =====> Alert
 import withAlert, { provideAlert } from './components/Alert';
@@ -94,14 +97,34 @@ class Routes extends Component {
   // ==================>                             <================== //
 
   componentDidMount() {
+    // Interceptor for all axios requests
+    axios.interceptors.request.use(
+      config => {
+        // Show Loader before request
+        this.props.showLoader();
+
+        return config;
+      },
+      err => Promise.reject(err)
+    );
+
+
     // Interceptor for all axios responses
     // To define internet and mongo connection
     axios.interceptors.response.use(
-      res => res,
+      res => {
+        // Hide Loader after request
+        this.props.hideLoader();
+
+        return res;
+      },
       err => {
         // If network error -> redirect to offline page
         if (err.response === undefined) {
           console.log('=====> You are offline <=====');
+
+          // Show error
+          this.props.showAlert(globalC.offlineErrorMsg, 'error', null, true)
 
           // Sign out & redirect
           this.props.firebase.doSignOut()
@@ -109,26 +132,13 @@ class Routes extends Component {
         };
 
         // If connection Error
-        if (err.response.status === 502) {
+        if (err.response.status === statusCodes.internalServerErrorCode) {
           // Show error
-          this.props.showAlert('Mongo connection error', 'error', null, true)
+          this.props.showAlert(globalC.mongoErrorMsg, 'error', null, true)
 
           // Sign out & redirect
           this.props.firebase.doSignOut()
             .then(this.props.history.push(routes.HOME))
-
-          // Define current location (should not be login/register/forgotPwd)
-          // const location = [
-          //   routes.LOGIN, routes.REGISTER, routes.FORGOT_PWD
-          // ].find(item => item === window.location.pathname);
-
-          // if (!location) {
-            // Show error msg
-            // this.alertService.show.call(this, 'alert', 'Mongo connection error', 'error');
-
-            // Log out
-            // setTimeout(this.handleLogOut, 5000);
-          // };
         };
 
         // For debug in browser while dev
@@ -136,7 +146,7 @@ class Routes extends Component {
           err.response.data
             ? console.log(err.response.data)
             : console.log(err.response);
-        }
+        };
 
         // Return promise reject with err
         return Promise.reject(err);
@@ -144,11 +154,19 @@ class Routes extends Component {
     );
 
     // If authUser already received -> stop loader
-    if (!!this.props.authUser) return this.setState({ loader: true })
+    if (!!this.props.authUser) {
+      this.props.hideLoader();
 
-    // Else run loader for 3s
+      return this.setState({ loader: true });
+    };
+
+    // Else run loader for 2s
     clearTimeout(this.timer)
-    this.timer = setTimeout(() => this.setState({ loader: true }), 2000)
+    this.timer = setTimeout(() => {
+      this.props.hideLoader();
+      
+      return this.setState({ loader: true })
+    }, 2000)
   }
 
   // ==================>                             <================== //
@@ -165,7 +183,7 @@ class Routes extends Component {
 
   render() {
     return this.state.loader
-      ? (
+      && (
         <Switch>
           <Route path={routes.HOME} exact component={Home} />
 
@@ -216,12 +234,12 @@ class Routes extends Component {
           }
         </Switch>
       )
-      : <Loader />
+      // : <Loader />
   };
 };
 
 // =====> Provide Alert, Auth & Lang to Routes component
-Routes = provideAlert(withAlert(provideAuth(provideLang(Routes))));
+Routes = provideLoader(withLoader(provideAlert(withAlert(provideAuth(provideLang(Routes))))));
 
 /* ------------------------------------------------------------------- */
 /*                             Render App

@@ -22,7 +22,7 @@ import * as api from '../../config/api';
 import * as routes from '../../config/routes';
 
 // =====> Provide Lang
-import { withLang } from '../../config/lang';
+import { withLang, withUser } from '../../config/lang';
 
 /* ------------------------------------------------------------------- */
 /*                            My Components
@@ -303,6 +303,7 @@ class Product extends Component {
               onPreviewImg={this.handlePreviewImg} />
             <Data
               lang={this.props.lang.constants.product}
+              currency={this.props.userProfile.currency}
               title={this.state.title}
               link={this.state.link}
               ccal={this.state.ccal}
@@ -377,8 +378,8 @@ class Data extends Component {
       {
         type: 'number',
         id: 'price',
-        label: this.props.lang.priceLabel,
-        placeholder: this.props.lang.pricePholder,
+        label: this.props.lang.priceLabel + ', ' + this.props.currency,
+        placeholder: this.props.lang.pricePholder + ', ' + this.props.currency,
       },
       {
         type: 'number',
@@ -422,6 +423,8 @@ class Data extends Component {
 
         <Select config={this.categoriesSelect} value={category}
         options={categoriesOptions} onChange={onChange} />
+
+        <h2>{this.props.lang.caloriesHeading}</h2>
 
         <Input type='text' id='ccal' label={this.props.lang.caloriesLabel} value={ccal} disabled />
 
@@ -486,7 +489,7 @@ class UsedItem extends Component {
 /*                   Provide router props & Export
 /* ------------------------------------------------------------------- */
 
-export default withAlert(withRouter(withLang(Product)))
+export default withAlert(withRouter(withLang(withUser(Product))))
 
 
 //

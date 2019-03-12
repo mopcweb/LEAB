@@ -13,9 +13,6 @@ import * as api from './api';
 /*                            Components
 /* ------------------------------------------------------------------- */
 
-// =====> Loader
-import Loader from '../components/Loader';
-
 // =====> With User
 import { withAuth } from './store.js';
 
@@ -118,7 +115,7 @@ export const provideLang = Component => {
               {!!authUser && !!lang && !!user
                 ? <Component {...this.props} />
                 : !!authUser && (!lang || !user)
-                  ? <Loader />
+                  ? null
                   : <Component {...this.props} />
               }
             </UserContext.Provider>

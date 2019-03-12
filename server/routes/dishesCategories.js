@@ -1,11 +1,15 @@
 const express = require('express');
+const mongoose = require('mongoose');
 
 /* ------------------------------------------------------------------- */
 /*                               Config
 /* ------------------------------------------------------------------- */
 
-// =====> Import model for Product
-const ProductModel = require('../models/Product');
+// =====> Import schema for Category
+const CategorySchema = require('../models/CategorySchema');
+
+// =====> Create model for products categories
+const CategoryModel = mongoose.model('dishesCategories', CategorySchema);
 
 // =====> Define router
 const router = express.Router();
@@ -22,113 +26,82 @@ const {
 
 const {
   existMsg, updateSuccessMsg, updateErrorMsg, deleteSuccessMsg, deleteErrorMsg
-} = require('../constants').products;
+} = require('../constants').categories;
 
 /* ------------------------------------------------------------------- */
 /*                               POST
 /* ------------------------------------------------------------------- */
 
 router.post('/', async (req, res) => {
-  const {
-    title, link, img, amount, price, proteins,
-    fats, carbs, ccal, ccalUnified, unit, category
-  } = req.body;
-
-  // Get url & method for error response
-  const { originalUrl, method } = req;
+  const { title, img } = req.body;
 
   // Receive userId
   const { userId } = res;
 
+  // Get url & method for error response
+  const { originalUrl, method } = req;
+
   // Check for this title if it is already exist
-  const exist = await ProductModel
-    .findOne({ link, userId })
-    .then(product => product)
+  const exist = await CategoryModel
+    .findOne({ title, userId })
+    .then(category => category)
     .catch(err => errorRes(res, internalServerErrorCode, err, originalUrl, method));
 
   // Stop running if already exists
   if (exist) return errorRes(res, existCode, `${ existMsg } ${ title }`, originalUrl, method);
 
-  // New product
-  const product = new ProductModel({
+  // Define new category
+  const category = new CategoryModel({
     userId,
     title,
-    link,
-    img: img ? new Buffer(img) : '',
-    amount,
-    price,
-    proteins,
-    fats,
-    carbs,
-    ccal,
-    ccalUnified,
-    unit,
-    category,
+    img: img ? new Buffer(img) : ''
   });
 
-  // Save product
-  product
+  // Save category
+  category
     .save()
     .then(user => res.send(user))
     .catch(err => errorRes(res, internalServerErrorCode, err, originalUrl, method));
 });
 
 /* ------------------------------------------------------------------- */
-/*                                GET
+/*                               GET
 /* ------------------------------------------------------------------- */
 
-router.get('/:link?', (req, res) => {
+router.get('/:title?', (req, res) => {
   // Save title param into variable;
-  const { link } = req.params;
-
-  // Get category query value
-  const { category } = req.query;
-
-  // Get url & method for error response
-  const { originalUrl, method } = req;
+  const { title } = req.params;
 
   // Receive userId
   const { userId } = res;
 
-  // If there is specific category & userId -> get product using them
-  if (category && userId) {
-    return ProductModel
-      .find({ category, userId })
-      .then(products => res.send(products))
-      .catch(err => errorRes(res, internalServerErrorCode, err, originalUrl, method));
-  } else if (category) {
-    // ===================> SHOULD BE REMOVED LATER
-    // Else if there is only category -> get all using it
-    return ProductModel
-      .find({ category })
-      .then(products => res.send(products))
-      .catch(err => errorRes(res, internalServerErrorCode, err, originalUrl, method));
-  };
+  // Get url & method for error response
+  const { originalUrl, method } = req;
 
   // If there is specific title & userId -> get product using them
-  if (link && userId) {
-    ProductModel
-      .findOne({ link, userId })
-      .then(product => res.send(product))
+  if (title && userId) {
+    CategoryModel
+      .findOne({ title, userId })
+      .then(category => res.send(category))
       .catch(err => errorRes(res, internalServerErrorCode, err, originalUrl, method));
-  } else if (link) {
+  } else if (title) {
     // ===================> SHOULD BE REMOVED LATER
-    // Else if there is only link -> get all using it
-    ProductModel
-      .findOne({ link })
-      .then(product => res.send(product))
+    // Else if there is only title -> get all using it
+    CategoryModel
+      .findOne({ title })
+      .then(category => res.send(category))
       .catch(err => errorRes(res, internalServerErrorCode, err, originalUrl, method));
   } else if (userId) {
     // Else if there is only userId -> get all using it
-    ProductModel
+    CategoryModel
       .find({ userId })
-      .then(products => res.send(products))
+      .then(categories => res.send(categories))
       .catch(err => errorRes(res, internalServerErrorCode, err, originalUrl, method));
   } else {
     // Else get all
-    ProductModel
+    CategoryModel
       .find()
-      .then(products => res.send(products))
+      .then(categories => res.send(categories))
       .catch(err => errorRes(res, internalServerErrorCode, err, originalUrl, method));
   };
 });
@@ -138,55 +111,39 @@ router.get('/:link?', (req, res) => {
 /* ------------------------------------------------------------------- */
 
 router.put('/:id', async (req, res) => {
-  const {
-    title, link, img, amount, price, ccalUnified,
-    proteins, fats, carbs, ccal, unit, category
-  } = req.body;
+  const { title, img } = req.body;
 
   // Receive id
   const { id } = req.params;
 
-  // Get url & method for error response
-  const { originalUrl, method } = req;
-
   // Receive userId
   const { userId } = res;
 
-  // Check for this title (link) if it is already exist
-  if (link) {
-    const exist = await ProductModel
-      .findOne({ link, userId })
-      .then(product => product && product._id == id ? null : product)
-      .catch(err => errorRes(res, internalServerErrorCode, err, originalUrl, method));
+  // Get url & method for error response
+  const { originalUrl, method } = req;
 
-    // Stop running if already exists
-    if (exist) return errorRes(res, existCode, `${ existMsg } ${ title }`, originalUrl, method);
-  };
+  // Check for this title if it is already exist
+  const exist = await CategoryModel
+    .findOne({ title, userId })
+    .then(category => category)
+    .catch(err => errorRes(res, internalServerErrorCode, err, originalUrl, method));
+
+  // Stop running if already exists
+  if (exist) return errorRes(res, existCode, `${ existMsg } ${ title }`, originalUrl, method);
 
   // Empty obj
   const data = {};
 
   // If there are some extra fields
   if (title) data.title = title;
-  if (link) data.link = link;
   if (img) data.img = img;
-  if (amount) data.amount = amount;
-  if (price) data.price = price;
-  if (proteins) data.proteins = proteins;
-  if (fats) data.fats = fats;
-  if (carbs) data.carbs = carbs;
-  if (ccal) data.ccal = ccal;
-  if (ccalUnified) data.ccalUnified = ccalUnified;
-  if (unit) data.unit = unit;
-  if (category) data.category = category;
 
-  // Update product
-  ProductModel
-  .findOneAndUpdate({_id: id}, {$set: data})
-  .then(product => product
-    ? successRes(res, successCode, updateSuccessMsg, originalUrl, method)
-    : errorRes(res, badReqCode, updateErrorMsg, originalUrl, method))
-  .catch(err => errorRes(res, internalServerErrorCode, err, originalUrl, method));
+  CategoryModel
+    .findOneAndUpdate({_id: id}, {$set: data})
+    .then(category => category
+      ? successRes(res, successCode, updateSuccessMsg, originalUrl, method)
+      : errorRes(res, badReqCode, updateErrorMsg, originalUrl, method))
+    .catch(err => errorRes(res, internalServerErrorCode, err, originalUrl, method));
 });
 
 /* ------------------------------------------------------------------- */
@@ -199,13 +156,13 @@ router.delete('/:id', (req, res) => {
   // Get url & method for error response
   const { originalUrl, method } = req;
 
-  ProductModel
+  CategoryModel
     .deleteMany(
       id === 'all'
       ? {}
       : {_id: id}
     )
-    .then(product => product.deletedCount !== 0
+    .then(category => category.deletedCount !== 0
       ? successRes(res, successCode, deleteSuccessMsg, originalUrl, method)
       : errorRes(res, badReqCode, deleteErrorMsg, originalUrl, method))
     .catch(err => errorRes(res, internalServerErrorCode, err, originalUrl, method));

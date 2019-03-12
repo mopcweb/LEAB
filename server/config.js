@@ -60,7 +60,8 @@ const config = {
     useFindAndModify: false,
     keepAlive: 1,
     connectTimeoutMS: 30000,
-    reconnectTries: 30,
+    // reconnectTries: 30,
+    reconnectTries: Number.MAX_VALUE,
     reconnectInterval: 5000
   },
 
@@ -80,7 +81,6 @@ const config = {
 
   // =====> Firebase Admin SDK
   databaseURL: process.env.FB_DATABASE_URL
-
 };
 
 /* ------------------------------------------------------------------- */

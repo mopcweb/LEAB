@@ -17,7 +17,7 @@ const router = express.Router();
 const { errorRes, successRes } = require('../constants');
 
 const {
-  existCode, badReqCode, successCode, forbiddenCode
+  existCode, badReqCode, successCode, forbiddenCode, internalServerErrorCode
 } = require('../constants').statusCodes;
 
 const {
@@ -44,7 +44,7 @@ router.post('/', async (req, res) => {
   const exist = await LangModel
     .findOne({ title })
     .then(lang => lang)
-    .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
+    .catch(err => errorRes(res, internalServerErrorCode, err, originalUrl, method));
 
   if (exist) return errorRes(res, existCode, `${ existMsg } ${ title }`, originalUrl, method);
 
@@ -58,7 +58,7 @@ router.post('/', async (req, res) => {
   lang
     .save()
     .then(lang => res.send(lang))
-    .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
+    .catch(err => errorRes(res, internalServerErrorCode, err, originalUrl, method));
 });
 
 /* ------------------------------------------------------------------- */
@@ -80,13 +80,13 @@ router.get('/:title?', (req, res) => {
     LangModel
       .findOne({ title })
       .then(user => res.send(user))
-      .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
+      .catch(err => errorRes(res, internalServerErrorCode, err, originalUrl, method));
   } else {
     // Else get all
     LangModel
       .find()
       .then(users => res.send(users))
-      .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
+      .catch(err => errorRes(res, internalServerErrorCode, err, originalUrl, method));
   };
 });
 
@@ -130,7 +130,7 @@ router.put('/:title', (req, res) => {
         .then(lang => lang
           ? successRes(res, successCode, updateSuccessMsg, originalUrl, method)
           : errorRes(res, badReqCode, updateErrorMsg, originalUrl, method))
-        .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
+        .catch(err => errorRes(res, internalServerErrorCode, err, originalUrl, method));
     });
 });
 
@@ -155,7 +155,7 @@ router.put('/:title', (req, res) => {
 //     .then(lang => lang.deletedCount !== 0
 //       ? successRes(res, successCode, deleteSuccessMsg, originalUrl, method)
 //       : errorRes(res, badReqCode, deleteErrorMsg, originalUrl, method))
-//     .catch(err => errorRes(res, badReqCode, err, originalUrl, method));
+//     .catch(err => errorRes(res, internalServerErrorCode, err, originalUrl, method));
 // });
 
 /* ------------------------------------------------------------------- */

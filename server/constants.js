@@ -163,7 +163,7 @@ const categories = {
 const successRes = (res, status, result, url, method) => {
   console.log({ status, statusText: 'Success', url, method, result });
 
-  return res
+  if (!res.headersSent) return res
     .status(status)
     .send({ status, statusText: 'Success', url, method, result });
 };
@@ -172,7 +172,7 @@ const successRes = (res, status, result, url, method) => {
 const errorRes = (res, status, result, url, method) => {
   console.error({ status, statusText: 'Error', url, method, result });
 
-  return res
+  if (!res.headersSent) return res
     .status(status)
     .send({ status, statusText: 'Error', url, method, result });
 };

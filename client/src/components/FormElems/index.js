@@ -128,9 +128,10 @@ class Select extends Component {
 
     return (
       <div className='Form-Rows'>
-        <label htmlFor={config.id}>
-          {config.label}
-        </label>
+        {config.label && 
+          <label htmlFor={config.id}>
+            {config.label}
+          </label>}
         <select
           id={config.id}
           value={value}

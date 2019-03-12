@@ -11,9 +11,6 @@ import * as routes from './routes';
 // =====> Default img
 import defaultImg from './default.svg';
 
-// =====> Max file size in kb for upload (default 1000000kb)
-const fileSize = 1000000;
-
 export const globalC = {
   defaultImg,
 
@@ -23,11 +20,9 @@ export const globalC = {
   // =====> localStorage 'token'
   tokenLC: 'token',
 
-  // =====> Error: Only images allowed error Msg
-  onlyImgsMsg: 'Only images allowed',
+  offlineErrorMsg: 'Network connection error. Please check your internet connection and come back',
 
-  // =====> Error: File too big error msg
-  fileTooBigMsg: `File too big. Max size is ${fileSize} kb`,
+  mongoErrorMsg: 'Database connection error. You will be logged out. Please, try relogin again later'
 };
 
 /* ------------------------------------------------------------------- */
@@ -81,8 +76,41 @@ export const register = {
   // =====> Default lang
   lang: 'en',
 
+  // =====> Default currency
+  currency: 'USD',
+
   // =====> Register btn
   submit: 'Create account',
+};
+
+/* ------------------------------------------------------------------- */
+/*                              Status Codes
+/* ------------------------------------------------------------------- */
+
+export const statusCodes = {
+  // =====> 200: OK
+  successCode: 200,
+
+  // =====> 400: Bad Request
+  badReqCode: 400,
+
+  // =====> 401: Unauthorized
+  unauthorizedCode: 401,
+
+  // =====> 403: Forbidden
+  forbiddenCode: 403,
+
+  // =====> 404: Not Found
+  notFoundCode: 404,
+
+  // =====> 409: Conflict (Use for Already exist only)
+  conflictCode: 409,
+
+  // =====> 500: Internal Server Error
+  internalServerErrorCode: 500,
+
+  // =====> 502: Bad Gateway
+  badGatewayCode: 502,
 };
 
 /* ------------------------------------------------------------------- */

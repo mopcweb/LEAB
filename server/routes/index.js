@@ -12,6 +12,7 @@ const lang = require('./lang');
 const users = require('./users');
 const products = require('./products');
 const productsCategories = require('./productsCategories');
+const dishesCategories = require('./dishesCategories');
 
 /* ------------------------------------------------------------------- */
 /*                              Config
@@ -35,9 +36,6 @@ const { noUserIdMsg } = require('../constants').general;
 /*                               MongoDb
 /* ------------------------------------------------------------------- */
 
-// =====> Connect MongoDb
-// mongoose.connect(MongoURI, MongoOpts);
-
 // =====> Connect MongoDB
 router.use('/', (req, res, next) => {
   // If connection already open -> proceed next()
@@ -45,9 +43,10 @@ router.use('/', (req, res, next) => {
 
   // Connect to MongoDb and proceed further
   // If connection error -> send response
-  mongoose.connect(MongoURI, MongoOpts)
-    .then(next())
-    .catch(err => errorRes(res, statusCodes.badGatewayCode, mongo.connectionErrMsg, req.originalUrl, req.method));
+  if (mongoose.connection.readyState === 0) mongoose.connect(MongoURI, MongoOpts)
+    .catch(err => errorRes(res, statusCodes.internalServerErrorCode, mongo.connectionErrMsg, req.originalUrl, req.method));
+
+  if (!res.headersSent) next();
 });
 
 /* ------------------------------------------------------------------- */
@@ -69,6 +68,7 @@ const { checkToken, checkUserId } = require('../middlewares');
 router.use(routes.USERS, checkToken, users);
 router.use(routes.PRODUCTS, checkToken, checkUserId, products);
 router.use(routes.PRODUCTS_CATEGORIES, checkToken, checkUserId, productsCategories);
+router.use(routes.DISHES_CATEGORIES, checkToken, checkUserId, dishesCategories);
 
 // =====> Langs
 router.use(routes.LANGS, lang);

@@ -5,7 +5,7 @@
 @import '../../variables.sass'
 
 /* ------------------------------------------------------------------- */
-/*                              Dish
+/*                              Product
 /* ------------------------------------------------------------------- */
 
 .Dish
@@ -16,7 +16,7 @@
     width: 100%
 
   .Form
-    padding: 10px
+    padding: 15px
     display: flex
     flex-wrap: wrap
     align-items: flex-start
@@ -48,10 +48,13 @@
       margin-right: 0
 
     img
+      margin-bottom: 15px
       display: block
       width: calc(100% - 0px)
       height: auto
       object-fit: cover
+      max-height: 250px
+      object-fit: contain
 
     input
       display: none
@@ -73,44 +76,84 @@
   &-Data
     flex-grow: 1
 
-  &-Products
-    margin-top: $margin
+    h2
+      margin: $margin / 2 0
+
+  &-UsedIn, &-Products
+    margin: $margin 0 0
+    width: 100%
+    border: $width solid $main
+    border-radius: $radius
+    background-color: $additional
+
+  &-UsedInHolder
+    padding: 10px
+    display: flex
+    flex-wrap: wrap
+    justify-content: center
+    align-items: center
+    align-content: center
+    width: 100%
+
+    @media screen and (max-width: 845px)
+      padding: 10px 5px
+
+  &-UsedItem
+    margin: 5px
+    display: flex
+    flex-wrap: wrap
+    justify-content: space-between
+    min-width: 240px
     flex-grow: 1
+    height: auto
+    border: $width solid $main
+    border-radius: $radius
+    overflow: hidden
+    transition: all $time / 2
 
-    .Btn_styled
-      margin-left: 15px
+    @media screen and (max-width: 414px)
+      margin: 5px 0
 
-    .Form
-      justify-content: space-between
+    a
+      display: block
+      min-width: 70px
+      max-width: 130px
+      flex-grow: 1
 
-      input[type='submit']
-        // margin: 10px auto
-        width: 200px
+      @media screen and (max-width: 1024px)
+        width: 70px
+        flex-grow: 0
 
-      tr:last-of-type
-        text-align: left
+    img
+      margin: 0
+      width: 100%
+      height: 100%
+      object-fit: cover
+      border: none
+      border-radius: 0
 
-      td:first-of-type
-        width: 50%
+    div
+      padding: $width 10px
+      min-width: 164px
+      flex-grow: 1
+      min-height: 70px
+      color: $light
+      // background-color: $main
 
-      td:nth-of-type(2), td:last-of-type
-        width: 25%
+      a
+        width: auto
+        color: $light
+        text-decoration: none
 
-      &-Rows
-        width: 45%
+    h3
+      font-size: $font / 3
+      color: $main
 
-        input, select
-          width: 100%
+    span
+      display: block
 
-        label
-          background: none !important
-          border: none !important
-
-        @media screen and (min-width: 768px)
-          label:not([for='catTitle']):hover
-            // background-color: $main !important
-
-
+    &:hover
+      background-color: $additional
 
 
 

@@ -53,12 +53,10 @@ class Profile extends Component {
       proteins: '',
       fats: '',
       carbs: '',
-      currencies: [
-        { title: 'USD', id: 1 }, { title: 'EUR', id: 2 }, { title: 'UAH', id: 3 }
-      ],
-      currency: 'USD',
-      langs: this.props.lang ? this.props.lang.constants.global.langs : '',
-      lang: 'en',
+      currencies: this.props.lang.constants.global.currencies,
+      currency: '',
+      langs: this.props.lang.constants.global.langs,
+      lang: '',
       standart: '',
       big: ''
     };

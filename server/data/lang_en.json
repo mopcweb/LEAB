@@ -6,6 +6,11 @@
     "langs": [
       { "title": "en", "id": 1 },
       { "title": "ru", "id": 2 }
+    ],
+    "currencies": [
+      { "title": "USD", "id": 1 },
+      { "title": "EUR", "id": 2 },
+      { "title": "UAH", "id": 3 }
     ]
   },
   "register": {
@@ -16,8 +21,8 @@
     "question": "Have an account already ?",
     "questionBtn": "Sign in",
     "links": [
-  	"Home",
-  	"Sign in"
+    	"Home",
+    	"Sign in"
     ],
     "activePage": "Register",
     "username": "Username",
@@ -94,8 +99,8 @@
     "imgUpload": "Upload",
     "titleLabel": "Enter title",
     "titlePholder": "Enter title",
-    "priceLabel": "Enter price",
-    "pricePholder": "Enter price",
+    "priceLabel": "Enter price (per 1 kilo/PC)",
+    "pricePholder": "Enter price (per 1 kilo/PC)",
     "proteinsLabel": "Enter proteins",
     "proteinsPholder": "Enter proteins",
     "fatsLabel": "Enter fats",
@@ -104,7 +109,7 @@
     "carbsPholder": "Enter carbohydrates",
     "unitLabel": "Choose unit of measure",
     "units": [
-      { "title": "1 peace", "id": "1" },
+      { "title": "1 PC", "id": "1" },
       { "title": "100 gr", "id": "2" }
     ],
     "defaultUnit": { "title": "100 gr", "id": "2" },
@@ -112,6 +117,7 @@
     "defaultAltAmount": "100",
     "categoryLabel": "Choose category",
     "defaultCategory": "No categories",
+    "caloriesHeading": "Calories of product",
     "caloriesLabel": "Calories",
     "defaultCalories": "0 /  100 gr",
     "deleteBtn": "Delete",

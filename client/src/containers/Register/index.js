@@ -38,6 +38,7 @@ import { withChangeLang } from '../../config/lang';
 
 import { Wrapper } from '../../components/Main';
 import withAlert from '../../components/Alert';
+import withLoader from '../../components/Loader';
 import { capitalize } from '../../components/UsefulF';
 
 /* ------------------------------------------------------------------- */
@@ -155,24 +156,29 @@ class Form extends Component {
       username: '', email: '', password: '', confirmPassword: ''
     });
 
+    // Show loader
+    this.props.showLoader(true);
+
     // Firebase API for creating new User
     await this.props.firebase
       .doCreateUserWithEmailAndPassword(email, password)
       .then(async user => {
-        console.log('=====> New user', user)
-
         await axios
           .post(api.USERS, {
             username, email,
             img: register.defaultImg,
             standart: register.defaultStandart,
             big: register.defaultBig,
-            lang: register.lang
+            lang: register.lang,
+            currency: register.currency
           })
           .catch(err => new Error(err));
 
         // Request default lang for this user
         this.props.changeLang();
+
+        // Hide loader
+        this.props.hideLoader(null, true);
 
         // Redirect to dashboard
         this.props.history.push(routes.DASHBOARD);
@@ -234,7 +240,7 @@ class Form extends Component {
 };
 
 // =====> Call Form with FbContext & Router & changeLang func
-const SignUp = withRouter(withAlert(withFirebase(withChangeLang(Form))));
+const SignUp = withRouter(withLoader(withAlert(withFirebase(withChangeLang(Form)))));
 
 /* ------------------------------------------------------------------- */
 /*                               Input

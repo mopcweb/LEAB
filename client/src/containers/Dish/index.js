@@ -1,4 +1,7 @@
 import React, { Component } from 'react';
+import { withRouter } from 'react-router-dom';
+
+import axios from 'axios';
 
 /* ------------------------------------------------------------------- */
 /*                              Styles
@@ -6,314 +9,630 @@ import React, { Component } from 'react';
 
 import './index.sass';
 
-/* ------------------------------------------------------------------- */
-/*                              My Components
-/* ------------------------------------------------------------------- */
-
-import { Inputs, Input, Select, Submit } from '../../components/FormElems';
-import {Wrapper} from '../../components/Main';
-import {capitalize} from '../../components/UsefulF';
-// import Modal from '../../components/Modal';
+import defaultImg from './default.svg';
 
 /* ------------------------------------------------------------------- */
-/*                              Dish component
+/*                              Config
 /* ------------------------------------------------------------------- */
 
-export default class Dish extends Component {
+// =====> Api
+import * as api from '../../config/api';
+
+// =====> Routes
+import * as routes from '../../config/routes';
+
+// =====> Provide Lang
+import { withLang, withUser } from '../../config/lang';
+
+/* ------------------------------------------------------------------- */
+/*                            My Components
+/* ------------------------------------------------------------------- */
+
+import { Inputs, Input, Select, SubmitLink } from '../../components/FormElems';
+import { Wrapper } from '../../components/Main';
+import withAlert from '../../components/Alert';
+import { capitalize, makeURL } from '../../components/UsefulF';
+
+/* ------------------------------------------------------------------- */
+/*                               Product
+/* ------------------------------------------------------------------- */
+
+class Dish extends Component {
   constructor(props) {
     super(props);
 
-    this.catSelect = {
-      title: 'Choose category',
-      id: 'category',
-      elems: ['soups','salads','second','garnier']
-    };
-
-    this.unitSelect = {
-      title: 'Choose unit of measure',
-      id: 'unit',
-      elems: ['kilo(s)','gram(s)','litr(es)']
-    };
-
+    // =====> State
     this.state = {
-      category: 'salads',
-      unit: this.unitSelect.elems[1],
-      title: capitalize(window.location.pathname.replace(/\/dishes\//gi, '')),
-      amount: '',
+      id: '',
+      title: '',
+      link: '',
+      img: defaultImg,
       price: '',
-      protein: '',
+      categories: [],
+      category: '',
+      amount: '',
+      proteins: '',
       fats: '',
       carbs: '',
-      ccal: `0 / ${this.unitSelect.elems[1]}`
+      ccal: this.props.lang.constants.product.defaultCalories,
+      ccalUnified: '',
+      products: [],
+      product: ''
     };
-
-    this.inputs = [
-      {
-        type: 'text',
-        id: 'title',
-        label: 'Enter title',
-        placeholder: 'Enter title',
-        defaultValue: this.state.title,
-      }
-    ];
-
-    this.handleChange = this.handleChange.bind(this);
   };
 
-  handleChange(e) {
-    const state = e.target.id;
+  // ==================>                             <================== //
+  //                       Handle calorie change
+  // ==================>                             <================== //
+
+  handleChangeCcal = (e) => {
+    const prop = e.target.id;
+
+    const { defaultUnit } = this.props.lang.constants.product;
 
     // Update target input state
-    this.setState({[state]: e.target.value});
+    this.setState({[prop]: capitalize(e.target.value)});
 
-    // Update ccal state
-    this.setState(state => ({
-      ccal: (((+state.protein + +state.carbs) * 4 + +state.fats * 9) + ' /' + state.amount + ' ' + state.unit)
-    }));
+    // If focused input - title -> make link
+    if (prop === 'title') this.setState({ link: makeURL(e.target.value) })
+
+    // Update ccal & ccalUnified state
+    this.setState(state => {
+      // Define whether to use 100gr or manual amount
+      const amount = 100;
+
+      // Calculate ccal per 100gr
+      const ccalUnified = ((+state.proteins + +state.carbs) * 4 + +state.fats * 9) / amount * 100;
+
+      // Update state
+      return {
+        // Prop, for filtering by ccal per 100gr
+        ccalUnified,
+
+        // Display ccal per 100 gr
+        ccal: (ccalUnified + ' / ' + defaultUnit.title)
+      };
+    });
   };
+
+  // ==================>                             <================== //
+  //                    Handle disabled inputs change
+  // ==================>                             <================== //
+
+  handleChange = (e) => {
+    const prop = e.target.id;
+
+    // Update target input state
+    this.setState({[prop]: capitalize(e.target.value)});
+
+    // If focused input - title -> make link
+    if (prop === 'title') this.setState({ link: makeURL(e.target.value) })
+  }
+
+  // ==================>                             <================== //
+  //                      Handle save/upadate product
+  // ==================>                             <================== //
+
+  handleSave = async (e) => {
+    // Get state variables
+    const { title, link, img, price, proteins, ccalUnified,
+      fats, carbs, ccal, amount, category, id } = this.state;
+
+    // Get necessary props form lang
+    const {
+      requiredFiledsMsg, updateProductMsg, addProductMsg, defaultAltAmount
+    } = this.props.lang.constants.product;
+
+    // Create obj with data
+    const data = {
+      title, link, img, price, ccal, category, ccalUnified,
+      amount: amount ? amount : defaultAltAmount,
+      proteins: proteins ? proteins : 0,
+      fats: fats ? fats : 0,
+      carbs: carbs ? carbs : 0,
+    };
+
+    // Check if all required fields are specified
+    if (!title || !price || !category) {
+      // Prevent default page reload & redirect
+      e.preventDefault();
+
+      // Show error alert
+      return this.props.showAlert(requiredFiledsMsg, 'error');
+    };
+
+    await axios({
+        method: `${id ? 'put' : 'post'}`,
+        url: `${api.PRODUCTS}${id ? '/' + id : ''}`,
+        data
+      })
+      .catch(err => err)
+
+    // Request for this new product -> to receive product id
+    this.getProduct();
+
+    // Show success alert
+    this.props.showAlert(id ? updateProductMsg : addProductMsg, 'success');
+  }
+
+  // ==================>                             <================== //
+  //                       Handle delete product
+  // ==================>                             <================== //
+
+  handleDelete = async (e) => {
+    // Get necessary for alert props form lang
+    const { noSavedDataMsg, confirmMsg } = this.props.lang.constants.product;
+
+    // Stop running if there is no saved data
+    if (!this.state.id) {
+      // Prevent default page reload
+      e.preventDefault();
+
+      // Show eror alert
+      return this.props.showAlert(noSavedDataMsg, 'error');
+    };
+
+    // Ask if sure
+    if (!window.confirm(confirmMsg)) return e.preventDefault();
+
+    // Request
+    await axios
+      .delete(`${api.PRODUCTS}/${this.state.id}`)
+      .catch(err => err)
+  }
+
+  // ==================>                             <================== //
+  //                         Handle preview img
+  // ==================>                             <================== //
+
+  handlePreviewImg = (e) => {
+    // Define file
+    const file = e.target.files[0];
+
+    // Get global prop from lang
+    const { global } = this.props.lang.constants;
+
+    // Show error alert if file type is not image
+    if (file && file.type.indexOf('image') === -1)
+    return this.props.showAlert(global.onlyImgsMsg, 'error');
+
+    // Show error alert if jile size more than global.fileSize
+    if (file && file.size > global.fileSize)
+    return this.props.showAlert(global.fileTooBigMsg, 'error');
+
+    // New reader
+    const reader = new FileReader();
+
+    // Handle load end event
+    reader.onloadend = () => this.setState({img: reader.result})
+
+    // Put reader.result into file
+    file ? reader.readAsDataURL(file) : this.setState({img: defaultImg})
+  }
+
+  // ==================>                             <================== //
+  //                 Lifecycle hook (just before render)
+  // ==================>                             <================== //
+
+  componentDidMount() {
+    this.getCategories();
+    this.getDish();
+    this.getProducts();
+  }
+
+  // ==================>                             <================== //
+  //                         Get data categories
+  // ==================>                             <================== //
+
+  getCategories() {
+    return axios
+      .get(api.PRODUCTS_CATEGORIES)
+      .then(res => {
+        // Map all categories to leave only useful fields
+        const categories = res.data.map(item => ({ title: item.title, id: item._id }));
+
+        // Default sorting from a -> b
+        categories.sort((a, b) => a.title.localeCompare(b.title));
+
+        // Update State
+        this.setState({
+          categories,
+          category: categories.length
+            ? categories[0].title
+            : this.props.lang.constants.product.defaultCategory
+        });
+      })
+      .catch(err => err);
+  }
+
+  // ==================>                             <================== //
+  //                     Get dish by title (link)
+  // ==================>                             <================== //
+
+  async getDish() {
+    // Get router props
+    const { match, history } = this.props;
+
+    // In purpose to get first field (field could be changed in future)
+    const field = Object.keys(match.params)[0];
+
+    // Define current dish link
+    const prodLink = match.params[field];
+
+    // Try to get existing dish
+    const dish = await axios
+      .get(`${api.PRODUCTS}/${prodLink}`)
+      .then(res => res.data)
+      .catch(err => err);
+
+    // Redirect if not found page
+    if (!dish) {
+      // If it equals 'new-item' (which is default for new item) -> just stop
+      // Else -> redirect to Not Found
+      return (prodLink === 'new-item') ? null : history.push(routes.NOT_FOUND)
+    };
+
+    // Get dish variables
+    const {
+      title, link, _id, img, amount, price, proteins,
+      fats, carbs, ccal, ccalUnified, category
+    } = dish;
+
+    // Update state
+    this.setState({
+      title, link, id: _id, amount, price, proteins, fats, carbs, ccal,
+      category, ccalUnified, img: new Buffer(img.data).toString()
+    });
+  }
+
+  // ==================>                             <================== //
+  //                        Get products request
+  // ==================>                             <================== //
+
+  getProducts = () => {
+    return axios
+      .get(api.PRODUCTS)
+      .then(res => {
+        // Map all products to leave only useful fields
+        const products = res.data.map(item => ({
+          title: item.title,
+          id: item._id,
+          ccal: item.ccalUnified,
+          proteins: item.proteins,
+          carbs: item.carbs,
+          fats: item.fats
+        }));
+
+        // Default sorting by title
+        products.sort((a, b) => {
+          return a.title.localeCompare(b.title);
+        });
+
+        // Update State
+        this.setState({
+          products,
+          product: products.length
+            ? products[0].title
+            : this.props.lang.constants.product.defaultCategory
+        });
+      })
+      .catch(err => err);
+  }
+
+  // ==================>                             <================== //
+  //                               Render
+  // ==================>                             <================== //
 
   render() {
     return (
-      <Wrapper addClass='Dish' header={this.state.title}>
-        <Form
-          inputs={this.inputs}
-          title={this.state.title}
-          ccal={this.state.ccal}
-          category={this.state.category}
-          unit={this.state.unit}
-          catSelect={this.catSelect}
-          unitSelect={this.unitSelect}
-          onChange={this.handleChange}
-        />
-        <ItemsList />
+      <Wrapper addClass='Dish'
+        header={this.state.title
+          ? this.state.title
+          : this.props.lang.constants.product.header}
+        >
+
+        <div className='Dish-Info'>
+          <h2>
+            {this.state.title ? this.state.title : this.props.lang.constants.product.header}
+          </h2>
+
+          <form className='Form'>
+            <Img
+              lang={this.props.lang.constants.product}
+              src={this.state.img}
+              alt={this.state.title}
+              onPreviewImg={this.handlePreviewImg} />
+            <Data
+              lang={this.props.lang.constants.product}
+              currency={this.props.userProfile.currency}
+              title={this.state.title}
+              link={this.state.link}
+              inputsValues={{
+                'title': this.state.title
+              }}
+              disabledValues={{
+                'price': this.state.price,
+                'proteins': this.state.proteins,
+                'fats': this.state.fats,
+                'carbs': this.state.carbs,
+                'ccal': this.state.ccal,
+                'amount': this.state.amount
+              }}
+              category={this.state.category}
+              categoriesOptions={this.state.categories}
+              onChange={this.handleChangeCcal}
+              onInputChange={this.handleChange}
+              onSave={this.handleSave}
+              onDelete={this.handleDelete}
+            />
+          </form>
+        </div>
+
+        <Products
+          addProduct={
+            <Product
+              products={this.state.products}
+              product={this.state.product}
+              onInputChange={this.handleChange}
+            />}
+         />
+
+        {/* <UsedIn lang={this.props.lang.constants.product} /> */}
       </Wrapper>
     )
   };
 };
 
-class Form extends Component {
-  render() {
-    return (
-      <div className='Dish-Info'>
-        <h2>{this.props.title}</h2>
-
-        <form className='Form'>
-          <Img />
-          <Data
-            inputs={this.props.inputs}
-            ccal={this.props.ccal}
-            category={this.props.category}
-            unit={this.props.unit}
-            catSelect={this.props.catSelect}
-            unitSelect={this.props.unitSelect}
-            onChange={this.props.onChange}
-          />
-        </form>
-
-      </div>
-    )
-  };
-};
+/* ------------------------------------------------------------------- */
+/*                               Img
+/* ------------------------------------------------------------------- */
 
 class Img extends Component {
   render() {
     return (
       <div className='Dish-Img'>
-        <img src='https://hips.hearstapps.com/del.h-cdn.co/assets/17/28/1499895456-greek-salad-delish.jpg' alt='pineapple' />
-        <label htmlFor='upload'>Upload</label>
-        <input type='file' id='upload' />
+        <img src={this.props.src} alt={this.props.alt} />
+        <label htmlFor='uploadImg'>{this.props.lang.imgUpload}</label>
+        <input type='file' id='uploadImg' onChange={this.props.onPreviewImg} />
       </div>
     )
   };
 };
+
+/* ------------------------------------------------------------------- */
+/*                               Data
+/* ------------------------------------------------------------------- */
 
 class Data extends Component {
-  render() {
-    return (
-      <div className='Dish-Data'>
-
-        <Inputs data={this.props.inputs} onChange={this.props.onChange} />
-
-        <Select data={this.props.catSelect} onChange={this.props.onChange} value={this.props.category} />
-
-
-        <Input type='text' id='weight' label='Weight' value={this.props.ccal} />
-        <Input type='text' id='ccal' label='Calories' value={this.props.ccal} />
-        <Input type='text' id='protein' label='Proteins' value={this.props.ccal} />
-        <Input type='text' id='fats' label='Fats' value={this.props.ccal} />
-        <Input type='text' id='carbs' label='Carbohydrates' value={this.props.ccal} />
-
-        <div className='Form-Rows'>
-          <Submit value='Delete' />
-          <Submit value='Save' />
-        </div>
-
-      </div>
-    )
-  };
-};
-
-class ItemsList extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      isOpen: false,
-      items: [
-        {
-          product: 'salad',
-          amount: '200'
-        },
-        {
-          product: 'milk',
-          amount: '100'
-        },
-        {
-          product: 'tomatoes',
-          amount: '500'
-        }
-      ]
-    };
+    // =====> Config for categories select
+    this.categoriesSelect =  {
+      label: this.props.lang.categoryLabel,
+      id: 'category'
+    }
 
-    this.input = [
+    // =====> Config for units select
+    this.unitsSelect = {
+      label: this.props.lang.unitLabel,
+      id: 'unit'
+    }
+
+    // =====> Config for inputs
+    this.inputs = [
       {
-        type: 'number',
-        id: 'amount',
-        label: 'Enter amount',
-        placeholder: 'Enter amount',
-        defaultValue: ''
+        type: 'text',
+        id: 'title',
+        label: this.props.lang.titleLabel,
+        placeholder: this.props.lang.titlePholder,
       }
     ];
 
-    this.select = {
-      title: 'Choose product',
-      id: 'product',
-      elems: ['soups','salads','second','garnier']
-    };
+    // =====> Config for disabled inputs
+    this.disabledInputs = [
+      {
+        type: 'number',
+        id: 'price',
+        label: this.props.lang.priceLabel + ', ' + this.props.currency,
+        placeholder: this.props.lang.pricePholder + ', ' + this.props.currency,
+        disabled: true
+      },
+      {
+        type: 'number',
+        id: 'proteins',
+        label: this.props.lang.proteinsLabel,
+        placeholder: this.props.lang.proteinsPholder,
+        disabled: true
+      },
+      {
+        type: 'number',
+        id: 'fats',
+        label: this.props.lang.fatsLabel,
+        placeholder: this.props.lang.fatsPholder,
+        disabled: true
+      },
+      {
+        type: 'number',
+        id: 'carbs',
+        label: this.props.lang.carbsLabel,
+        placeholder: this.props.lang.carbsPholder,
+        disabled: true
+      },
+      {
+        type: 'text',
+        id: 'ccal',
+        label: this.props.lang.caloriesLabel,
+        placeholder: this.props.lang.caloriesLabel,
+        disabled: true
+      },
+      {
+        type: 'text',
+        id: 'amount',
+        label: 'Вес',
+        placeholder: 'Вес',
+        disabled: true
+      }
+    ];
+  }
 
-    this.handleClick = this.handleClick.bind(this)
+  // ==================>                             <================== //
+  //                               Render
+  // ==================>                             <================== //
+
+  render() {
+    // Get this.props variables
+    const { inputsValues, onInputChange, category, categoriesOptions,
+    onDelete, onSave, link, disabledValues } = this.props;
+
+    return (
+      <div className='Dish-Data'>
+        <Inputs data={this.inputs} values={inputsValues}
+        onChange={onInputChange} />
+
+        <Select config={this.categoriesSelect} value={category}
+        options={categoriesOptions} onChange={onInputChange} />
+
+        <h2>Вес, цена и нутриенты блюда</h2>
+
+        <Inputs data={this.disabledInputs} values={disabledValues} />
+
+        <div className='Form-Rows'>
+          <SubmitLink link={routes.PRODUCTS}
+            value={this.props.lang.deleteBtn} onClick={onDelete} />
+          <SubmitLink link={`${routes.PRODUCTS}/${link}`}
+            value={this.props.lang.saveBtn} onClick={onSave} />
+        </div>
+      </div>
+    )
   };
+};
 
-  handleClick(e) {
-    this.setState(state => ({isOpen: !state.isOpen}))
-  };
+/* ------------------------------------------------------------------- */
+/*                               Products
+/* ------------------------------------------------------------------- */
 
+class Products extends Component {
   render() {
     return (
       <div className='Dish-Products'>
-        {/* <div className='Form-Rows'>
-          <button className='Btn_styled' onClick={this.handleClick}>Add products</button>
-        </div> */}
-
-        {/* <Modal isOpen={this.state.isOpen} onClick={this.handleClick}> */}
-          <ListOfProducts input={this.input} select={this.select} items={this.state.items} />
-        {/* </Modal> */}
+        <h2> Products </h2>
+        {this.props.addProduct}
       </div>
     )
   };
 };
 
-class ListOfProducts extends Component {
-  render() {
-    return (
-      <div className='ListOfItems'>
-        <AddProduct input={this.props.input} select={this.props.select} />
-        <Items data={this.props.items} />
-      </div>
-    )
-  };
-};
+/* ------------------------------------------------------------------- */
+/*                               Add product
+/* ------------------------------------------------------------------- */
 
-class AddProduct extends Component {
+class Product extends Component {
+  constructor(props) {
+    super(props);
+
+    // =====> State
+    this.state = {
+
+    };
+
+    // =====> Config options for units
+    this.units = [
+      { "title": "PC (-es)", "id": 1 },
+      { "title": "gr", "id": 2 },
+      { "title": "kg", "id": 3 }
+    ]
+  }
+
+  // ==================>                             <================== //
+  //                 Lifecycle hook (just before render)
+  // ==================>                             <================== //
+
+  componentDidMount() {
+  }
+
+  // ==================>                             <================== //
+  //                               Render
+  // ==================>                             <================== //
+
   render() {
     return (
       <form className='Form'>
         <Select
-          data={this.props.select}
-          onChange={this.props.onChange}
-          value={this.props.select[0]}
+          config={{
+            id: 'product'
+          }}
+          value={this.props.product}
+          options={this.props.products}
+          onChange={this.props.onInputChange}
         />
-        <Inputs data={this.props.input} />
-        <Submit value='Add' />
+
+        <Input type='number' id='prodAmount' value='123' onChange={this.props.onInputChange} />
+
+        <Select
+          config={{
+            id: 'unit'
+          }}
+          value={this.units[0].title}
+          options={this.units}
+          onChange={this.props.onInputChange}
+        />
       </form>
     )
   };
 };
 
-class Items extends Component {
-  constructor(props) {
-    super(props);
+/* ------------------------------------------------------------------- */
+/*                               UsedIn
+/* ------------------------------------------------------------------- */
 
-    this.handleClick = this.handleClick.bind(this)
-  };
+// class UsedIn extends Component {
+//   render() {
+//     return (
+//       <div className='Dish-UsedIn'>
+//         <h2> {this.props.lang.similarDishesHeader} </h2>
+//         <div className='Dish-UsedInHolder'>
+//           <UsedItem />
+//           <UsedItem />
+//           <UsedItem />
+//           <UsedItem />
+//           <UsedItem />
+//         </div>
+//       </div>
+//     )
+//   };
+// };
+//
+// /* ------------------------------------------------------------------- */
+// /*                               UsedItem
+// /* ------------------------------------------------------------------- */
+//
+// class UsedItem extends Component {
+//   render() {
+//     return (
+//       <div className='Dish-UsedItem'>
+//           <Link to={routes.PRODUCTS}>
+//             <img
+//               src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQRFOzXKKN5s02_uS176v5R3MqKH8UTxTD-G1hgdy0MNNehyK74' alt='123' />
+//           </Link>
+//           <div>
+//             <Link to={routes.PRODUCTS}>
+//               <h3>Tomatoes</h3>
+//             </Link>
+//             <hr />
+//             <span>Ccal/P/F/C</span>
+//             <span>1000/25/45/13</span>
+//           </div>
+//       </div>
+//     )
+//   };
+// };
 
-  handleClick(e) {
-    // Define parent row
-    const row = e.target.closest('tr');
+/* ------------------------------------------------------------------- */
+/*                   Provide router props & Export
+/* ------------------------------------------------------------------- */
 
-    const question = window.confirm('Are you sure?');
-
-    // Remove row
-    if (question) row.parentNode.removeChild(row)
-  }
-
-  render() {
-    return (
-      <form className='Form Form_items'>
-        <table>
-          <tbody>
-            <Rows
-              data={this.props.data}
-              onClick={this.handleClick}
-            />
-            <tr>
-              <td colSpan='3'>
-                <Submit value='Save' />
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </form>
-    )
-  };
-};
-
-class Rows extends Component {
-  render() {
-    const filtered = this.props.data.sort((a, b) => a.product.localeCompare(b.product));
-
-    return (
-      filtered.map((item, i) => (
-        <tr key={i}>
-          <td>
-            <select>
-              <option>Milk</option>
-              <option>Tomatoes</option>
-              <option>Potato</option>
-              <option>Ginger</option>
-            </select>
-          </td>
-          <td>
-            <input
-              type='text'
-              defaultValue={item.amount}
-            />
-          </td>
-          <td>
-            <label
-              htmlFor={item.product}
-              onClick={this.props.onClick}
-            >remove</label>
-          </td>
-        </tr>
-      ))
-    )
-  };
-};
-
-
-
-
+export default withAlert(withRouter(withLang(withUser(Dish))))
 
 
 //

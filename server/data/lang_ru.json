@@ -6,6 +6,11 @@
     "langs": [
       { "title": "en", "id": 1 },
       { "title": "ru", "id": 2 }
+    ],
+    "currencies": [
+      { "title": "USD", "id": 1 },
+      { "title": "EUR", "id": 2 },
+      { "title": "UAH", "id": 3 }
     ]
   },
   "register": {
@@ -16,8 +21,8 @@
     "question": "Уже есть аккаунт ?",
     "questionBtn": "Войти",
     "links": [
-  	"Домой",
-  	"Войти"
+    	"Домой",
+    	"Войти"
     ],
     "activePage": "Регистрация",
     "username": "Логин",
@@ -94,8 +99,8 @@
     "imgUpload": "Загрузить",
     "titleLabel": "Введите название",
     "titlePholder": "Введите название",
-    "priceLabel": "Введите цену",
-    "pricePholder": "Введите цену",
+    "priceLabel": "Введите цену (за 1 кг/шт.)",
+    "pricePholder": "Введите цену (за 1 кг/шт.)",
     "proteinsLabel": "Кол-во протеинов",
     "proteinsPholder": "Кол-во протеинов",
     "fatsLabel": "Кол-во жиров",
@@ -104,7 +109,7 @@
     "carbsPholder": "Кол-во углеводов",
     "unitLabel": "Выберите единицу измерения",
     "units": [
-      { "title": "1 штука", "id": "1" },
+      { "title": "1 шт.", "id": "1" },
       { "title": "100 гр", "id": "2" }
     ],
     "defaultUnit": { "title": "100 гр", "id": "2" },
@@ -112,6 +117,7 @@
     "defaultAltAmount": "100",
     "categoryLabel": "Выберите категорию",
     "defaultCategory": "Категорий нет",
+    "caloriesHeading": "Калорийность продукта",
     "caloriesLabel": "Калории",
     "defaultCalories": "0 /  100 гр",
     "deleteBtn": "Удалить",
