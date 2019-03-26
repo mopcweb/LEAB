@@ -119,6 +119,9 @@ class Routes extends Component {
         return res;
       },
       err => {
+        // Hide Loader after request
+        this.props.hideLoader();
+        
         // If network error -> redirect to offline page
         if (err.response === undefined) {
           console.log('=====> You are offline <=====');
@@ -164,7 +167,7 @@ class Routes extends Component {
     clearTimeout(this.timer)
     this.timer = setTimeout(() => {
       this.props.hideLoader();
-      
+
       return this.setState({ loader: true })
     }, 2000)
   }
