@@ -66,17 +66,18 @@ class Product extends Component {
 
   handleChangeCcal = (e) => {
     const prop = e.target.id;
+    const value = e.target.value;
 
     const { units, defaultUnit } = this.props.lang.constants.product;
 
     // Update target input state
-    this.setState({[prop]: capitalize(e.target.value)});
+    this.setState({[prop]: capitalize(value)});
 
     // If focused input - title -> make link
-    if (prop === 'title') this.setState({ link: makeURL(e.target.value) })
+    if (prop === 'title') this.setState({ link: makeURL(value) })
 
     // If focused input - unit
-    if (prop === 'unit') this.setState({ unit: units.find(item => item.title === e.target.value) });
+    if (prop === 'unit') this.setState({ unit: units.find(item => item.title === value) });
 
     // Update ccal & ccalUnified state
     this.setState(state => {
@@ -87,7 +88,11 @@ class Product extends Component {
       // const ccal = ((+state.proteins + +state.carbs) * 4 + +state.fats * 9) + ' / ' + state.unit.title;
 
       // Calculate ccal per 100gr
-      const ccalUnified = ((+state.proteins + +state.carbs) * 4 + +state.fats * 9) / amount * 100;
+      const ccalUnified = amount
+        ? Math.round(
+          (((+state.proteins + +state.carbs) * 4 + +state.fats * 9) / amount * 100) * 10
+        ) / 10
+        : 0;
 
       // Update state
       return {
@@ -120,7 +125,7 @@ class Product extends Component {
     // Create obj with data
     const data = {
       title, link, img, price, ccal, unit, category, ccalUnified,
-      amount: amount ? amount : defaultAltAmount,
+      amount: (amount && +unit.id === 1) ? amount : defaultAltAmount,
       proteins: proteins ? proteins : 0,
       fats: fats ? fats : 0,
       carbs: carbs ? carbs : 0,
@@ -335,17 +340,13 @@ class Product extends Component {
 /*                               Img
 /* ------------------------------------------------------------------- */
 
-class Img extends Component {
-  render() {
-    return (
-      <div className='Product-Img'>
-        <img src={this.props.src} alt={this.props.alt} />
-        <label htmlFor='uploadImg'>{this.props.lang.imgUpload}</label>
-        <input type='file' id='uploadImg' onChange={this.props.onPreviewImg} />
-      </div>
-    )
-  };
-};
+const Img = ({ src, alt, lang, onPreviewImg }) => (
+  <div className='Product-Img'>
+    <img src={src} alt={alt} />
+    <label htmlFor='uploadImg'>{lang.imgUpload}</label>
+    <input type='file' id='uploadImg' onChange={onPreviewImg} />
+  </div>
+);
 
 /* ------------------------------------------------------------------- */
 /*                               Data

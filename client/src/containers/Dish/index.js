@@ -67,14 +67,15 @@ class Dish extends Component {
 
   handleChangeCcal = (e) => {
     const prop = e.target.id;
+    const value = e.target.value;
 
     const { defaultUnit } = this.props.lang.constants.product;
 
     // Update target input state
-    this.setState({[prop]: capitalize(e.target.value)});
+    this.setState({[prop]: capitalize(value)});
 
     // If focused input - title -> make link
-    if (prop === 'title') this.setState({ link: makeURL(e.target.value) })
+    if (prop === 'title') this.setState({ link: makeURL(value) })
 
     // Update ccal & ccalUnified state
     this.setState(state => {
@@ -82,7 +83,9 @@ class Dish extends Component {
       const amount = 100;
 
       // Calculate ccal per 100gr
-      const ccalUnified = ((+state.proteins + +state.carbs) * 4 + +state.fats * 9) / amount * 100;
+      const ccalUnified = Math.round(
+        (((+state.proteins + +state.carbs) * 4 + +state.fats * 9) / amount * 100) * 10
+      ) / 10;
 
       // Update state
       return {
@@ -101,12 +104,18 @@ class Dish extends Component {
 
   handleChange = (e) => {
     const prop = e.target.id;
+    const value = e.target.value;
 
     // Update target input state
-    this.setState({[prop]: capitalize(e.target.value)});
+    this.setState({[prop]: capitalize(value)});
 
     // If focused input - title -> make link
-    if (prop === 'title') this.setState({ link: makeURL(e.target.value) })
+    if (prop === 'title') this.setState({ link: makeURL(value) });
+
+    // If focused input product
+    if (prop === 'product') this.setState({
+      [prop]: this.state.products.find(item => item.title === value)
+    });
   }
 
   // ==================>                             <================== //
@@ -300,7 +309,9 @@ class Dish extends Component {
           ccal: item.ccalUnified,
           proteins: item.proteins,
           carbs: item.carbs,
-          fats: item.fats
+          fats: item.fats,
+          unit: item.unit,
+          amount: item.amount
         }));
 
         // Default sorting by title
@@ -308,11 +319,14 @@ class Dish extends Component {
           return a.title.localeCompare(b.title);
         });
 
+        console.log('=====> products', products);
+        console.log('=====> res.data', res.data);
+
         // Update State
         this.setState({
           products,
           product: products.length
-            ? products[0].title
+            ? products[0]
             : this.props.lang.constants.product.defaultCategory
         });
       })
@@ -387,17 +401,13 @@ class Dish extends Component {
 /*                               Img
 /* ------------------------------------------------------------------- */
 
-class Img extends Component {
-  render() {
-    return (
-      <div className='Dish-Img'>
-        <img src={this.props.src} alt={this.props.alt} />
-        <label htmlFor='uploadImg'>{this.props.lang.imgUpload}</label>
-        <input type='file' id='uploadImg' onChange={this.props.onPreviewImg} />
-      </div>
-    )
-  };
-};
+const Img = ({ src, alt, lang, onPreviewImg }) => (
+  <div className='Dish-Img'>
+    <img src={src} alt={alt} />
+    <label htmlFor='uploadImg'>{lang.imgUpload}</label>
+    <input type='file' id='uploadImg' onChange={onPreviewImg} />
+  </div>
+);
 
 /* ------------------------------------------------------------------- */
 /*                               Data
@@ -527,112 +537,45 @@ class Products extends Component {
 /*                               Add product
 /* ------------------------------------------------------------------- */
 
-class Product extends Component {
-  constructor(props) {
-    super(props);
+const Product = ({ products, product, onInputChange }) => {
+  const unitsWithPc = [
+    { "title": "gr", "id": 3 },
+    { "title": "kg", "id": 2 },
+    { "title": "PC (-es)", "id": 1 }
+  ];
+  const unitsWithoutPc = [ { "title": "gr", "id": 3 }, { "title": "kg", "id": 2 } ];
 
-    // =====> State
-    this.state = {
+  // Define which units to use
+  const units = product.title && +product.unit.id === 1
+    ? unitsWithPc
+    : unitsWithoutPc;
 
-    };
+  return (
+    <form className='Form'>
+      <Select
+        config={{ id: 'product' }}
+        value={product.title}
+        options={products}
+        onChange={onInputChange}
+      />
 
-    // =====> Config options for units
-    this.units = [
-      { "title": "PC (-es)", "id": 1 },
-      { "title": "gr", "id": 2 },
-      { "title": "kg", "id": 3 }
-    ]
-  }
+      <Input type='number' id='prodAmount' value='123' onChange={onInputChange} />
 
-  // ==================>                             <================== //
-  //                 Lifecycle hook (just before render)
-  // ==================>                             <================== //
-
-  componentDidMount() {
-  }
-
-  // ==================>                             <================== //
-  //                               Render
-  // ==================>                             <================== //
-
-  render() {
-    return (
-      <form className='Form'>
-        <Select
-          config={{
-            id: 'product'
-          }}
-          value={this.props.product}
-          options={this.props.products}
-          onChange={this.props.onInputChange}
-        />
-
-        <Input type='number' id='prodAmount' value='123' onChange={this.props.onInputChange} />
-
-        <Select
-          config={{
-            id: 'unit'
-          }}
-          value={this.units[0].title}
-          options={this.units}
-          onChange={this.props.onInputChange}
-        />
-      </form>
-    )
-  };
+      <Select
+        config={{ id: 'unit' }}
+        value={units[0].title}
+        options={units}
+        onChange={onInputChange}
+      />
+    </form>
+  )
 };
-
-/* ------------------------------------------------------------------- */
-/*                               UsedIn
-/* ------------------------------------------------------------------- */
-
-// class UsedIn extends Component {
-//   render() {
-//     return (
-//       <div className='Dish-UsedIn'>
-//         <h2> {this.props.lang.similarDishesHeader} </h2>
-//         <div className='Dish-UsedInHolder'>
-//           <UsedItem />
-//           <UsedItem />
-//           <UsedItem />
-//           <UsedItem />
-//           <UsedItem />
-//         </div>
-//       </div>
-//     )
-//   };
-// };
-//
-// /* ------------------------------------------------------------------- */
-// /*                               UsedItem
-// /* ------------------------------------------------------------------- */
-//
-// class UsedItem extends Component {
-//   render() {
-//     return (
-//       <div className='Dish-UsedItem'>
-//           <Link to={routes.PRODUCTS}>
-//             <img
-//               src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQRFOzXKKN5s02_uS176v5R3MqKH8UTxTD-G1hgdy0MNNehyK74' alt='123' />
-//           </Link>
-//           <div>
-//             <Link to={routes.PRODUCTS}>
-//               <h3>Tomatoes</h3>
-//             </Link>
-//             <hr />
-//             <span>Ccal/P/F/C</span>
-//             <span>1000/25/45/13</span>
-//           </div>
-//       </div>
-//     )
-//   };
-// };
 
 /* ------------------------------------------------------------------- */
 /*                   Provide router props & Export
 /* ------------------------------------------------------------------- */
 
-export default withAlert(withRouter(withLang(withUser(Dish))))
+export default withAlert(withRouter(withLang(withUser(Dish))));
 
 
 //
